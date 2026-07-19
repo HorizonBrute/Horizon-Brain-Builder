@@ -1,0 +1,4 @@
+# action_neurons — runtime deps (installed at BUILD; no internet at run).
+# The read side needs only an HTTP client; the query API is served with the stdlib
+# http.server, and retrieval/synthesis is raw REST to the gateway'd Chroma + Ollama.
+requests==2.32.3

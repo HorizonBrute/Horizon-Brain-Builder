@@ -1,0 +1,42 @@
+# ===========================================================================
+# GENERATED - do NOT edit. Source of truth: brain_etc/brain.env (the ===NEURONS===
+# YAML zone). Config-flow Phase 5 retired the hand-authored brain_etc/neuron/sources.yaml
+# as an input; this runtime manifest is rendered from the zone on every apply by
+# brain_env.render_sources_yaml(). The seam manifest ships THIS to ~/docker/neuron/
+# sources.yaml, which the input container reads read-only at /etc/neuron/sources.yaml.
+# Edit the brain.env neuron zone, then apply.
+# ===========================================================================
+version: 1
+schedules:
+  15-minutes: '*/15 * * * *'
+  hourly: 0 * * * *
+  daily: 0 3 * * *
+  weekly: 0 3 * * 0
+sources:
+- name: docs
+  neuron: input_neuron_example
+  bundle: example_neuron_bundle
+  collection: example_docs
+  tags:
+  - hourly
+  consumption: script
+  script: doc_provider_script.py
+  ingest_scope:
+    include:
+    - '*.md'
+    - '*.txt'
+  embed_model: nomic-embed-text
+- name: images
+  neuron: input_neuron_example
+  bundle: example_neuron_bundle
+  collection: example_docs
+  tags:
+  - hourly
+  consumption: script
+  script: img_provider_script.py
+  ingest_scope:
+    include:
+    - '*.png'
+    - '*.jpg'
+    - '*.jpeg'
+  embed_model: nomic-embed-text

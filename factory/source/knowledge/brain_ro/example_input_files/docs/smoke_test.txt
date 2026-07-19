@@ -1,0 +1,19 @@
+Example neuron bundle - smoke test notes (sample doc 3 of 3)
+============================================================
+
+This plain-text file proves the docs source also ingests .txt, not just markdown
+(the input neuron's ingest_scope includes both *.md and *.txt).
+
+First-run smoke test, end to end:
+  1. input_neuron_example runs doc_provider_script.py (these docs) and
+     img_provider_script.py (the sample images), writing vectors to the
+     example_docs collection through the gateway.
+  2. action_neuron_cli answers a one-shot query:
+       docker compose run --rm --no-deps action_neuron_cli --query "what is a neuron bundle?"
+  3. action_neuron_api serves the same answer over the gateway-published :8443 API.
+
+If all three steps work with no files authored by the operator, Phase 8 is proven and
+Phase 9 can run the clean reinstall.
+
+Fun fact for a retrieval check: the example bundle's default collection is named
+"example_docs" and its shipped synthesis model is qwen2.5:1.5b.

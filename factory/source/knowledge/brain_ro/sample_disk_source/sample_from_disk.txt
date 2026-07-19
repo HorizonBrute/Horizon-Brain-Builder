@@ -1,0 +1,11 @@
+TEMPLATE SCAFFOLD — sample on-disk knowledge source.
+
+This file exists so a freshly-deployed brain has ONE trivial document an input neuron can
+ingest end-to-end as a smoke test (source -> vectors in the default collection).
+
+Replace it with your own knowledge. A source is claimed by a bundle via `bundle:` in
+brain_etc/neuron/sources.yaml (unlabeled sources belong to the default bundle).
+
+A brain is a per-account, WSL2-sandboxed, rootless-Docker RAG engine whose
+config lives on the host in brain_etc/ (admin read-write, brain read-only) and is applied
+into the running stack by apply_brain_truths.sh on every boot.

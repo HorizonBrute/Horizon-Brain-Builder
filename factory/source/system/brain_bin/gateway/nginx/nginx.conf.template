@@ -1,0 +1,228 @@
+# =============================================================================
+# Horizon AIOS brain read-access gateway — nginx configuration
+# =============================================================================
+# Ported from the verified lightweight-chroma-proxy reference impl
+# (projects/lightweight-chroma-proxy/sample/nginx), adapted to the brain:
+#   - listens on 8000 (the standard Chroma port the gateway takes over), NOT 8443;
+#   - TLS is ALWAYS on, including the Personal (loopback) posture — the host bind
+#     address (loopback vs NIC) is the compose `ports:` concern, not nginx's;
+#   - default authz mode = READ-OPEN / WRITE-NEEDS-TOKEN (mode B). Two alternate
+#     modes are documented inline; onboarding selects one by writing the matching
+#     `$allowed` map (the brain_sbin token tooling does this).
+#
+# ${CHROMA_TOKEN} is substituted at container start by nginx's envsubst step
+# (NGINX_ENVSUBST_FILTER=CHROMA, so only $CHROMA_* is touched).
+# =============================================================================
+
+user  nginx;
+worker_processes  auto;
+error_log  /var/log/nginx/error.log  warn;
+pid        /var/run/nginx.pid;
+
+events {
+    worker_connections  1024;
+}
+
+http {
+    include       /etc/nginx/mime.types;
+    default_type  application/octet-stream;
+
+    # -- Hardening: never advertise server name/version on ANY response --------
+    # Strips the version from the Server header AND every generated error page
+    # (403/400/405/501/weird-method probes) — closes version/method recon.
+    server_tokens off;
+
+    # -- Rate limiting (defense-in-depth) -- ADMIN-TUNABLE in the seam --------
+    # The leaky-bucket zones + sustained rates are factored into a dedicated,
+    # admin-editable seam file so they can be tuned without touching this template.
+    # Per-location BURST sizes stay on the `limit_req` lines in each location below.
+    # (brain_etc/gateway/ratelimit.conf; synced to /etc/nginx/ratelimit.conf.) ADR 0003.
+    include /etc/nginx/ratelimit.conf;
+
+    # -- Structured JSON access log ------------------------------------------
+    # We log the derived $role, never the Authorization header, so tokens never
+    # land in the logs. File is bind-mounted out of the distro for blue teams.
+    log_format lwcp_json escape=json
+        '{'
+          '"time":"$time_iso8601",'
+          '"remote_addr":"$remote_addr",'
+          '"method":"$request_method",'
+          '"uri":"$uri",'
+          '"status":$status,'
+          '"body_bytes_sent":$body_bytes_sent,'
+          '"request_time":$request_time,'
+          '"role":"$role",'
+          '"allowed":"$allowed"'
+        '}';
+
+    access_log /var/log/nginx/access.log lwcp_json;
+
+    sendfile        on;
+    keepalive_timeout  65;
+
+    # Chroma payloads (add/query with embeddings) can be large.
+    client_max_body_size 100m;
+
+    # -- Upstream: internal Chroma, plain HTTP inside the trust domain --------
+    # Plaintext by design: gateway→chroma lives inside brain_net; encrypting a
+    # same-trust-domain hop is ceremony. TLS is an EDGE property only.
+    upstream chroma_backend {
+        server chroma:8000;
+        keepalive 16;
+    }
+
+    # -- (1) READ allow-list --------------------------------------------------
+    # Key is "METHOD:URI". Default 0 (deny). A route is a READ only if it matches
+    # one of these exact, anchored patterns. Dynamic {tenant}/{database}/{id}
+    # segments are [^/]+. Optional trailing slash + query string tolerated.
+    # (Verbatim from the verified reference allow-list — do not loosen casually;
+    # a missed write path here is an open door.)
+    map $request_method:$request_uri $is_read {
+        default 0;
+
+        # server-level liveness / metadata
+        "~^GET:/api/v2/heartbeat/?(\?.*)?$"                                                          1;
+        "~^GET:/api/v2/version/?(\?.*)?$"                                                            1;
+        "~^GET:/api/v2/pre-flight-checks/?(\?.*)?$"                                                  1;
+
+        # tenant / database reads
+        "~^GET:/api/v2/tenants/[^/]+/?(\?.*)?$"                                                      1;
+        "~^GET:/api/v2/tenants/[^/]+/databases/?(\?.*)?$"                                            1;
+        "~^GET:/api/v2/tenants/[^/]+/databases/[^/]+/?(\?.*)?$"                                      1;
+
+        # collection reads
+        "~^GET:/api/v2/tenants/[^/]+/databases/[^/]+/collections/?(\?.*)?$"                          1;
+        "~^GET:/api/v2/tenants/[^/]+/databases/[^/]+/collections/[^/]+/?(\?.*)?$"                    1;
+        "~^GET:/api/v2/tenants/[^/]+/databases/[^/]+/collections/[^/]+/count/?(\?.*)?$"              1;
+
+        # reads that travel as POST (a request body carries the query / id list)
+        "~^POST:/api/v2/tenants/[^/]+/databases/[^/]+/collections/[^/]+/query/?(\?.*)?$"             1;
+        "~^POST:/api/v2/tenants/[^/]+/databases/[^/]+/collections/[^/]+/get/?(\?.*)?$"               1;
+        "~^GET:/api/v2/auth/identity/?(\?.*)?$"  1;   # chromadb client init (get_user_identity)
+    }
+
+    # -- (2) Writer bearer-token gate ----------------------------------------
+    # $is_writer = 1 when Authorization matches a configured writer token.
+    # writer_tokens.map is admin-writable ONLY (runtime group DENY-write); the
+    # brain_sbin token tooling edits it + reloads. Copy the .example to start.
+    map $http_authorization $is_writer {
+        default 0;
+        include /etc/nginx/writer_tokens.map;
+    }
+
+    # -- (2b) Reader bearer-token gate (only used by authz mode C) ------------
+    # $is_reader = 1 when Authorization matches a configured reader token. Unused
+    # in the default mode B; the include is optional (empty file = no reader tokens).
+    map $http_authorization $is_reader {
+        default 0;
+        include /etc/nginx/reader_tokens.map;
+    }
+
+    # -- (3) Admission decision — SELECT ONE mode --------------------------------
+    # DEFAULT = MODE C (token-required). Secure by default: no client reads or writes
+    # without a credential (matches the brain's "no lax posture" hardening stance and
+    # the read-gateway charter's no-token→403). Switch modes by (un)commenting a block.
+    # $allowed: 1 = pass. NOTE: mode C means every legit client — including the deploy
+    # verify — MUST present a reader/writer token; the deploy mints a bootstrap pair.
+    #
+    # MODE C (DEFAULT) — everything needs a token.
+    #   Key digits are [is_read][is_writer][is_reader]; a reader token is READ-ONLY
+    #   (only valid on a read path), a writer token may read or write.
+    map "$is_read$is_writer$is_reader" $allowed {
+        default 0;
+        "~^1.1$" 1;   # reader token on a READ path only (is_read=1 AND is_reader=1)
+        "~^.1.$" 1;   # writer token — any method
+    }
+    #
+    # MODE B — read-open / write-needs-token (uncomment; comment out mode C above).
+    #   Reads pass for anyone; writes require a writer token. The ADR's original
+    #   "read-access gateway" identity — reading plugins just work. Use only when
+    #   open reads on this brain's network are explicitly acceptable (e.g. loopback).
+    #   map $is_read$is_writer $allowed {
+    #       default 1;   # 10 reader-hits-read, 01 writer-any, 11 writer-hits-read
+    #       "00"    0;   # unauthenticated write / unknown route → denied
+    #   }
+    #
+    # MODE A — open read-write pass-through (uncomment; comment out mode B above).
+    #   Any client gets full RW (gateway still injects the token + terminates TLS).
+    #   Weakest fit for "user space untrusted"; use only when explicitly chosen.
+    #   map $is_read $allowed { default 1; }
+
+    # role label for the access log
+    map $is_writer $role {
+        default "reader";
+        "1"     "writer";
+    }
+
+    server {
+        # TLS always on. Host exposure (loopback vs NIC) is the compose `ports:`
+        # bind — see compose.yaml GATEWAY_BIND. nginx always listens 8000/TLS here.
+        listen 8000 ssl;
+        http2  on;
+        server_name _;
+
+        # -- Uniform JSON errors — no nginx/backend identity or detail leaks ----
+        # Catches gateway-generated errors (403 authz gate, 400/405/413/429) AND
+        # intercepted upstream errors. NOTE: 422 (Chroma/FastAPI validation) is
+        # deliberately NOT intercepted — legit clients need that field detail.
+        proxy_intercept_errors on;
+        error_page 400 @e400;
+        error_page 401 @e401;
+        error_page 403 @e403;
+        error_page 404 @e404;
+        error_page 405 @e405;
+        error_page 413 @e413;
+        error_page 429 @e429;
+        error_page 500 501 502 503 504 @e5xx;
+        location @e400 { default_type application/json; return 400 '{"status":400,"message":"bad request"}'; }
+        location @e401 { default_type application/json; return 401 '{"status":401,"message":"unauthorized"}'; }
+        location @e403 { default_type application/json; return 403 '{"status":403,"message":"forbidden"}'; }
+        location @e404 { default_type application/json; return 404 '{"status":404,"message":"not found"}'; }
+        location @e405 { default_type application/json; return 405 '{"status":405,"message":"method not allowed"}'; }
+        location @e413 { default_type application/json; return 413 '{"status":413,"message":"payload too large"}'; }
+        location @e429 { default_type application/json; return 429 '{"status":429,"message":"too many requests"}'; }
+        location @e5xx { default_type application/json; return 502 '{"status":502,"message":"upstream error"}'; }
+
+        ssl_certificate     /etc/nginx/certs/cert.pem;
+        ssl_certificate_key /etc/nginx/certs/cert.key;
+        ssl_protocols       TLSv1.2 TLSv1.3;
+        ssl_ciphers         HIGH:!aNULL:!MD5;
+        ssl_prefer_server_ciphers on;
+        ssl_session_cache   shared:SSL:10m;
+        ssl_session_timeout 1h;
+
+        location / {
+            # -- Rate limits + strip upstream identity --------------------------
+            limit_req zone=perip    burst=60  nodelay;
+            limit_req zone=pertoken burst=120 nodelay;
+            proxy_hide_header Server;    # drop Chroma/uvicorn Server header on proxied 200s
+            if ($allowed = 0) {
+                return 403;
+            }
+
+            # -- Credential injection -----------------------------------------
+            # Replace whatever the client sent with Chroma's service token, and
+            # strip the alternate header so no client-supplied token reaches Chroma.
+            proxy_set_header Authorization  "Bearer ${CHROMA_TOKEN}";
+            proxy_set_header X-Chroma-Token "";
+
+            # -- Transparent pass-through (preserves method + body) -----------
+            proxy_http_version 1.1;
+            proxy_set_header Host              $host;
+            proxy_set_header X-Real-IP         $remote_addr;
+            proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+            proxy_set_header Connection        "";
+
+            proxy_pass http://chroma_backend;
+        }
+    }
+
+    # -- Optional Ollama exposure (ADR 0009 / 0011) --------------------------------
+    # GLOB include: a no-op when nothing is mounted (sealed/default brain) - so this
+    # line NEVER affects the chroma gateway. When OLLAMA_EXPOSE=on, the exposure compose
+    # override mounts a rendered ollama.conf here (upstream + role allow-lists + the
+    # :11434 server). Kept a glob so an ollama-off brain can't fail nginx startup on an
+    # unresolvable `ollama` upstream. Rendered by system/brain_sbin/ollama_gateway.py.
+    include /etc/nginx/ollama.d/*.conf;
+}

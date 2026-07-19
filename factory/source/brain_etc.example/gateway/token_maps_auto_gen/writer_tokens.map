@@ -1,0 +1,3 @@
+# writer_tokens.map - GENERATED from token_registry by gateway_tokens.py. DO NOT EDIT.
+# Edit brain_etc/gateway/token_registry and re-run `gateway_tokens.py generate`.
+# (empty in this template — regenerated from token_registry by gateway_tokens.py)

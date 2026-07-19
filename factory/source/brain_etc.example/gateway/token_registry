@@ -1,0 +1,14 @@
+# Horizon AIOS unified bearer-token registry - SINGLE SOURCE OF TRUTH.
+# The per-service nginx maps (reader/writer/ollama_use/ollama_admin) are GENERATED
+# from this file by system/brain_sbin/gateway_tokens.py - NEVER edit a .map by hand.
+# Format:  <token>  <service:role>[,<service:role>...]   [# label=<l> created=<iso8601>]
+# One token, many grants: comma-separated (chroma:writer,ollama:admin) or spaces.
+# Grants:  chroma:reader  chroma:writer  ollama:use  ollama:admin  action:call
+# Raw bearer secrets live here - this file inherits brain_etc admin-only perms.
+
+# --- EXAMPLE (this shipped template holds NO real tokens) -------------------
+# Add a token with `gateway_tokens.py grant --label <name> --grant <service:role> [--grant ...]`
+# which appends here and regenerates the .map files. A neuron then references it BY NAME via
+# `gateway_token: <name>` in the brain.env YAML zone (config-flow refactor: named tokens, no
+# auto-mint). Example row shape:
+# 0000000000000000000000000000000000000000000000000000000000000000  chroma:reader   # label=example created=1970-01-01T00:00:00Z

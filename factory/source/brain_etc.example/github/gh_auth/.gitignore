@@ -1,0 +1,17 @@
+# LIVE VAULT MATERIAL — never commit, never push.
+# =================================================================
+# This directory holds real credential material (GPG secret keys + the sealed SSH
+# keylist), encrypted at rest under the store passphrase. Encrypted or not, it MUST
+# NOT enter git — this brain repo has a remote. The material reaches the running brain
+# by the seam SYNC (host -> distro drvfs copy), which is independent of git.
+#
+# Committed here: only the non-secret config (gh_auth.env), the docs (README.md), and
+# this .gitignore. Everything else is runtime, created by `system/brain_sbin/gh_auth.py init`.
+gpg_store/
+*.gpg
+ssh_keylist
+*.key
+*.pem
+# transient host->brain secret/material drop (read in-distro via /opt/brain_truths, shredded after)
+.transient/
+!.gitignore

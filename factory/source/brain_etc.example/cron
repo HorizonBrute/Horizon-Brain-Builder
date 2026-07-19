@@ -1,0 +1,23 @@
+# Brain cron configuration — the brain's scheduled tasks.
+# Standard 5-field cron schedule + command, one per line; imported into the brain
+# user's crontab in the distro. Empty by default. Commands run in-distro as the brain.
+#
+#   minute  hour  day-of-month  month  day-of-week   command
+#
+# Re-import after editing to apply.
+
+
+## NEURON CRON ENTRIES
+# Ingestion/consumption pipeline schedules. Commands call neuron scripts under
+# /opt/input_neurons (the neuron code, mapped from <brain>/input_neurons).
+#
+# Example — hourly keep-current reindex:
+# 0 * * * * /opt/input_neurons/run.sh reindex >> ~/logs/neuron/cron.log 2>&1
+
+
+## BRAIN_FUNCTION CRON ENTRIES
+# General brain-management schedules. Commands call scripts in the in-distro script
+# seam at /opt/brain_wsl_in_distro_scripts.
+#
+# Example — nightly maintenance task:
+# 30 3 * * * bash /opt/brain_wsl_in_distro_scripts/some_task.sh >> ~/logs/brain/cron.log 2>&1

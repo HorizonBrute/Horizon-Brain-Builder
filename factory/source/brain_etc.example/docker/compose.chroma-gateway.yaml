@@ -1,0 +1,25 @@
+# Horizon AIOS - Chroma gateway EXPOSURE override (ADR 0013; symmetric with ollama)
+# ==================================================================================
+# Layer this over the base stack ONLY when CHROMA_EXPOSE=on:
+#
+#     docker compose -f compose.yaml -f compose.chroma-gateway.yaml up -d
+#
+# It adds to the (already-running) gateway, nothing else:
+#   * the rendered chroma.conf, mounted as a .template into /etc/nginx/templates/chroma.d/
+#     so nginx envsubst substitutes ${CHROMA_MASTER_TOKEN_FOR_GW} (the gateway's upstream credential
+#     injection), rendering it to /etc/nginx/chroma.d/chroma.conf where the skeleton's
+#     `include /etc/nginx/chroma.d/*.conf;` glob picks it up (chroma upstream + the
+#     role-gated :8000 server). ollama.conf is mounted DIRECTLY (no ${CHROMA_MASTER_TOKEN_FOR_GW} to
+#     substitute) - this is the one asymmetry, forced by envsubst, not by design.
+#   * the :8000 host publish - the standard Chroma port, so existing clients/plugins work
+#     unmodified. Bind defaults to loopback (Personal); set GW_BIND_ADDRESS=0.0.0.0 for
+#     a LAN/Server posture (pair with a Windows firewall rule).
+#
+# A brain with CHROMA_EXPOSE=off never loads this file: no :8000 port, and the chroma.d
+# glob resolves to nothing. So this override is the whole of "expose Chroma".
+services:
+  gateway:
+    ports:
+      - "${GW_BIND_ADDRESS:-127.0.0.1}:${CHROMA_PORT:-8000}:8000"
+    volumes:
+      - ./nginx/chroma.conf:/etc/nginx/templates/chroma.d/chroma.conf.template:ro

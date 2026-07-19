@@ -1,0 +1,415 @@
+# Horizon AIOS — per-brain Chroma stack WITH the read-access gateway
+# =================================================================
+# Supersedes the single-service chroma/compose.yaml. Three roles on one private
+# network (`brain_net`):
+#
+#   * chroma   — the vector store. SEALED: expose-only, no host port, and now
+#                TOKEN-REQUIRED. Reachable ONLY from inside brain_net.
+#   * gateway  — nginx. The ONE published surface. Terminates TLS on :8000,
+#                enforces the read/write allow-list, injects Chroma's token
+#                upstream. Host bind is the posture dial (loopback vs host NIC).
+#   * neurons  — the brain's consumption/ingestion layer (SCAFFOLD below, enabled
+#                when the neuron image exists). A trusted INTERNAL writer: it talks
+#                to chroma:8000 directly with the static token, never via the gateway.
+#
+# Values come from the sibling .env (compose auto-loads it). See README.md for the
+# posture dial, the authz modes, and the deploy (runas) step.
+
+services:
+  chroma:
+    image: chromadb/chroma:${CHROMA_VERSION:-latest}
+    container_name: ${BRAIN_NAME}-chroma
+    restart: unless-stopped
+    # ADR-0018 backstop: cap the Docker json-file log so it stays bounded even between
+    # logrotate runs (the log seam also rotates this file into ~/logs/chroma-<date>.log).
+    logging:
+      driver: json-file
+      options:
+        max-size: "${BRAIN_DOCKER_LOG_MAX_SIZE:-50m}"
+        max-file: "${BRAIN_DOCKER_LOG_MAX_FILE:-3}"
+    # Chroma's OWN server config (telemetry / CORS / persistence / limits) - an
+    # admin-editable passthrough at brain_etc/chroma/chroma.env. Auth is NOT here: the
+    # authn provider + credentials come from `environment` below (brain.env's CHROMA_MASTER_TOKEN_FOR_GW).
+    env_file:
+      - ./chroma/chroma.env
+    environment:
+      # Require the single static token for EVERY request. All-or-nothing by design —
+      # the gateway is what turns this one token into scoped roles. Keeping the token
+      # required (even though Chroma is now internal-only) is deliberate: it makes the
+      # gateway's read-only guarantee non-bypassable if a second path to chroma:8000
+      # ever appears. The only holders are the gateway and the neuron container.
+      CHROMA_SERVER_AUTHN_PROVIDER: "chromadb.auth.token_authn.TokenAuthenticationServerProvider"
+      CHROMA_SERVER_AUTHN_CREDENTIALS: "${CHROMA_MASTER_TOKEN_FOR_GW:?CHROMA_MASTER_TOKEN_FOR_GW must be set in .env}"
+    volumes:
+      # The vector store lives in the brain_rw zone of the data-in seam (~/knowledge/brain_rw/chroma):
+      # brain-produced, service-written data. Pre-created brain-owned by deploy so docker doesn't
+      # root-create the bind target. Kept on the distro's ext4 (never a 9p host mount) — the host
+      # reaches it via the knowledge/brain_rw/chroma door (brain_truths.py door).
+      - /home/${BRAIN_NAME}/knowledge/brain_rw/chroma:/data
+    networks:
+      brain_net:
+        # `chroma-svc` is the UNAMBIGUOUS name the gateway's nginx upstream targets. The bare
+        # `chroma` name is aliased to the GATEWAY on neuron_net, so if the gateway resolved
+        # `chroma` it could round-robin onto itself (a proxy loop). `chroma-svc` exists only
+        # here (real chroma, brain_net) so the gateway always reaches the true backend.
+        aliases:
+          - chroma-svc
+    # NO `ports:` — Chroma vacates the host. It is reachable only inside brain_net,
+    # exclusively via the gateway (external) and the neuron container (internal).
+    expose:
+      - "8000"
+
+  gateway:
+    image: nginx:1.27
+    container_name: ${BRAIN_NAME}-gateway
+    restart: unless-stopped
+    # Optional service (ADR 0011): the gateway exists only to serve EXTERNAL consumers.
+    # A fully self-contained brain (all consumers inside brain_net) runs WITHOUT nginx.
+    # Gated by the `gateway` profile; the friendly knob is EXTERNAL_GATEWAY_ENABLE, which
+    # onboarding/enable-tooling translates into COMPOSE_PROFILES in .env.
+    profiles: ["gateway"]
+    depends_on:
+      chroma:
+        condition: service_started
+    # NO `ports:` here. Each service's EXPOSURE through the gateway is a separate,
+    # symmetric overlay (ADR 0013), layered by the *_EXPOSE knobs in brain.env:
+    #   compose.chroma-gateway.yaml  -> publishes :8000  + mounts chroma.conf  (CHROMA_EXPOSE=on)
+    #   compose.ollama-gateway.yaml  -> publishes :11434 + mounts ollama.conf  (OLLAMA_EXPOSE=on)
+    # The base gateway runs (skeleton nginx.conf) but publishes nothing on its own.
+    environment:
+      # The upstream Chroma service token the gateway injects on every request.
+      CHROMA_MASTER_TOKEN_FOR_GW: "${CHROMA_MASTER_TOKEN_FOR_GW:?CHROMA_MASTER_TOKEN_FOR_GW must be set in .env}"
+      # Render templates/*.template → matching path under /etc/nginx, substituting ONLY
+      # $CHROMA_* so nginx's own $request_method / $http_authorization survive envsubst.
+      # This is why chroma.conf (which injects ${CHROMA_MASTER_TOKEN_FOR_GW}) is mounted as a .template
+      # by the chroma overlay; the skeleton + ratelimit have no secrets and pass through.
+      NGINX_ENVSUBST_OUTPUT_DIR: "/etc/nginx"
+      NGINX_ENVSUBST_FILTER: "CHROMA"
+    volumes:
+      - ./nginx/nginx.conf.template:/etc/nginx/templates/nginx.conf.template:ro
+      # Admin-tunable rate limits (ADR 0003) — required include; always mounted.
+      - ./nginx/ratelimit.conf:/etc/nginx/ratelimit.conf:ro
+      # Chroma bearer-token gate maps (generated, ADR 0010) — referenced by the skeleton's
+      # $is_writer/$is_reader maps, so always mounted (nginx aborts on a missing include).
+      - ./nginx/writer_tokens.map:/etc/nginx/writer_tokens.map:ro
+      - ./nginx/reader_tokens.map:/etc/nginx/reader_tokens.map:ro
+      # INTERNAL listeners (ADR 0015 §1) - ALWAYS mounted by the base gateway (internal
+      # traffic is unconditional, not an exposure overlay). internal.conf carries the plain
+      # chroma :8000 + ollama :11434 servers (full port parity) the neuron reaches over
+      # neuron_net. Mounted as a .template so nginx envsubst injects ${CHROMA_MASTER_TOKEN_FOR_GW} upstream
+      # (its chroma half), exactly like chroma.conf. Its ollama half needs the use-token map,
+      # so mount that here too (the ollama exposure overlay mounts the same file at the same
+      # path when OLLAMA_EXPOSE=on - an identical, harmless duplicate bind).
+      - ./nginx/internal.conf:/etc/nginx/templates/internal.d/internal.conf.template:ro
+      - ./nginx/ollama_use.map:/etc/nginx/ollama_use.map:ro
+      # njs response-body filter (ADR 0015 §2 Phase 2, sec 3). ALWAYS mounted but only
+      # LOADED when a surface is set to request+response (the generator emits load_module /
+      # js_import only then); harmless mounted-but-unused otherwise. Not a .template (no
+      # ${...} to substitute), so mounted straight into /etc/nginx/njs/.
+      - ./nginx/njs/inspect.js:/etc/nginx/njs/inspect.js:ro
+      # Gateway TLS material lives in the gateway-owned home (~/gateway/gateway_out),
+      # NOT under ~/docker (these are the gateway's certs, not docker's). Compose runs
+      # from ~/docker, so ../gateway/gateway_out resolves to ~/gateway/gateway_out.
+      - ../gateway/gateway_out:/etc/nginx/certs:ro
+      # JSON access log written here, then symlinked out of the distro for blue-team
+      # read (30-day rollover configured host-side). See README "Logging".
+      - /home/${BRAIN_NAME}/logs/gateway:/var/log/nginx
+    networks:
+      # The gateway is the ONLY service that bridges brain_net and EVERY bundle's neuron net
+      # (ADR 0015 §1): brain_net to reach the sealed backends, each neuron net to receive that
+      # bundle's traffic. This is what makes nginx the non-bypassable chokepoint - a neuron (on
+      # its own bundle net only) cannot even resolve chroma/ollama except through here, and cannot
+      # reach any OTHER bundle's net at all (per-bundle isolation).
+      brain_net: {}
+      # The DEFAULT bundle's neuron net (key `neuron_net`; additional bundles are attached in the
+      # generated region below). STATIC IP: nginx binds the internal listeners to it (listen
+      # 192.168.0.2:8000 / :11434), on the neuron-facing interface only so they don't collide with
+      # the wildcard external TLS listeners on the same ports. Must match GATEWAY_NEURON_IP.
+      neuron_net:
+        ipv4_address: "${GATEWAY_NEURON_IP:-192.168.0.2}"
+        # TRANSPARENCY: on the neuron net the gateway ANSWERS to `chroma` and `ollama`, so the
+        # neuron's http://chroma:8000 / http://ollama:11434 hit the gateway unchanged. The real
+        # backends are NOT on any neuron net, so there is no name clash (the gateway's own nginx
+        # reaches them via the distinct chroma-svc / ollama-svc aliases on brain_net).
+        aliases:
+          - chroma
+          - ollama
+      # >>> BEGIN generated gateway neuron-nets (add_neuron_bundle.py — do NOT hand-edit) >>>
+      # The gateway is multi-homed onto EVERY additional bundle net (static .2 + chroma/ollama
+      # aliases), so it is the one chokepoint every bundle reaches. Re-render via add_neuron_bundle.py.
+      # >>> END generated gateway neuron-nets <<<
+
+  # --- ollama (embeddings) — sealed model server on brain_net ----------------------
+  # The neuron's embedding backend (ADR 0004/0007). SEALED exactly like chroma:
+  # expose-only, NO host port, reachable only inside brain_net as `ollama:11434`.
+  # This keeps the model INSIDE the brain's private boundary — a build-time refinement
+  # of ADR 0007: on this host (mirrored WSL networking, server posture) a host-run
+  # Ollama would have to bind 0.0.0.0 and expose :11434 on the LAN. A sealed brain_net
+  # service exposes nothing on any host interface and makes the brain self-contained
+  # and portable. CPU-only (nomic-embed-text is 137M; GPU passthrough not needed).
+  ollama:
+    image: ollama/ollama:${OLLAMA_VERSION:-latest}
+    container_name: ${BRAIN_NAME}-ollama
+    restart: unless-stopped
+    # ADR-0018 backstop: cap the Docker json-file log (also rotated into ~/logs/ollama-<date>.log).
+    logging:
+      driver: json-file
+      options:
+        max-size: "${BRAIN_DOCKER_LOG_MAX_SIZE:-50m}"
+        max-file: "${BRAIN_DOCKER_LOG_MAX_FILE:-3}"
+    # Optional service (ADR 0011): the internal model server. Off when the brain embeds
+    # via an external provider (EMBED_PROVIDER=openai). Gated by the `ollama` profile;
+    # the friendly knob is OLLAMA_ENABLE -> COMPOSE_PROFILES in .env. Distinct from
+    # OLLAMA_EXPOSE (whether a present ollama is reachable off-box via the gateway, ADR 0009).
+    profiles: ["ollama"]
+    # Server tuning (keep-alive, parallelism, queue). Admin-editable via the seam
+    # at brain_etc/ollama/ollama.env; recreate to apply. See ADR 0009.
+    env_file:
+      - ./ollama/ollama.env
+    volumes:
+      # Named volume for the model cache (rebuildable — re-pullable, not brain
+      # knowledge like chroma_store). Container writes as root; a named volume avoids
+      # the host-uid/9p permission quirks a bind mount into ~ would hit.
+      - ollama_models:/root/.ollama
+    networks:
+      brain_net:
+        # `ollama-svc` — the unambiguous upstream name for the gateway (bare `ollama` is
+        # aliased to the gateway on neuron_net; see chroma-svc above for the loop rationale).
+        aliases:
+          - ollama-svc
+    # NO `ports:` — sealed. Reachable only inside brain_net.
+    expose:
+      - "11434"
+
+  # --- fail2ban (gateway intrusion banning) — ADR 0012 ----------------------------
+  # Bans a source IP that trips too many gateway denials (repeated 403 = token probing)
+  # in a window, then self-heals. Shares the GATEWAY's network namespace and installs
+  # iptables DROP rules in it, so banned IPs are dropped at L3, IN FRONT of nginx — with
+  # ZERO change to nginx.conf.template. Watches the gateway's JSON access log (read-only).
+  # All policy (bantime/findtime/maxretry) is on the seam: brain_etc/fail2ban/. Optional
+  # service (ADR 0011): guards the gateway, so it is meaningless without it — gated by the
+  # `fail2ban` profile, friendly knob FAIL2BAN_ENABLE -> COMPOSE_PROFILES.
+  fail2ban:
+    image: crazymax/fail2ban:${FAIL2BAN_VERSION:-latest}
+    container_name: ${BRAIN_NAME}-fail2ban
+    restart: unless-stopped
+    profiles: ["fail2ban"]
+    # Share the gateway's netns: the iptables rules apply to the gateway's own traffic.
+    # (A service using network_mode cannot also declare `networks:` — it has none of its own.)
+    network_mode: "service:gateway"
+    depends_on:
+      gateway:
+        condition: service_started
+    # The ONLY elevated capability in the stack, scoped to this one sidecar: install
+    # iptables DROP rules in the gateway's netns. No host networking, no docker socket.
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    environment:
+      # All admin-tunable — sourced from the seam posture env (brain.env), not hardcoded here.
+      TZ: "${TZ:-UTC}"
+      F2B_LOG_LEVEL: "${FAIL2BAN_LOG_LEVEL:-INFO}"
+      # How long ban history is kept in the sqlite db before purge (housekeeping).
+      F2B_DB_PURGE_AGE: "${FAIL2BAN_DB_PURGE_AGE:-1d}"
+    volumes:
+      # The gateway's JSON access log — fail2ban's INPUT. Read-only: it only watches.
+      - /home/${BRAIN_NAME}/logs/gateway:/var/log/nginx:ro
+      # Persistent config+state root (crazymax `/data`): named volume so the ban db
+      # survives a recreate (rebuildable state, like ollama_models — not brain knowledge).
+      - fail2ban_data:/data
+      # Admin-authored policy, overlaid read-only on the writable /data. Seam files
+      # (brain_etc/fail2ban/*), synced to ~/docker/fail2ban and mounted here.
+      - ./fail2ban/jail.d/gateway.conf:/data/jail.d/gateway.conf:ro
+      - ./fail2ban/filter.d/nginx-gateway.conf:/data/filter.d/nginx-gateway.conf:ro
+      - ./fail2ban/action.d/seam-banlist.conf:/data/action.d/seam-banlist.conf:ro
+      # Read-only current-ban VIEW (ADR 0012): the seam-banlist action writes the live list
+      # of banned IPs here; bind-mounted RW so it is host-visible to the admin at
+      # ~/docker/fail2ban/state/current_bans.txt (brain-writable STATE, like the access log).
+      - ./fail2ban/state:/data/state
+
+  # --- NEURON BUNDLES (the ingest + query layer, ADR-0015) --------------------------------
+  # Neurons are containers that reach chroma/ollama ONLY through the gateway (neuron_net only,
+  # the non-bypassable inspection chokepoint). Each SHARES one of two role images (input:
+  # ${BRAIN_NAME}-input_neurons; action: ${BRAIN_NAME}-action_neurons) and differs only by env
+  # (NEURON_BUNDLE / NEURON_ROLE / NEURON_NAME / BUNDLE_COLLECTION + its per-neuron token). The
+  # DEFAULT bundle is GENERATED from the brain.env ===NEURONS=== zone (neuron_compose.py);
+  # ADDITIONAL bundles are ALSO authored in that zone and rendered by add_neuron_bundle.py. Never
+  # hand-edit a generated region — edit the brain.env neuron zone and reapply.
+  # >>> BEGIN generated DEFAULT bundle neurons (neuron_compose.py — do NOT hand-edit) >>>
+  # The DEFAULT neuron bundle, GENERATED from the brain.env ===NEURONS=== zone by
+  # neuron_compose.py (config-flow Phase 4). Names/collection/synth-model/token come
+  # from the neuron object; re-render by editing the zone + reapplying. Additional
+  # bundles render into the separate `generated bundles` region below.
+
+  # --- input_neuron_example (generated from the brain.env zone) — DEFAULT bundle 'example_neuron_bundle' INPUT neuron ---
+  # WRITE side: turns knowledge/brain_ro into vectors in the 'example_docs' collection. Reaches
+  # chroma/ollama ONLY through the gateway (ADR-0015: neuron_net only), carrying its OWN named
+  # bearer (Phase 4 per-neuron token). This neuron carries the shared input-image build context.
+  input_neuron_example:
+    profiles: ["neurons"]
+    image: ${BRAIN_NAME}-input_neurons
+    build:
+      context: /opt/input_neurons
+    container_name: ${BRAIN_NAME}-input_neuron_example
+    restart: "no"
+    # Immutable execution surface: read-only rootfs so baked code can't be rewritten at runtime.
+    read_only: true
+    tmpfs:
+      - /tmp
+    depends_on:
+      gateway:
+        condition: service_started
+    env_file:
+      - ./github/github.env
+    environment:
+      CHROMA_URL: "http://chroma:8000"
+      OLLAMA_URL: "http://ollama:11434"
+      # Per-neuron bearer (config-flow Phase 4): the VALUE comes from this neuron's own
+      # NEURON_TOKEN__example_neuron_bundle__input_neuron_example key in ~/docker/.env; the code still reads NEURON_GATEWAY_TOKEN.
+      NEURON_GATEWAY_TOKEN: "${NEURON_TOKEN__example_neuron_bundle__input_neuron_example:?missing per-neuron token; run gateway_config generate to render ~/docker/.env}"
+      KNOWLEDGE_ROOT: "/knowledge"
+      # Provider scripts (consumption: script) live under the impulses code-in seam,
+      # mounted RO below; manifest.py resolves script: under IMPULSES_ROOT/<bundle>/<neuron>/.
+      IMPULSES_ROOT: "/impulses"
+      NEURON_MANIFEST: "/etc/neuron/sources.yaml"
+      NEURON_STATE_DIR: "/state"
+      # Attribution (X-Neuron-Bundle / -Role / -Name). NEURON_BUNDLE also filters which sources
+      # this input neuron ingests (only bundle 'example_neuron_bundle's).
+      NEURON_BUNDLE: "example_neuron_bundle"
+      NEURON_ROLE: "input"
+      NEURON_NAME: "input_neuron_example"
+      BUNDLE_COLLECTION: "example_docs"
+      NEURON_IMAGE_EMBED: "caption"
+      NEURON_IMAGE_CAPTION_MODEL: "moondream"
+    command: ["--ingest-only"]
+    volumes:
+      - ./neuron:/etc/neuron:ro
+      - ./github:/etc/github:ro
+      - /home/${BRAIN_NAME}/knowledge/brain_ro:/knowledge:ro
+      # impulses code-in seam (config-flow Phase 5): YOUR provider scripts, RO.
+      - /home/${BRAIN_NAME}/impulses:/impulses:ro
+      - neuron_state:/state
+    networks:
+      - neuron_net
+
+  # --- action_neuron_cli (generated from the brain.env zone) — DEFAULT bundle 'example_neuron_bundle' ACTION neuron ---
+  # READ side: retrieves from 'example_docs' + synthesizes an answer. Carries a chroma:reader +
+  # ollama:use bearer, so it PHYSICALLY cannot write (write-funnel invariant, gateway-enforced).
+  # service_type=on-demand => on-demand — a one-shot CLI (docker compose run), never published. This neuron carries the shared action-image build context.
+  action_neuron_cli:
+    profiles: ["neurons"]
+    image: ${BRAIN_NAME}-action_neurons
+    build:
+      context: /opt/action_neurons
+    container_name: ${BRAIN_NAME}-action_neuron_cli
+    restart: "no"
+    read_only: true
+    tmpfs:
+      - /tmp
+    depends_on:
+      gateway:
+        condition: service_started
+    environment:
+      CHROMA_URL: "http://chroma:8000"
+      OLLAMA_URL: "http://ollama:11434"
+      # Per-neuron bearer (config-flow Phase 4): VALUE from NEURON_TOKEN__example_neuron_bundle__action_neuron_cli in
+      # ~/docker/.env; the code still reads ACTION_GATEWAY_TOKEN.
+      ACTION_GATEWAY_TOKEN: "${NEURON_TOKEN__example_neuron_bundle__action_neuron_cli:?missing per-neuron token; run gateway_config generate to render ~/docker/.env}"
+      NEURON_BUNDLE: "example_neuron_bundle"
+      NEURON_ROLE: "action"
+      NEURON_NAME: "action_neuron_cli"
+      BUNDLE_COLLECTION: "example_docs"
+      # Query embedder MUST match the model the docs were embedded with (the input neuron's).
+      ACTION_EMBED_MODEL: "nomic-embed-text"
+      # Answer-synthesis LLM (the neuron's `synth_model`). MUST be in the ollama roster
+      # (brain_etc/ollama/models) or /ask 404s.
+      ACTION_LLM_MODEL: "qwen2.5:1.5b"
+    networks:
+      - neuron_net
+    # One-shot: no long-running command; driven by
+    #   docker compose run --rm --no-deps action_neuron_cli --query "…"
+
+  # --- action_neuron_api (generated from the brain.env zone) — DEFAULT bundle 'example_neuron_bundle' ACTION neuron ---
+  # READ side: retrieves from 'example_docs' + synthesizes an answer. Carries a chroma:reader +
+  # ollama:use bearer, so it PHYSICALLY cannot write (write-funnel invariant, gateway-enforced).
+  # service_type=daemon => daemon — served HTTP query API (gateway routes :8443 to it). This neuron reuses the shared action image.
+  action_neuron_api:
+    profiles: ["neurons"]
+    image: ${BRAIN_NAME}-action_neurons
+    container_name: ${BRAIN_NAME}-action_neuron_api
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp
+    depends_on:
+      gateway:
+        condition: service_started
+    environment:
+      CHROMA_URL: "http://chroma:8000"
+      OLLAMA_URL: "http://ollama:11434"
+      # Per-neuron bearer (config-flow Phase 4): VALUE from NEURON_TOKEN__example_neuron_bundle__action_neuron_api in
+      # ~/docker/.env; the code still reads ACTION_GATEWAY_TOKEN.
+      ACTION_GATEWAY_TOKEN: "${NEURON_TOKEN__example_neuron_bundle__action_neuron_api:?missing per-neuron token; run gateway_config generate to render ~/docker/.env}"
+      NEURON_BUNDLE: "example_neuron_bundle"
+      NEURON_ROLE: "action"
+      NEURON_NAME: "action_neuron_api"
+      BUNDLE_COLLECTION: "example_docs"
+      # Query embedder MUST match the model the docs were embedded with (the input neuron's).
+      ACTION_EMBED_MODEL: "nomic-embed-text"
+      # Answer-synthesis LLM (the neuron's `synth_model`). MUST be in the ollama roster
+      # (brain_etc/ollama/models) or /ask 404s.
+      ACTION_LLM_MODEL: "qwen2.5:1.5b"
+    networks:
+      - neuron_net
+    # Long-running query API on neuron_net; the gateway proxies :8443 -> here
+    # (action.conf path-router). publish_to_lan_ports declares that publish.
+    command: ["--serve", "--host", "0.0.0.0", "--port", "8080"]
+  # >>> END generated DEFAULT bundle neurons <<<
+
+  # >>> BEGIN generated bundles (add_neuron_bundle.py — do NOT hand-edit) >>>
+  # Additional neuron bundles rendered from the brain.env ===NEURONS=== zone through the SAME
+  # shared renderer as the DEFAULT bundle (config-flow P0 unification), so per-neuron token /
+  # synth_model / embed_model / service_type never drift between the two regions. Each neuron
+  # SHARES a role image (input: <brain>-input_neurons; action: <brain>-action_neurons — only
+  # the default bundle's neurons carry the `build:` context; these reuse the image) and sits on
+  # its bundle's OWN neuron net. Re-render via `gateway_config.py generate` or add_neuron_bundle.py.
+
+  # >>> END generated bundles <<<
+
+networks:
+  brain_net:
+    name: ${BRAIN_NAME}_net
+    # PINNED 172 space (ADR 0015): the sealed backends (chroma/ollama) + the gateway's backend
+    # side live here. Fixed so it is deterministic and can never overlap the 192.168 per-bundle
+    # neuron nets below (a /23 gives headroom for future brain_net services).
+    ipam:
+      config:
+        - subnet: "${BRAIN_NET_SUBNET:-172.16.0.0/23}"
+  # ADR 0015 §1: the DEFAULT bundle's isolated neuron net (compose key `neuron_net`; every
+  # ADDITIONAL bundle gets its own <bundle>_neuron_net in the generated region below). Only the
+  # gateway joins BOTH brain_net and a neuron net, so a neuron-net-only service reaches the
+  # backends solely via the gateway. Gateway static .2; dynamic neuron IPs come ONLY from .128/25
+  # so a neuron can NEVER be handed .2 regardless of start order (collision-proof, per-net).
+  neuron_net:
+    name: ${BRAIN_NAME}_neuron_net
+    ipam:
+      config:
+        - subnet: "${NEURON_NET_SUBNET:-192.168.0.0/24}"
+          ip_range: "${NEURON_NET_DYNRANGE:-192.168.0.128/25}"
+  # >>> BEGIN generated neuron-nets (add_neuron_bundle.py — do NOT hand-edit) >>>
+  # One isolated docker network per ADDITIONAL bundle (ADR 0015). The DEFAULT bundle's net is
+  # `neuron_net` (hand-authored above). Each is a /24 from 192.168.0.0/16 by ascending index;
+  # dynamic neuron IPs come ONLY from .128/25 so a neuron can never squat the gateway's static
+  # .2 (collision-proof, per-net). Re-render via add_neuron_bundle.py.
+  # >>> END generated neuron-nets <<<
+
+volumes:
+  ollama_models:
+    name: ${BRAIN_NAME}_ollama_models
+  # fail2ban config+state root (crazymax /data) — holds the ban sqlite db. Rebuildable
+  # state (bans self-heal / re-accrue), not brain knowledge. See ADR 0012.
+  fail2ban_data:
+    name: ${BRAIN_NAME}_fail2ban_data
+  # Neuron dedup cache (content-hash → re-embed only changed docs). Rebuildable state.
+  neuron_state:
+    name: ${BRAIN_NAME}_neuron_state

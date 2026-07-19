@@ -1,0 +1,18 @@
+# Ollama model roster — AUTHORITATIVE source of truth for this brain's model store.
+# ---------------------------------------------------------------------------------
+# One model per line. '#' starts a comment; blank lines are ignored.
+# A bare name means the ':latest' tag (e.g. `nomic-embed-text` == `nomic-embed-text:latest`).
+#
+# `ollama_models.py sync` makes the box match this file EXACTLY (strict):
+#   - PULLS any model listed here but absent from the store
+#   - REMOVES any model in the store but not listed here
+# Add a model = add a line, then `ollama_models.py sync`. Verify with `... verify`.
+
+nomic-embed-text
+
+# Synthesis LLM for the action neuron's answer generation (ACTION_LLM_MODEL). qwen2.5:1.5b
+# pulls cleanly from this box's registry link and synthesizes clean grounded answers; the
+# lighter qwen2.5:0.5b works but rambles, and llama3.2:1b EOFs mid-pull here (see ollama_pull.sh).
+# To change the model the action neuron uses, add it here (so `ollama_models.py sync` pulls it)
+# AND set ACTION_LLM_MODEL in brain.env to match.
+qwen2.5:1.5b

@@ -1,0 +1,26 @@
+# Horizon AIOS - Ollama gateway EXPOSURE override (ADR 0009 / 0011)
+# =================================================================
+# Layer this over the base stack ONLY when OLLAMA_EXPOSE=on:
+#
+#     docker compose -f compose.yaml -f compose.ollama-gateway.yaml up -d
+#
+# It adds to the (already-running) gateway, nothing else:
+#   * the rendered ollama.conf, mounted into /etc/nginx/ollama.d/ where the base
+#     template's `include /etc/nginx/ollama.d/*.conf;` glob picks it up (upstream +
+#     role allow-lists + the :11434 server). Rendered by system/brain_sbin/ollama_gateway.py.
+#   * the two generated Ollama token maps ($is_ollama_use / $is_ollama_admin, ADR 0010).
+#   * the :11434 host publish (the ONLY host port Ollama ever gets - it stays sealed on
+#     brain_net otherwise). Bind defaults to loopback; set GW_BIND_ADDRESS=0.0.0.0 for LAN.
+#
+# A SEALED brain never loads this file: no 11434 port, no ollama upstream in nginx, and
+# the glob include resolves to nothing. So this override is the whole of "expose Ollama".
+services:
+  gateway:
+    ports:
+      # THE Ollama exposure dial. Mirrors the chroma GATEWAY_BIND posture: loopback for
+      # Personal, 0.0.0.0 for a LAN/workstation-reachable Server (pair with a firewall rule).
+      - "${GW_BIND_ADDRESS:-127.0.0.1}:${OLLAMA_PORT:-11434}:11434"
+    volumes:
+      - ./nginx/ollama.conf:/etc/nginx/ollama.d/ollama.conf:ro
+      - ./nginx/ollama_use.map:/etc/nginx/ollama_use.map:ro
+      - ./nginx/ollama_admin.map:/etc/nginx/ollama_admin.map:ro

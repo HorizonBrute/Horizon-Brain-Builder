@@ -1,0 +1,35 @@
+# Horizon AIOS unified bearer-token registry (ADR 0010) — EXAMPLE / TEMPLATE.
+# ============================================================================
+# This is the SINGLE SOURCE OF TRUTH for every gateway bearer token. The live file
+# is brain_etc/gateway/token_registry (admin-owned; the brain account gets RX only,
+# and it is NOT synced into the distro — only the GENERATED maps are). The four nginx
+# map files (reader_tokens.map, writer_tokens.map, ollama_use.map, ollama_admin.map)
+# are produced from this file by:
+#
+#     system/brain_sbin/gateway_tokens.py generate
+#
+# Never hand-edit a .map — edit this registry and regenerate. Token lifecycle
+# (mint / rotate / revoke) is also done through the tooling, which rewrites this file:
+#
+#     gateway_tokens.py grant  --label neuron --grant chroma:writer --grant ollama:admin
+#     gateway_tokens.py rotate --label neuron
+#     gateway_tokens.py revoke --label neuron
+#     gateway_token.py  create --label obsidian --role reader     # chroma compat shim
+#
+# FORMAT (one token per line; blank + '#' lines ignored):
+#     <token>   <service:role>[ <service:role> ...]   [# label=<label> created=<iso8601>]
+#
+# GRANTS (one grant -> one generated map; role SUPERSET is applied in nginx, not here):
+#     chroma:reader   -> reader_tokens.map   (read Chroma)
+#     chroma:writer   -> writer_tokens.map   (read + write Chroma)
+#     ollama:use      -> ollama_use.map      (Ollama inference: embed/generate/chat)
+#     ollama:admin    -> ollama_admin.map    (inference + model-store management)
+#
+# A single token may hold grants across BOTH services, honored independently. An
+# unknown grant is a HARD ERROR at generate time (fail-closed).
+#
+# --- illustrative entries (REPLACE with real `openssl rand -hex 32` tokens) -------
+# 0000000000000000000000000000000000000000000000000000000000000001  chroma:reader                 # label=obsidian
+# 0000000000000000000000000000000000000000000000000000000000000002  chroma:writer                 # label=ci-writer
+# 0000000000000000000000000000000000000000000000000000000000000003  chroma:reader ollama:use      # label=app-client
+# 0000000000000000000000000000000000000000000000000000000000000004  ollama:admin                  # label=model-admin

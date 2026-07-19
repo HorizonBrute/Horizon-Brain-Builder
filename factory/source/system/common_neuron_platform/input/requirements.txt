@@ -1,0 +1,7 @@
+# input_neurons — runtime deps (installed at BUILD; the neuron has no internet at run).
+# Deliberately minimal: the pipeline talks raw HTTP to the gateway'd Chroma v2 REST API
+# and the gateway'd Ollama API, chunks offline (pure-python, no tiktoken/model download),
+# and reads a YAML manifest. No LlamaIndex/chromadb client — a custom bearer routed through
+# the neuron_net gateway alias is cleaner over the REST surface, and keeps the image small.
+requests==2.32.3
+PyYAML==6.0.2

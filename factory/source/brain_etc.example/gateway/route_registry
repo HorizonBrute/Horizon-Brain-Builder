@@ -1,0 +1,31 @@
+# Gateway path-routing registry — ROUTABLE NEURON TARGETS (ADR 0017 §Next).
+# ==========================================================================
+# The gateway publishes ONE path-routing surface on :8443:
+#
+#     https://<host>:8443/{bundle}/{neuron}/<whatever the neuron serves>
+#
+# The gateway owns ONLY the /{bundle}/{neuron}/ prefix: it matches that, resolves the
+# neuron's service on neuron_net at REQUEST time via Docker DNS, and forwards the rest of
+# the path/method/body UNTOUCHED. `{neuron}` is the neuron's CONFIG name = its compose
+# service name = its neuron_net DNS name (e.g. action_neuron_api).
+#
+# ADMISSION is governed by brain.env ACTION_ROUTE_ALLOW:
+#   any       (DEFAULT) permit-any — every /{bundle}/{neuron}/ target routes. This file is
+#             then only needed to OVERRIDE a target's internal serve port (default 8080).
+#   registry  default-deny — ONLY the {bundle}/{neuron} targets listed below route; anything
+#             else -> uniform JSON 404. (Firewall posture: the deployer opts into restriction.)
+#
+# FORMAT (one target per line; blank / #-comment lines ignored):
+#   {bundle}/{neuron} = <internal-serve-port>
+# The port defaults to 8080 (action.py --serve default) when a target is unlisted, so under
+# permit-any a standard action neuron needs NO entry here at all. List a target to (a) pin a
+# non-8080 serve port, and/or (b) admit it when ACTION_ROUTE_ALLOW=registry.
+#
+# NOTE — external ports are elsewhere. This file is INTERNAL serve ports (path-multiplexed
+# behind one :8443 listener — they never conflict). The gateway's PUBLISHED host ports (the
+# 1:1 external->container map: :8000 / :11434 / :8443) live in brain.env posture
+# (CHROMA_GATEWAY_PORT / OLLAMA_GW_PORT / ACTION_GW_PORT); gateway_config.py fails closed if
+# two exposed listeners claim the same host port.
+#
+# Example (uncomment to pin a non-default port or to seed a restrict-list):
+#   example_neuron_bundle/action_neuron_api = 8080

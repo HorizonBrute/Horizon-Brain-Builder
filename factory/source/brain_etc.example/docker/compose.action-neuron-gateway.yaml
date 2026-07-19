@@ -1,0 +1,37 @@
+# Horizon AIOS - Action query-API gateway EXPOSURE override (ADR 0017 §Next; ADR 0013 pattern)
+# =============================================================================================
+# Layer this over the base stack ONLY when ACTION_EXPOSE=on:
+#
+#     docker compose -f compose.yaml -f compose.action-neuron-gateway.yaml up -d
+#
+# It adds to the (already-running) gateway, nothing else — symmetric with the chroma/ollama
+# exposure overlays:
+#   * the rendered action.conf, mounted into /etc/nginx/action.d/ where the base template's
+#     `include /etc/nginx/action.d/*.conf;` glob picks it up (the action_backend upstream + the
+#     TLS :8443 server that path-routes to any daemon action neuron on neuron_net, e.g.
+#     the shipped example's action_neuron_api).
+#     Rendered by system/brain_sbin/gateway_config.py. Mounted DIRECTLY (not a .template): unlike
+#     chroma.conf it injects no ${CHROMA_MASTER_TOKEN_FOR_GW} — the action API is the app, not a token-gated
+#     backend. So it needs no envsubst, exactly like ollama.conf.
+#   * the :8443 host publish — the action query API surface. Binds the SINGLE GW_BIND_ADDRESS
+#     (0.0.0.0 in Server posture, 127.0.0.1 in Personal) — the SAME var chroma/ollama use; LAN
+#     reach is then gated per-surface by the firewall (publish_to_lan), NOT by the bind. (Was a
+#     private ACTION_GW_BIND that nothing ever set, so :8443 silently stayed loopback-only even
+#     with publish_to_lan: yes and an open firewall rule — the "LAN reach never worked" bug.)
+#
+# A brain with ACTION_EXPOSE=off never loads this file: no :8443 port, and the action.d glob
+# resolves to nothing. So this override is the whole of "expose the action query API".
+#
+# POC NOTE: this surface is DELIBERATELY unauthenticated (see brain.env ACTION_*). The gateway
+# still INSPECTS it (ACTION_EXTERNAL_INSPECT) so its traffic is monitorable, and the neuron
+# behind it holds only a reader token — but there is no bearer/role gate on :8443 yet.
+services:
+  gateway:
+    ports:
+      - "${GW_BIND_ADDRESS:-127.0.0.1}:${ACTION_GW_PORT:-8443}:8443"
+    volumes:
+      - ./nginx/action.conf:/etc/nginx/action.d/action.conf:ro
+      # The action:call admission map (ADR 0010 -> ADR 0017). Referenced by action.conf's
+      # $is_action_caller map when ACTION_GW_AUTHZ=token; mounted here so the bearer gate has its
+      # membership list. Harmless (unused) when ACTION_GW_AUTHZ=open.
+      - ./nginx/action_tokens.map:/etc/nginx/action_tokens.map:ro

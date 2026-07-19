@@ -1,0 +1,46 @@
+# brain_factory — self-sufficient. This file depends on nothing outside the repo root.
+
+# --- Secrets and live key material ------------------------------------------
+# The *.example TEMPLATES are the config seam and MUST ship; the carve-outs below
+# mirror _is_example() in deploy_brain.py.
+certs/
+*.pem
+*.key
+!*.pem.example
+!*.key.example
+.env
+!.env.example
+
+# --- Runtime / transient state ----------------------------------------------
+.transient/
+chroma_store/
+wsl_engine/
+wsl_engine_export/
+
+# --- Build cruft ------------------------------------------------------------
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# --- Agent tooling (host-local; often an absolute symlink) -------------------
+.claude/
+
+# --- Excluded classes: superseded or private, never published ----------------
+# Packaging outputs — the --package path is gone; a tar is now just a checkout.
+dist/
+deployer_tooling/
+scratchpad/
+
+# Private corpus — engineering journals and decision records stay out.
+development_journals/
+
+# Host-specific provisioning state written into a deployed brain, not a source artifact.
+*_provision.json
+
+# --- OS / editor noise ------------------------------------------------------
+Thumbs.db
+desktop.ini
+.DS_Store
+*.swp
+*~

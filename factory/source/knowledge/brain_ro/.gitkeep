@@ -1,0 +1,3 @@
+# knowledge/brain_ro — read-only knowledge inbox seed (delivered sources land here).
+# The live vector store lives on the distro's ext4 (knowledge/brain_rw/chroma via the
+# data door), never over 9p. This .gitkeep just seeds the directory in the package.

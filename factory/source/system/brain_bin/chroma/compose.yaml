@@ -1,0 +1,42 @@
+# Horizon AIOS — per-brain ChromaDB stack
+# ----------------------------------------
+# One brain = one isolated stack. Every resource below is namespaced to the
+# brain so that multiple brains can run their own Chroma side-by-side on one
+# engine without colliding. Values come from the sibling `.env` file, which the
+# admin onboarding script (`../onboard.py`) generates per deployment.
+#
+# Project name is set via COMPOSE_PROJECT_NAME in .env (read automatically),
+# so container/volume/network names all derive from the brain name.
+#
+# Verify after `docker compose up -d`:
+#   curl http://127.0.0.1:${CHROMA_PORT}/api/v2/heartbeat   ->  {"nanosecond heartbeat": ...}
+
+services:
+  chroma:
+    image: chromadb/chroma:${CHROMA_VERSION:-1.5.0}
+    container_name: ${BRAIN_NAME}-chroma
+    restart: unless-stopped
+    # Publish to loopback ONLY. The vector store is private to this host; nothing
+    # off-box should reach it. Drop the 127.0.0.1 prefix only if you deliberately
+    # want LAN exposure (and then put auth in front of it).
+    ports:
+      - "127.0.0.1:${CHROMA_PORT:-8000}:8000"
+    # Bind-mount the persist dir INTO the brain folder (knowledge/chroma_store),
+    # NOT a named volume. This is deliberate: when the stack is brought up under
+    # the BRAIN USER's own Docker Desktop, the file-sharing proxy is the brain, so
+    # files written here are brain-OWNED on NTFS and live under the brain's own
+    # knowledge/ tree. The owner can then be fenced out with knowledge_lock.py.
+    # (Tradeoff accepted: the 9P host<->WSL2 boundary is slower than a named volume;
+    # for a brain-scoped store this is the right call - ownership over raw speed.)
+    # Path is relative to THIS compose file, so it travels with the brain folder.
+    volumes:
+      - ../../knowledge/chroma_store:/data
+    networks:
+      - brain_net
+
+# Dedicated user-defined network. Even with one service this gives the brain its
+# own isolated bridge — the moment a second service (e.g. an embedder) joins,
+# they get DNS-by-service-name for free and stay off other brains' networks.
+networks:
+  brain_net:
+    name: ${BRAIN_NAME}_net

@@ -1,0 +1,16 @@
+# Writer token allow-list (included into `map $http_authorization $is_writer`).
+#
+# Copy this file to `writer_tokens.map` (the real file is gitignored / never
+# committed) and set a strong token. One line per token: a regex matching the full
+# Authorization header value → 1 (= is a writer). `~*` is case-insensitive so
+# "Bearer" capitalization doesn't matter; \s+ tolerates extra spaces.
+#
+# This file is ADMIN-WRITABLE ONLY (runtime group DENY-write, per the ACL primer's
+# "gateway config + bearer map-token file" surface). The brain can SEE its
+# allow-list but cannot edit its own. Don't hand-edit in production — use the
+# brain_sbin token tooling, which writes this file + reloads the gateway.
+#
+# Generate a real token with:  openssl rand -hex 32
+# After changing: `docker compose exec gateway nginx -s reload` (or restart gateway).
+
+"~*^Bearer\s+CHANGE-ME-writer-token$"  1;
