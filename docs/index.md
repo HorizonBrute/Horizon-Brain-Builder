@@ -28,3 +28,15 @@ ships into a deployed brain and that the policy `@`-pointers resolve against —
 
 - [default_brain_network_overview.svg](default_brain_network_overview.svg) — plain-language overview of how the default brain works: caller, documents, gateway, answer.
 - [default_brain_network_detail.svg](default_brain_network_detail.svg) — network topology detail: consumer side, gateway ports, bind posture.
+
+## Documentation elsewhere in the repo
+
+This `docs/` folder is the package documentation front. Other docs live **with the code they explain**;
+each location below carries its own index or README:
+
+- [`../README.md`](../README.md) — repo front door: install + orientation (AI-agent and human paths).
+- [`../factory/source/system/brain_bin/index.md`](../factory/source/system/brain_bin/index.md) — the operational docs that ship inside every brain, plus the per-seam READMEs (deploy, provision, gateway, chroma).
+- [`../factory/source/brain_etc.example/README.md`](../factory/source/brain_etc.example/README.md) — the config-seam template; per-seam READMEs for gateway, docker, chroma, ollama, tls, github.
+- Neuron platform: [`../factory/source/system/common_neuron_platform/input/README.md`](../factory/source/system/common_neuron_platform/input/README.md) (write side) · [`../factory/source/system/common_neuron_platform/action/README.md`](../factory/source/system/common_neuron_platform/action/README.md) (read side).
+- [`../factory/source/skills/index.md`](../factory/source/skills/index.md) — the skills scaffold a brain inherits.
+- [`../aios/INSTALL.md`](../aios/INSTALL.md) — installing the factory as a Horizon AIOS Options Package.
