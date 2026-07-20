@@ -1,8 +1,8 @@
-# Installing the Brain Builder into Horizon AIOS
+# Installing the Brain Builder into Horizon.AIOS
 
-This is the **optional** AIOS wrapper. The builder in the repo root already works standalone with no
-install — this layer registers it as a discoverable, sync-protected Options Package inside a Horizon
-AIOS instance. Unlike a skill package, **nothing is copied**: the builder is a heavy CLI toolchain, so
+This is the **optional** Horizon.AIOS wrapper. The builder in the repo root already works standalone with no
+install — this layer registers it as a discoverable, sync-protected Options Package inside a Horizon.AIOS
+instance. Unlike a skill package, **nothing is copied**: the builder is a heavy CLI toolchain, so
 `install` registers it and injects a discovery pointer, and the toolchain runs **in place** from the
 clone.
 
@@ -12,7 +12,7 @@ Installer: **`aios/install/horizon_brain_builder_package.py`** — cross-platfor
 ## Deployment model
 
 A deployed package is a **git clone under `$HORIZON_SYSTEM/deployed_packages/<name>/`** (so it can pull
-its own updates) plus a machine-local registry entry the AIOS sync reads.
+its own updates) plus a machine-local registry entry the Horizon.AIOS sync reads.
 
 ```
 $HORIZON_SYSTEM/
@@ -28,7 +28,7 @@ projects/
 
 1. **Injects a discovery-context pointer** — a marker-delimited block from `install/context_pointer.md`
    (clone path substituted) — at the end of `$HORIZON_ROOT/projects/agents.md`, so agents discover the
-   builder and how to run it. Kept terse to respect the AIOS terseness budget.
+   builder and how to run it. Kept terse to respect the Horizon.AIOS terseness budget.
 2. **Configures the clone pull-only** if it lives under `deployed_packages/` (a deployment mirror). The
    development canon (a checkout elsewhere, e.g. `projects/horizon_brain_builder`) is left push-enabled.
 3. **Registers the package** in `$HORIZON_ETC/horizon_deployed_packages.local.json`: name, version
@@ -44,7 +44,7 @@ the registry view.
 
 ## Registry ↔ sync integration
 
-The AIOS two-lane sync (`horizon_aios_sync.py`) reads this registry. Its **official lane** overwrites
+The Horizon.AIOS two-lane sync (`horizon_aios_sync.py`) reads this registry. Its **official lane** overwrites
 everything except `projects/usrbin/brains` from upstream — which would otherwise clobber a package
 living under the official-owned `horizon_system/`. The sync's `official_pathspec()` **also excludes
 every registered clone with `sync != false`**, so a deployed package is protected from the overwrite
@@ -88,6 +88,6 @@ untouched** — each deployed brain is self-contained (it runs from its own stag
   lane) yet carried by the hourly personal backup sync (its name matches the `*local*` re-include).
 - The installer writes only inside `$HORIZON_ETC` and a managed block in `projects/agents.md`. It does
   not touch privileged system dirs and copies no toolchain.
-- The builder also runs with **zero AIOS dependency**: standalone `create_brain.py` + the deployers
+- The builder also runs with **zero Horizon.AIOS dependency**: standalone `create_brain.py` + the deployers
   resolve the install root from `--install-root`/`$AIOS_INSTALL_ROOT`, and read the brain password from
   the brain-owned OS-keyring namespace (`brain:<brain>`). No `HORIZON_*` is required outside this wrapper.

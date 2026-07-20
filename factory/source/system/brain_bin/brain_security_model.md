@@ -1,6 +1,6 @@
 # Brain Security Model — the Standard Shape
 
-Authoritative design for how a Horizon AIOS brain is hardened. A brain is a
+Authoritative design for how a Horizon.AIOS brain is hardened. A brain is a
 **sandboxed, least-privilege agent runtime**: an autonomous thing that can do its
 job and *nothing else*, assembled from architectures operators already know
 (a least-privilege service account + a read-only application deploy + admin-owned
