@@ -3,7 +3,7 @@
 create_brain.py — Brain Provisioning Script (standalone)
 ========================================================
 
-Factory-owned provisioning script. This is the STANDALONE seam: the fallback
+Builder-owned provisioning script. This is the STANDALONE seam: the fallback
 used when no host platform supplies its own create-brain provider. It stands up
 a brain on an ordinary host — the "plug in, not require" principle.
 

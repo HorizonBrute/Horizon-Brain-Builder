@@ -1,4 +1,4 @@
-# Brain Factory
+# Brain Builder
 
 **Build and deploy _brains_ — per-brain sealed RAG runtimes — from one CLI toolchain.**
 A "brain" is a self-contained retrieval stack: **ChromaDB + Ollama behind an nginx token
@@ -12,7 +12,7 @@ Everything is token-gated and network-sealed; the gateway is the only door.
 > identical* either way; the AIOS layer (`aios/`) only adds discovery + sync-protected updates on top. If
 > you have no Horizon AIOS, you install nothing — you just clone and deploy.
 
-This repo is the **code** (the "factory"), never a running brain. New brains are *instantiated from* it;
+This repo is the **code** (the build tooling), never a running brain. New brains are *instantiated from* it;
 a deployed brain runs its **own staged copy** of this tree.
 
 ---
@@ -25,14 +25,14 @@ a deployed brain runs its **own staged copy** of this tree.
 
 | Signal | You are… | Do this |
 |---|---|---|
-| `$HORIZON_SYSTEM` / `$HORIZON_ROOT` are set and a `horizon_system/` tree exists | **inside a Horizon AIOS instance** | **Install as an Options Package** (below). It registers the factory and injects a discovery pointer — the toolchain still runs *in place* from the clone; **nothing is copied** into the OS. |
+| `$HORIZON_SYSTEM` / `$HORIZON_ROOT` are set and a `horizon_system/` tree exists | **inside a Horizon AIOS instance** | **Install as an Options Package** (below). It registers the builder and injects a discovery pointer — the toolchain still runs *in place* from the clone; **nothing is copied** into the OS. |
 | No `HORIZON_*` env, no AIOS tree | **standalone host** | **Do not install anything.** Clone the repo and deploy a brain directly with the orchestrator, passing `--install-root <dir>` (or setting `$AIOS_INSTALL_ROOT`). |
 
 **Install as a Horizon AIOS Options Package** (idempotent, stdlib-only, Python 3.8+):
 ```bash
-git clone https://github.com/HorizonBrute/Horizon-Brain-Workshop \
-  "$HORIZON_SYSTEM/deployed_packages/horizon_brain_factory"
-python "$HORIZON_SYSTEM/deployed_packages/horizon_brain_factory/aios/install/horizon_brain_factory_package.py" install
+git clone https://github.com/HorizonBrute/Horizon-Brain-Builder \
+  "$HORIZON_SYSTEM/deployed_packages/horizon_brain_builder"
+python "$HORIZON_SYSTEM/deployed_packages/horizon_brain_builder/aios/install/horizon_brain_builder_package.py" install
 ```
 `install` → injects a discovery pointer into `projects/agents.md`, registers the package in
 `horizon_deployed_packages.local.json` (so AIOS sync **protects, updates and backs it up**), and sets the
@@ -67,7 +67,7 @@ LAN (see the security model before you do). A plain `deploy` re-stages code onto
 
 | | Standalone | As a Horizon AIOS Options Package |
 |---|---|---|
-| **Install step** | none — clone and run | `aios/install/horizon_brain_factory_package.py install` |
+| **Install step** | none — clone and run | `aios/install/horizon_brain_builder_package.py install` |
 | **Install root** | `--install-root <dir>` or `$AIOS_INSTALL_ROOT` (explicit — no default, no guess) | same; inside AIOS it can also fall back to `$HORIZON_ROOT` |
 | **Brain password** | OS keyring, brain-owned namespace `brain:<brain>` | same (no AIOS keystore dependency in the core) |
 | **`HORIZON_*` env** | **not required anywhere in the core** | read only by the `aios/` wrapper, never by the brain-build core |
@@ -87,7 +87,7 @@ VERSION                       ← package version (semver); the installer reads 
 LICENSE                       ← AGPL-3.0
 windows_deploy_brain.py       ← Windows/WSL2 deploy orchestrator (host-side; run elevated)
 linux_deploy_brain.py         ← native-Linux deploy orchestrator (systemd + rootless Docker; run with sudo)
-factory/
+factory/                      ← build tooling + brain image (dir keeps its historical name; the deploy staging root)
   create_brain.py             ← standalone brain-provisioning provider (OS account/group/ACL/keyring)
   source/                     ← THE BRAIN IMAGE: exactly the tree a deployed brain gets (copied at deploy)
     system/brain_bin/         ← tier-1 canon: operator tooling + the operational docs (ship into each brain)
@@ -125,4 +125,4 @@ aios/                         ← the OPTIONAL Horizon AIOS Options-Package wrap
 ## Version & license
 
 `VERSION` = **0.2.0**. Licensed **AGPL-3.0** (see [`LICENSE`](LICENSE)).
-Namespace for the AIOS package is `horizon_brain_factory_*` — never `horizon_aios_*` (that is OS core).
+Namespace for the AIOS package is `horizon_brain_builder_*` — never `horizon_aios_*` (that is OS core).

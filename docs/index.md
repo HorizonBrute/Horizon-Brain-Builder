@@ -1,10 +1,10 @@
 # Docs index
 
-Operational documentation for the brain factory. One line per document.
+Operational documentation for the brain builder. One line per document.
 
 ## Overview
 
-- [README.md](README.md) — what the factory is: the canonical build/deploy tooling, and how a brain is instantiated from `source/`.
+- [README.md](README.md) — what the builder is: the canonical build/deploy tooling, and how a brain is instantiated from `source/`.
 
 ## Deploy and operate
 
@@ -39,4 +39,4 @@ each location below carries its own index or README:
 - [`../factory/source/brain_etc.example/README.md`](../factory/source/brain_etc.example/README.md) — the config-seam template; per-seam READMEs for gateway, docker, chroma, ollama, tls, github.
 - Neuron platform: [`../factory/source/system/common_neuron_platform/input/README.md`](../factory/source/system/common_neuron_platform/input/README.md) (write side) · [`../factory/source/system/common_neuron_platform/action/README.md`](../factory/source/system/common_neuron_platform/action/README.md) (read side).
 - [`../factory/source/skills/index.md`](../factory/source/skills/index.md) — the skills scaffold a brain inherits.
-- [`../aios/INSTALL.md`](../aios/INSTALL.md) — installing the factory as a Horizon AIOS Options Package.
+- [`../aios/INSTALL.md`](../aios/INSTALL.md) — installing the builder as a Horizon AIOS Options Package.

@@ -1,7 +1,7 @@
-# Brain Factory — canonical brain-build tooling
+# Brain Builder — canonical brain-build tooling
 
 **This repo is the single source of truth for the brain-build/deploy tooling.**
-It is the CODE ("factory"), not any running brain. New brains are instantiated FROM
+It is the CODE (the build tooling), not any running brain. New brains are instantiated FROM
 here; a live brain's `system/brain_bin/` / `system/brain_sbin/` is a staged *instance*
 of this, never the master.
 

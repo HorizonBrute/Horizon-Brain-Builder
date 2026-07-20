@@ -1,5 +1,5 @@
-site_name: "Horizon Brain Workshop — Brain Factory"
-site_description: "Operational documentation for the brain factory: per-brain sealed RAG runtimes (ChromaDB + Ollama + nginx gateway)."
+site_name: "Horizon Brain Builder"
+site_description: "Operational documentation for the brain builder: per-brain sealed RAG runtimes (ChromaDB + Ollama + nginx gateway)."
 docs_dir: docs
 theme:
   name: material

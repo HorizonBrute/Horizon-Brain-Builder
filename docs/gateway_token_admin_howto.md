@@ -23,7 +23,7 @@ Token management writes the gateway's **seam source of truth** — the host-side
 ## 2. Prerequisites
 
 1. You are the operator (owner or admin) of `<install-root>/<brain>`.
-2. Run the tool from the **brain's deployed mirror copy**: `<install-root>/<brain>/brain_sbin/gateway_token.py`. It resolves its brain **from its own folder** — `BRAIN_DIR` is the tool's parent's parent, and `/home/<brain>` is derived from that. The map path is derived from the tool's location, **not** from `--brain` (`--brain` only overrides the name, defaulting to the folder). **Do not** run the factory canon copy; run the mirror so it targets the right brain's seam.
+2. Run the tool from the **brain's deployed mirror copy**: `<install-root>/<brain>/brain_sbin/gateway_token.py`. It resolves its brain **from its own folder** — `BRAIN_DIR` is the tool's parent's parent, and `/home/<brain>` is derived from that. The map path is derived from the tool's location, **not** from `--brain` (`--brain` only overrides the name, defaulting to the folder). **Do not** run the canon source copy; run the mirror so it targets the right brain's seam.
 3. The gateway stack is up (for the live recreate to succeed). If it is down, the token change still saves durably to the seam and applies on the next keepalive.
 
 ---
