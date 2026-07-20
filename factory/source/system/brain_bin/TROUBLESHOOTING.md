@@ -217,6 +217,38 @@ can't reach the RAG endpoint after a current deploy, work through both in order:
 
 ---
 
+## Orchestrator command gotchas (`verify` / `status` / `--install-root`)
+
+Notes for driving `windows_deploy_brain.py` from the **operator** console (not the brain's). These
+are about the deploy tool itself, not a running stack.
+
+**`verify` or `status` hangs — banner prints, then nothing (has to be killed).**
+`python windows_deploy_brain.py verify --brain <brain> …` (or `status`) emits its banner and then
+blocks forever. **Cause:** these verbs hop into the brain's per-user distro via `run_as_brain`, which
+must resolve the brain's Windows password from the OS keystore — and that lookup only finds it when
+the platform keyring namespace is advertised via `$BRAIN_KEYRING_SERVICE`. Older builds set that seam
+in `deploy`/`teardown` but **not** in `cmd_verify`/`cmd_status`, so the first distro hop fell through
+to `run_as_brain.get_password()`'s interactive `getpass()` prompt on a non-interactive console →
+indefinite stdin block. (Deploy's *inline* `[10/10]` verify was never affected — `cmd_deploy` sets
+the seam first.) **Fix:** current builds export the seam in `cmd_verify` (commit `3074f3f`). On an
+older build, update — or run from a context where the brain credential resolves (set
+`$AIOS_INSTALL_ROOT` / export the provider keyring seam) so the keystore hit succeeds instead of
+prompting. A wrong credential then surfaces as a nonzero rc the checks already `die` on, not a hang.
+
+**Leftover config folder / "split brain" after a custom `--install-root`.**
+After `teardown --purge`, an inert `<root>\brains\<brain>\` (holding `brain_etc/`, `system/`) is still
+present under a **custom** `--install-root`, even though the account, distro, and the
+`$HORIZON_ROOT` workspace are all gone. **Cause:** `--install-root` governs only the **engine/WSL
+residency** path. The `create_brain` sub-phase always provisions the OS account + brain **workspace**
+into `$HORIZON_ROOT`, and teardown's `remove_brain` cleans `$HORIZON_ROOT` — so an `--install-root`
+that **diverges** from `$HORIZON_ROOT` splits the brain across two trees and only the `$HORIZON_ROOT`
+side is torn down. The distro **data** is destroyed by `wsl --unregister`; only inert scaffolding
+leaks. **Avoid:** pass `--install-root` equal to the real AIOS root (or set `$AIOS_INSTALL_ROOT`) — do
+**not** point it at a throwaway dir expecting a sandbox. Any leftover tree is safe to delete by hand
+(no live data survives the unregister).
+
+---
+
 ## Task Scheduler result-code decoder
 
 | Code | Hex | Meaning |
