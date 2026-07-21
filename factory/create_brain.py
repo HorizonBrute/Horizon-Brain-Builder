@@ -822,22 +822,31 @@ def phase4_verify(ctx, dry_run=False):
 
     results = {}
 
-    # -- User exists --
-    results['user_exists'] = _user_exists(brain_name, os_name)
-    _report_check('User exists', results['user_exists'])
-
-    # Per-brain group: <brain-name>_group on Windows, <brain-name> on Unix.
-    if os_name == 'Windows':
-        brain_group = f'{brain_name}_group'
-        results['in_brain_group'] = _check_group_membership(brain_name, brain_group, os_name)
-        _report_check(f'User in "{brain_group}" group', results['in_brain_group'])
+    # In dry-run nothing was created, so the existence checks below cannot pass — skip them
+    # (report None, like the folder-permission check) instead of emitting false [FAIL]s. This keeps
+    # a clean dry-run at exit 0; the real run still verifies every check.
+    if dry_run:
+        results['user_exists'] = None
+        results['in_brain_group'] = None
+        results['brain_dir_exists'] = None
+        info('User / group / folder existence checks skipped (dry-run — nothing was created)')
     else:
-        results['in_brain_group'] = _check_group_membership(brain_name, brain_name, os_name)
-        _report_check(f'User in "{brain_name}" group', results['in_brain_group'])
+        # -- User exists --
+        results['user_exists'] = _user_exists(brain_name, os_name)
+        _report_check('User exists', results['user_exists'])
 
-    # -- Brain folder exists --
-    results['brain_dir_exists'] = os.path.isdir(brain_dir)
-    _report_check(f'Brain folder exists: {brain_dir}', results['brain_dir_exists'])
+        # Per-brain group: <brain-name>_group on Windows, <brain-name> on Unix.
+        if os_name == 'Windows':
+            brain_group = f'{brain_name}_group'
+            results['in_brain_group'] = _check_group_membership(brain_name, brain_group, os_name)
+            _report_check(f'User in "{brain_group}" group', results['in_brain_group'])
+        else:
+            results['in_brain_group'] = _check_group_membership(brain_name, brain_name, os_name)
+            _report_check(f'User in "{brain_name}" group', results['in_brain_group'])
+
+        # -- Brain folder exists --
+        results['brain_dir_exists'] = os.path.isdir(brain_dir)
+        _report_check(f'Brain folder exists: {brain_dir}', results['brain_dir_exists'])
 
     if results['brain_dir_exists'] and not dry_run:
         results['brain_dir_perms'] = _check_folder_permissions(brain_dir, os_name)
@@ -852,7 +861,10 @@ def phase4_verify(ctx, dry_run=False):
 
     # -- Summary --
     banner('Summary')
-    if all_passed:
+    if dry_run:
+        print(f'  Dry-run complete for brain "{brain_name}" — no changes were made.\n'
+              f'  Re-run without --dry-run to provision.\n')
+    elif all_passed:
         print(f'  Brain "{brain_name}" provisioned successfully.\n')
     else:
         print(f'  Brain "{brain_name}" provisioning completed with warnings/failures.\n')
