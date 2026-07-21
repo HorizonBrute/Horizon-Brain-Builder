@@ -577,11 +577,18 @@ def provision_runtime(args):
                         f"bash {shell_quote(str(canon_gateway / 'gen-cert.sh'))} {posture}")
     ok("gateway stack laid + TLS cert generated (~/gateway/gateway_out/cert.pem)")
 
-    # 4. Bring the stack up (rootless compose as the brain).
-    rc, out, e = brain_sh(brain, "cd ~/docker && docker compose up -d")
-    if rc != 0:
-        die(f"docker compose up FAILED:\n{out}{e}")
-    ok("Chroma + gateway stack up (rootless, as the brain)")
+    # 4. Do NOT bring the stack up here — mirror the Windows orchestrator, which never runs a
+    #    compose command before the config+tokens are rendered. The staged compose.yaml references
+    #    per-neuron tokens with the fail-closed `${NEURON_TOKEN__...:?}` form; docker compose
+    #    interpolates the WHOLE file (all services, even profile-gated ones) before doing anything,
+    #    so ANY `compose up` here aborts ("required variable NEURON_TOKEN__... is missing") because
+    #    those tokens are not minted until the gateway stage. (The old bootstrap-CHROMA `.env` seed
+    #    could also mint a token that the seam-rendered `.env` later replaces, desyncing chroma from
+    #    the gateway.) The FIRST bring-up is the gateway stage: it mints the bootstrap + neuron
+    #    tokens, runs `gateway_config generate` to render `~/docker/.env` (via the seam sync of
+    #    `.env.rendered`), then force-recreates through the apply primitive — exactly the Windows
+    #    reapply_stack order. Residency then brings the full stack up on each boot.
+    ok("runtime provisioned (rootless Docker + stack laid); stack comes up in the gateway stage")
 
 
 def shell_quote(s):
