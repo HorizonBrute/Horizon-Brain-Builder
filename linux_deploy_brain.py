@@ -803,17 +803,44 @@ def gateway(args):
     print(f"    reader (read-only): Bearer {reader_tok}")
     print(f"    writer (read+write): Bearer {writer_tok}")
 
-    # 3. Apply the seam (sync mode-C template + token maps from the RO mount into the runtime)
-    #    and force-recreate the gateway so envsubst re-renders. Run as the brain (rootless
-    #    Docker socket lives in the brain's XDG_RUNTIME_DIR; ~ = the brain home).
-    compose = f"{home}/docker/compose.yaml"
-    apply = (f"bash {MOUNT_POINT}/scripts/apply_brain_truths.sh -- "
-             f"docker compose -f {compose} up -d --force-recreate gateway")
+    # 3. Regenerate the mount->runtime apply manifest (Windows parity: reapply_brain_configs
+    #    step 2, brain_truths.build_manifest). The manifest SEEDED from brain_etc.example is a
+    #    stale template — it maps the two-zone `brain.env` to ~/docker/.env and carries a literal
+    #    unexpanded ${BRAIN_NAME} in its dest paths (apply_brain_truths reads dests verbatim, so
+    #    those would land in a phantom /home/${BRAIN_NAME}/ dir). build_manifest maps the RENDERED
+    #    flat env (docker/.env.rendered, carrying BRAIN_NAME + neuron tokens + COMPOSE_FILE +
+    #    COMPOSE_PROFILES) plus every gateway_config auto-gen output (nginx_auto_gen, token maps,
+    #    fail2ban, the exposure overlays), with ~ expanded to the brain home.
+    brain_sbin = brain_dir / "system" / "brain_sbin"
+    manifest = brain_dir / "brain_etc" / "wsl" / "apply.manifest"
+    rc_m, out_m, e_m = run_out([sys.executable, "-c",
+        "import sys; sys.path.insert(0, sys.argv[1]); import brain_truths as bt; "
+        "open(sys.argv[4], 'w', newline='\\n').write(bt.build_manifest(sys.argv[2], sys.argv[3]))",
+        str(brain_sbin), brain, str(brain_dir), str(manifest)])
+    if rc_m != 0:
+        warn(f"apply.manifest regeneration failed (rc={rc_m}); the seam sync will use the stale "
+             f"seeded manifest and likely mis-sync.\n{out_m}{e_m}")
+    else:
+        ok("apply.manifest regenerated (.env.rendered + auto-gen outputs -> ~/docker/, ~ expanded)")
+
+    # 4. Apply the seam + bring up the FULL base stack. The ONE apply primitive syncs every file
+    #    named in the manifest from the RO mount into ~/docker/ (so ~/docker/.env now carries the
+    #    rendered tokens/COMPOSE_FILE/COMPOSE_PROFILES, and the mode-C nginx + token maps + overlays
+    #    land beside the compose files), THEN runs the recreate — sync-then-act, rolling back the
+    #    config if the recreate fails, exactly like the Windows reapply_stack. The recreate is a
+    #    plain `up -d --force-recreate` from ~/docker so docker compose auto-loads .env and honors
+    #    COMPOSE_FILE (overlays) + COMPOSE_PROFILES (gateway,ollama,fail2ban — NOT neurons, so the
+    #    template neuron scaffold is not started and needs no image build). The portable script
+    #    ships at system/brain_bin/provision/apply_brain_truths.sh (NOT in the seam) and reads the
+    #    /opt/brain_truths mount. Run as the brain (rootless Docker socket in its XDG_RUNTIME_DIR).
+    apply_sh = brain_dir / "system" / "brain_bin" / "provision" / "apply_brain_truths.sh"
+    recreate = "cd ~/docker && docker compose up -d --force-recreate"
+    apply = (f"bash {shell_quote(str(apply_sh))} -- "
+             f"bash -lc {shell_quote(recreate)}")
     rc, out, e = brain_sh(brain, apply)
     if rc != 0:
-        # Fall back to a plain recreate if the apply primitive isn't present in the seam yet.
-        warn(f"seam apply returned {rc}; attempting a plain gateway recreate.\n{out}{e}")
-        brain_sh(brain, f"cd ~/docker && docker compose up -d --force-recreate gateway")
+        die(f"seam apply + stack recreate FAILED (rc={rc}) — the mode-C gateway is not live.\n{out}{e}")
+    ok("seam applied + base stack recreated (chroma + gateway + ollama + fail2ban, mode C live)")
     else:
         ok("seam applied + gateway recreated (mode C admission + bootstrap tokens live)")
 
