@@ -398,6 +398,10 @@ def validate_brain_name(name):
 
 
 def user_exists(brain):
+    # OS-forced (account probe). Linux: the brain is an OS user (`id`); Windows: a local account.
+    if _IS_LINUX:
+        rc, _, _ = run_out(["id", brain])
+        return rc == 0
     rc, out, _ = run_out(["powershell", "-NonInteractive", "-Command",
                           f'Get-LocalUser -Name "{brain}" -ErrorAction SilentlyContinue'])
     return bool(out.strip())
@@ -2117,17 +2121,30 @@ def _deliver_data_seams(args, brain_dir, rab):
         host_src = brain_dir / host_sub
         if not host_src.is_dir():
             continue
-        # Forward-slash the Windows path: a BACKSLASH path loses its separators across the
-        # run_as_brain bridge (bash eats the backslash + following char, e.g. `\H` -> `H`, so a
-        # path like C:\Home\... arrives as C:Home... and the mount dies "special device does not
-        # exist"). drvfs accepts
-        # the forward-slash form as-is. Same hazard `_wsl_path` already documents for wslpath.
-        src_win = str(host_src).replace("\\", "/")
-        # Non-trivial shell rides as a SCRIPT by path with positional args, never inline `--`:
-        # bare $VAR marshals to EMPTY across the run_as_brain bridge (ratified contract). Root:
-        # mount/umount/chown need it; the script chowns the tree back to the brain.
-        rc = run([sys.executable, str(rab), "--brain", args.brain, "--wsl", "--root", "--",
-                  "bash", deliver, src_win, dst, args.brain], check=False).returncode
+        if _IS_LINUX:
+            # OS-forced (root seam delivery). No distro / 9p barrier on Linux: host_src already
+            # lives on the real fs the brain's rootless docker bind-mounts, so the transient-drvfs
+            # copy dance the Windows path needs does not apply. Copy-merge into the brain home and
+            # chown to the brain — run directly as root (we are the already-root deployer), NOT via
+            # an identity switch (run_as_brain_argv refuses root=True on Linux by design, NOTE 001-5).
+            # Same idempotent `cp -r` merge semantics (removes nothing).
+            run(["mkdir", "-p", dst], check=True)
+            rc = run(["cp", "-r", f"{host_src}/.", dst], check=False).returncode
+            if rc == 0:
+                rc = run(["chown", "-R", f"{args.brain}:{args.brain}", dst], check=False).returncode
+        else:
+            # Forward-slash the Windows path: a BACKSLASH path loses its separators across the
+            # run_as_brain bridge (bash eats the backslash + following char, e.g. `\H` -> `H`, so a
+            # path like C:\Home\... arrives as C:Home... and the mount dies "special device does not
+            # exist"). drvfs accepts
+            # the forward-slash form as-is. Same hazard `_wsl_path` already documents for wslpath.
+            src_win = str(host_src).replace("\\", "/")
+            # Non-trivial shell rides as a SCRIPT by path with positional args, never inline `--`:
+            # bare $VAR marshals to EMPTY across the run_as_brain bridge (ratified contract). Root:
+            # mount/umount/chown need it; the script chowns the tree back to the brain.
+            rc = run(run_as_brain_argv(rab, args.brain,
+                                       ["bash", deliver, src_win, dst, args.brain],
+                                       root=True), check=False).returncode
         if rc != 0:
             die(f"data-seam delivery of {host_sub} -> {dst} failed (rc={rc}). The input neuron "
                 f"bind-mounts this tree and will exit 1 without it ('delivery script not found'), "
@@ -2209,8 +2226,7 @@ def neuron_bundles(args):
     # would fail here — that engine also carries no neuron source, so nothing to run anyway.)
     build = ("cd ~/docker && docker compose --profile gateway --profile ollama "
              "--profile fail2ban --profile neurons up -d --pull never")
-    code, out, e = run_out([sys.executable, str(rab), "--brain", args.brain, "--wsl",
-                            "--", build])
+    code, out, e = run_out(run_as_brain_argv(rab, args.brain, build))
     if code != 0:
         # FATAL, not a warning. The scaffold case (no Dockerfile — nothing to run) already
         # returned above, so reaching here means this brain HAS neuron source and its bundle
