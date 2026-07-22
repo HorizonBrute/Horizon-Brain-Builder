@@ -24,13 +24,17 @@ are genuinely OS-forced (engine host+snapshot, identity switch, seam mount, resi
 everything else is shared. See NOTE 001-1 for the one real open design question.
 
 ## Where the project stands
-Planning complete; **no product code written yet.** Two investigations done (root-cause of the cert
-bug + full Windows build-engine lifecycle map) — both distilled into the detail doc. One decision
-gates the build: **the Linux engine artifact** (NOTE 001-1) — recommendation is `docker save` +
-config/cert bundle, awaiting user confirm (Section 3 BLOCKED on it). Section 6 (gen-cert hardening,
-BUG-001-1) can land first, independent of the refactor. The live `dev_brain` is intentionally left
-down until Section 8 rebuilds it via the unified path (NOTE 001-3).
-Recommended build order: 1 → 6 → 3(confirm) → 2 → 4 → 5 → 7 → 8.
+**Sections 1 & 6 have landed** in `deploy_brain.py`: the `PlatformBackend` interface + Linux/Windows
+backends foundation (identity switch, account probes, naming, OS dispatch; engine/seam/residency/
+firewall are section-tagged stubs), and the shared TLS-cert stage done right (no-arg gen-cert, typed
+SAN only for server, the posture word rejected fatally, hard rc + cert-existence check). The
+`selftest` verb proves the cert contract green — **BUG-001-1 is closed at the contract level**.
+All design questions are resolved: the Linux engine artifact is `docker save` images + ollama-volume
+tar + config/cert bundle (NOTE 001-1, confirmed). Nothing is BLOCKED.
+Remaining code: Section 2 (shared build-engine), 3 (Linux snapshot/restore), 4 (shared deploy:
+create-account/seam/gateway/models/neurons/verify + residency/firewall), 5 (full CLI), 7 (retire the
+two old drivers + docs), 8 (rebuild dev_brain via the unified path — clears the live outage, NOTE 001-3).
+Recommended next: Section 2 → 3 → 4. Live `dev_brain` stays down by design until Section 8.
 
 ## What to read, in order
 1. This file.

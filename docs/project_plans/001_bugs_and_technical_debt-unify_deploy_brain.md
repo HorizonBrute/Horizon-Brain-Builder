@@ -22,8 +22,10 @@ project closes. Ids are stable: `BUG-001-K` / `DEBT-001-K`.
    `provision_runtime:578` then prints "TLS cert generated" **without checking rc** (false-green).
    Windows calls the same script correctly with no arg (`stage4_brain.sh:99`).
 3. **Severity/priority:** HIGH — takes the whole gateway down; must be cleared before close.
-4. **Status:** OPEN → to be FIXED by Section 6 (no-arg `gen-cert.sh` + rc check). Deliberately NOT
-   patched on the old line per NOTE 001-3 — the fix lands in the unified path / shared cert stage.
+4. **Status:** FIXED in `deploy_brain.py` (Section 6: `gen_cert_argv` + `cert_stage` — no-arg
+   personal, typed-SAN-only server, posture word rejected fatally, hard rc + cert-existence check;
+   `selftest` verb green). Pure contract VERIFIED; end-to-end cert bake proven at Section 8. Old
+   `linux_deploy_brain.py:576` deliberately left unpatched (NOTE 001-3) — that driver is being retired.
 
 ## DEBT-001-1 — Linux deploy is missing the ollama_models and neuron_bundles stages
 1. **Decision/context:** `linux_deploy_brain.py cmd_deploy` (8 stages) has no `ollama_models` and no

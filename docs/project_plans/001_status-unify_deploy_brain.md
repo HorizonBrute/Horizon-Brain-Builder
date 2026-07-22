@@ -19,13 +19,13 @@ When a whole Section reaches `VERIFIED`, move its block into
 ---
 
 ## Section 1 — Platform backend interface
-**Status:** NOT STARTED
+**Status:** DONE (`deploy_brain.py`) — `PlatformBackend` ABC + `LinuxBackend`/`WindowsBackend`. Implemented now: privilege, `account_exists`, identity switch (`brain_exec`: `sudo -u` / `run_as_brain --wsl`), `engine_exec` (Linux), `residency_status`, OS dispatch. Engine/seam/residency/firewall are honest `NotImplementedError` stubs tagged to their sections. `status` + `selftest` verbs live; compiles; `status` ran live against dev_brain.
 
 ## Section 2 — Shared build-engine
 **Status:** NOT STARTED · **Depends:** 1, 3
 
-## Section 3 — Linux engine artifact (DESIGN-OPEN)
-**Status:** BLOCKED · **Gate:** user confirmation of the `docker save` + config-bundle recommendation (NOTE 001-1)
+## Section 3 — Linux engine artifact
+**Status:** NOT STARTED · **Resolved:** engine = `docker save` images + ollama-volume tar + config/cert bundle (NOTE 001-1, confirmed 2026-07-21)
 
 ## Section 4 — Shared deploy
 **Status:** NOT STARTED · **Depends:** 1, 2
@@ -34,8 +34,7 @@ When a whole Section reaches `VERIFIED`, move its block into
 **Status:** NOT STARTED · **Depends:** 4
 
 ## Section 6 — gen-cert hardening (BUG-001-1)
-**Status:** NOT STARTED
-_Note: portable, low-risk; can land independently as the first product change since it is the bug's origin._
+**Status:** DONE (`deploy_brain.py`: `gen_cert_argv` + `cert_stage`) — no-arg gen-cert for personal, typed SAN only for server, the posture word rejected fatally, and a hard rc-check + cert-file existence check (no false-green). `selftest` verb proves the contract green. **VERIFIED** for the pure arg contract; end-to-end cert bake in a live engine is proven at Section 8 (needs Section 2's `engine_exec`).
 
 ## Section 7 — Migrate, retire, document
 **Status:** NOT STARTED · **Depends:** 5
@@ -49,8 +48,8 @@ _Note: portable, low-risk; can land independently as the first product change si
 
 Append-only, newest at the bottom. One `NOTE 001-K` per decision/update. Grep-able: `grep "NOTE 001-"`.
 
-## NOTE 001-1 | 2026-07-21 | Linux engine artifact = docker save + config bundle (recommended, pending confirm)
-- Status: OPEN
+## NOTE 001-1 | 2026-07-21 | Linux engine artifact = docker save + config bundle (CONFIRMED)
+- Status: RESOLVED (user-confirmed 2026-07-21)
 - ADR: none (self-contained; repo keeps no ADRs)
 - Sections: 3, 2
 - Context: Windows exports a WSL rootfs via `wsl --export`; Linux has no distro to export. The user
