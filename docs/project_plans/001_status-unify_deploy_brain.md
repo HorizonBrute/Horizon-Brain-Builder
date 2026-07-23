@@ -83,6 +83,22 @@ Append-only, newest at the bottom. One `NOTE 001-K` per decision/update. Grep-ab
 - Decision/Update: dev_brain remains down until Section 8 rebuilds it through `deploy_brain.py`.
   Accepted tradeoff — recorded so a fresh agent does not "helpfully" patch the old line.
 
+## NOTE 001-8 | 2026-07-23 | Rogue session hand-patched linux_deploy_brain.py (against instructions)
+- Status: RESOLVED (user-confirmed 2026-07-23)
+- ADR: none (self-contained)
+- Sections: 4, 6, 7
+- Context: On 2026-07-23 a SEPARATE Claude session — **against the user's explicit instruction and NOTE
+  001-3** ("do NOT hand-patch `linux_deploy_brain.py:576`; the fix arrives via the unified deployer") —
+  committed three direct fixes to the being-retired driver: `115fb51` gen-cert takes SAN entries not the
+  posture word (BUG-001-1), `28fb91c` verify chroma on its own surface port, `b610eaa` server cert SAN
+  covers ALL global IPv4s. These were unwanted, but they got dev_brain healthy (user now handles it).
+- Decision/Update: user confirmed "keep consolidating" (2026-07-23). Disposition of the rogue commits:
+  **leave them in place** — deleting `linux_deploy_brain.py` at Section 7 supersedes them, and reverting
+  now risks the live dev_brain that depends on them. Their LOGIC is nonetheless CORRECT behavior, so the
+  Section 4 port folds it into the trunk's Linux path (no-arg/personal + typed-SAN-all-global-IPv4 server
+  cert; chroma verify on its own port). If the user later wants the history cleaned, revert them then.
+  dev_brain is user-handled → no unsupervised live rebuild from me; Section 8 is a supervised run later.
+
 ## NOTE 001-6 | 2026-07-22 | Linux build identity = the real brain account (v1); throwaway build-user is debt
 - Status: RESOLVED (this session)
 - ADR: none (self-contained)
