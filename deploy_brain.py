@@ -1895,6 +1895,18 @@ def _create_brain_linux(args):
         if not user_exists(brain):
             die("useradd ran but the account still does not exist — check system logs.")
         ok(f'account "{brain}" provisioned')
+    # AIOS ACL model (/harden): $INSTALL_ROOT and brains/ are root:root and grant the shared
+    # `brains` group --x traverse, so a brain can reach its OWN staged tree (its folder is
+    # brain:brain 0750, the parents rely on this group ACL). Without brains-group membership,
+    # anything the brain runs — notably `docker build` reading its neuron build context under
+    # brains/<brain>/ — fails with "path not found". Ensure the group and the membership.
+    run(["groupadd", "-f", "brains"])
+    _, brain_groups, _ = run_out(["id", "-nG", brain])
+    if "brains" not in brain_groups.split():
+        run(["usermod", "-aG", "brains", brain])
+        ok(f"added {brain} to the shared 'brains' group (ACL traverse into brains/)")
+    else:
+        ok(f"{brain} already in the shared 'brains' group")
     for db in ("/etc/subuid", "/etc/subgid"):
         try:
             has = any(l.startswith(brain + ":") for l in Path(db).read_text().splitlines())

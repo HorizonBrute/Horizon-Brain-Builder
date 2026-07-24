@@ -77,6 +77,26 @@ project closes. Ids are stable: `BUG-001-K` / `DEBT-001-K`.
    would bypass the control). Network is torn down after the neuron stage (idempotent pre-clean each run).
    Compile-clean; live-validated at the Section 8 re-run.
 
+## BUG-001-5 — from-scratch create-brain omits `brains` group → brain can't traverse to its own tree
+1. **Observed:** 2026-07-23, Section 8 (after BUG-001-4 cleared). Model seed succeeded; stage 4 neuron
+   build died: `docker build … input` → `unable to prepare context: path "…/common_neuron_platform/input"
+   not found`. The path exists and is `dev_brain:dev_brain`, but `sudo -u dev_brain ls …/input` →
+   `Permission denied`. `id dev_brain` showed `groups=dev_brain` only — **not in the `brains` group**
+   (before teardown it was `dev_brain,brains`).
+2. **Root cause:** the AIOS ACL model (/harden) makes `$INSTALL_ROOT` and `brains/` root:root and grants
+   the shared **`brains` group `--x` traverse** (verified via getfacl: `group:brains:--x`). A brain reaches
+   its OWN folder (brain:brain 0750) only by traversing those parents as a `brains`-group member. But the
+   unified deployer's inline `_create_brain_linux` runs `useradd` + subuid + linger and **never joins the
+   brain to `brains`** (no brains-group reference existed in the create path). `docker build` runs as the
+   brain, so it could not read its own build context. (The original dev_brain had the membership because
+   the standalone `factory/create_brain.py` provisioner sets it; the minimal inline create dropped it.)
+3. **Severity/priority:** HIGH — any brain operation that reads under `brains/<brain>/` as the brain fails;
+   blocks neuron build (and is a latent trap for other brain-run reads). Must clear before close.
+4. **Status:** FIXED (2026-07-23) — `_create_brain_linux` now `groupadd -f brains` and `usermod -aG brains
+   <brain>` (idempotent; verifies via `id -nG`). **Live-validated:** adding the crashed account to `brains`
+   flipped `sudo -u dev_brain` access to the neuron context from `Permission denied` → `TRAVERSE_OK`.
+   Relates to DEBT-001-4 (inline v1 create vs the fuller standalone create_brain.py).
+
 ## DEBT-001-1 — Linux deploy is missing the ollama_models and neuron_bundles stages
 1. **Decision/context:** `linux_deploy_brain.py cmd_deploy` (8 stages) has no `ollama_models` and no
    `neuron_bundles` stage; Windows has both (stages 8–9). A Linux brain never syncs its model roster
