@@ -115,6 +115,30 @@ project closes. Ids are stable: `BUG-001-K` / `DEBT-001-K`.
    CONTAINER keeps the more-isolated user-defined net (embedded DNS). Supersedes the neuron-build half of
    BUG-001-4. Compile-clean; DNS path live-tested.
 
+## BUG-001-7 — seam apply fails: brain can't read root:root 0660 generated config on the RO seam
+1. **Observed:** 2026-07-23, Section 8 (after BUG-001-6). Stage 8 reached `apply manifest rebuilt` then
+   `[ERROR] seam apply + stack recreate FAILED (rc=1)` / `apply_brain_truths: source missing on mount:
+   docker/.env.rendered`. The file existed on the mount but `sudo -u dev_brain` was DENIED
+   (`apply_brain_truths.sh:64` tests `[ -r ]`, not `[ -f ]`). Probing the whole manifest: EVERY
+   stage-8-generated source was denied (`.env.rendered`, all `nginx_auto_gen/`, `token_maps_auto_gen/`,
+   `fail2ban_autoconfigs/`); the stage-7-seeded sources were fine.
+2. **Root cause:** `gateway_config.py` (+ token mint) generate the seam's derived config as ROOT, AFTER
+   the stage-7 `chmod -R go=rX` brain_etc lock. The token-bearing outputs are `0660 root:root`
+   (deliberately not world-readable). But `apply_brain_truths` runs AS THE BRAIN over the RO seam and
+   must read every source — and the brain is neither root nor in group root. Nothing re-normalized the
+   generated files for brain read.
+3. **Severity/priority:** HIGH — final deploy stage fails; the stack is never applied/recreated.
+4. **Status:** FIXED (2026-07-23) — after the gateway generation, `_gateway_linux` sets brain_etc group
+   to the **per-brain group** and strips group-write (`chgrp -R <brain>` + `chmod -R g-w`). This
+   faithfully translates the generators' own bits: `0660 -> 0640` (brain-group READ, never write),
+   `0600` (token_registry) stays root-only, owner stays root (seam still read-only to the brain), world
+   untouched (**tokens never become world-readable**). **Live-validated:** all manifest sources flipped to
+   brain-readable; `.env.rendered` = `0640 root:<brain>` and `nobody` is denied; `token_registry` stays
+   `0600` root-only. Compile-clean.
+   - **Related hardening note (NOT this bug):** the seam mountpoint `/opt/brain_truths` is `0755` and the
+     stage-7 lock makes the SEEDED config world-readable — `nobody` can read those (non-secret) files.
+     Pre-existing design ("world-readable seam"); flagged for the owner, not changed here.
+
 ## DEBT-001-1 — Linux deploy is missing the ollama_models and neuron_bundles stages
 1. **Decision/context:** `linux_deploy_brain.py cmd_deploy` (8 stages) has no `ollama_models` and no
    `neuron_bundles` stage; Windows has both (stages 8–9). A Linux brain never syncs its model roster

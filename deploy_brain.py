@@ -2156,6 +2156,22 @@ def _gateway_linux(args):
     info(f"    reader (read-only): Bearer {reader_tok}")
     info(f"    writer (read+write): Bearer {writer_tok}")
 
+    # gateway_config.py + the token mint just generated the seam's DERIVED config — the
+    # nginx_auto_gen/ + token_maps_auto_gen/ trees and docker/.env.rendered — as ROOT, AFTER the
+    # stage-7 brain_etc perm lock, and several carry gateway BEARER TOKENS so they are 0660
+    # root:root (deliberately NOT world-readable). But apply_brain_truths runs AS THE BRAIN and
+    # reads every manifest source through the RO seam; its check is `[ -r ]`, so the brain (not
+    # root, not in group root) is denied and apply dies "source missing on mount". The generators
+    # already encode intent in the group bits: 0660 = "the operating identity may read", 0600
+    # (token_registry) = "root only". Translate that faithfully to POSIX: set the group to the
+    # per-brain group and strip group-WRITE. 0660 -> 0640 (brain reads, never writes); 0600 stays
+    # root-only; owner stays root so the seam is still read-only to the brain; world is untouched
+    # (tokens never become world-readable). See BUG-001-7.
+    etc = brain_dir / "brain_etc"
+    run(["chgrp", "-R", brain, str(etc)])     # group = the per-brain group (this brain only)
+    run(["chmod", "-R", "g-w", str(etc)])     # brain-group may READ its sources, never write
+    ok(f"brain_etc/ seam sources readable by the '{brain}' group (tokens stay off world)")
+
     brain_sbin = brain_dir / "system" / "brain_sbin"
     manifest = brain_dir / "brain_etc" / "wsl" / "apply.manifest"
     manifest.parent.mkdir(parents=True, exist_ok=True)
