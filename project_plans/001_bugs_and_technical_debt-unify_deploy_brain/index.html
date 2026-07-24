@@ -1,0 +1,977 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Running list of open bugs and technical debt for Project 001; every item cleared or deferred-with-reason before close.">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Project 001 — Unify the brain deployer (Bugs & Technical Debt) - Horizon Brain Builder</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#project-001-bugs-technical-debt" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Horizon Brain Builder" class="md-header__button md-logo" aria-label="Horizon Brain Builder" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Horizon Brain Builder
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Project 001 — Unify the brain deployer (Bugs & Technical Debt)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../gateway_bearer_auth_SOP/" class="md-tabs__link">
+          
+  
+  
+  Gateway Authorization
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Horizon Brain Builder" class="md-nav__button md-logo" aria-label="Horizon Brain Builder" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Horizon Brain Builder
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gateway Authorization
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Gateway Authorization
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../gateway_bearer_auth_SOP/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bearer Auth SOP
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../gateway_token_admin_howto/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Token Admin How-To
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../gateway_auth_verification_matrix/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Auth Verification Matrix
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../gateway_offbox_validation_cookbook/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Off-box Validation Cookbook
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#bug-001-1-linux-gateway-tls-cert-never-generated-false-green" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BUG-001-1 — Linux gateway TLS cert never generated (false-green)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bug-001-2-linux-teardown-purge-false-greens-when-userdel-fails-account-not-removed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BUG-001-2 — Linux teardown --purge false-greens when userdel fails (account not removed)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bug-001-3-linux-deploy-stage-3-crashes-windows-icacls-invoked-on-linux" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BUG-001-3 — Linux deploy stage 3 crashes: Windows icacls invoked on Linux
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bug-001-4-from-scratch-linux-build-cant-resolve-dns-in-rootless-containers-model-seed-neuron-build" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BUG-001-4 — from-scratch Linux build can't resolve DNS in rootless containers (model seed + neuron build)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bug-001-5-from-scratch-create-brain-omits-brains-group-brain-cant-traverse-to-its-own-tree" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BUG-001-5 — from-scratch create-brain omits brains group → brain can't traverse to its own tree
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bug-001-6-neuron-docker-build-network-custom-rejected-by-buildkit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BUG-001-6 — neuron docker build --network &lt;custom&gt; rejected by BuildKit
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bug-001-7-seam-apply-fails-brain-cant-read-rootroot-0660-generated-config-on-the-ro-seam" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BUG-001-7 — seam apply fails: brain can't read root:root 0660 generated config on the RO seam
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bug-001-8-config-exposure-seam-is-world-readable-worldother-brain-can-read-seeded-config" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BUG-001-8 — config-exposure seam is world-readable (world/other-brain can read seeded config)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#debt-001-1-linux-deploy-is-missing-the-ollama_models-and-neuron_bundles-stages" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DEBT-001-1 — Linux deploy is missing the ollama_models and neuron_bundles stages
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#debt-001-2-several-windows-engine-build-steps-have-no-linux-equivalent" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DEBT-001-2 — Several Windows engine-build steps have no Linux equivalent
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#debt-001-5-fail2ban-jail-ignoreip-hard-codes-the-slirp4netns-host-range-pasta-hosts-differ" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DEBT-001-5 — fail2ban jail ignoreip hard-codes the slirp4netns host range (pasta hosts differ)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#debt-001-3-brain_doctor-probes-must-track-the-unified-deployers-outputs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DEBT-001-3 — brain_doctor probes must track the unified deployer's outputs
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#debt-001-4-linux-engine-build-runs-as-the-real-brain-account-not-an-isolated-build-user" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DEBT-001-4 — Linux engine build runs as the real brain account, not an isolated build user
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="project-001-bugs-technical-debt">Project 001 — Bugs &amp; Technical Debt</h1>
+<p>Every item must be <strong>FIXED</strong> or <strong>explicitly DEFERRED with rationale and a destination</strong> before the
+project closes. Ids are stable: <code>BUG-001-K</code> / <code>DEBT-001-K</code>.</p>
+<h2 id="bug-001-1-linux-gateway-tls-cert-never-generated-false-green">BUG-001-1 — Linux gateway TLS cert never generated (false-green)</h2>
+<ol>
+<li><strong>Observed:</strong> 2026-07-21. Live <code>dev_brain</code> gateway nginx crash-loops (<code>9+</code> restarts):
+   <code>nginx: [emerg] cannot load certificate "/etc/nginx/certs/cert.pem": No such file or directory</code>;
+   <code>~dev_brain/gateway/gateway_out/</code> empty. fail2ban stuck <code>Created</code> (shares nginx netns).</li>
+<li><strong>Root cause:</strong> <code>linux_deploy_brain.py:576</code> calls <code>gen-cert.sh &lt;posture&gt;</code> (e.g. <code>personal</code>), but
+   <code>gen-cert.sh:26-30</code> treats positional args as extra SubjectAltName entries → malformed SAN
+   (<code>...,personal</code>) → openssl exits nonzero → <code>set -euo pipefail</code> aborts before writing <code>cert.pem</code>.
+   <code>provision_runtime:578</code> then prints "TLS cert generated" <strong>without checking rc</strong> (false-green).
+   Windows calls the same script correctly with no arg (<code>stage4_brain.sh:99</code>).</li>
+<li><strong>Severity/priority:</strong> HIGH — takes the whole gateway down; must be cleared before close.</li>
+<li><strong>Status:</strong> FIXED in the trunk's Linux build (<code>windows_deploy_brain.py:_build_engine_linux</code>, Section
+   2/3): the cert is baked by running <code>gen-cert.sh</code> with <strong>no posture arg</strong> (personal SAN), matching the
+   Windows <code>stage4_brain.sh:99</code> call, and copied into the engine artifact <code>linux_engine/cert/</code>. The
+   command sequence is asserted (compile + stubbed-run harness); end-to-end cert bake proven at Section 8.
+   server-posture typed SANs land with the deploy-side cert placement (Section 4/6). Old
+   <code>linux_deploy_brain.py:576</code> deliberately left unpatched (NOTE 001-3) — that driver is being retired.
+   (Supersedes the earlier fix in the discarded clean-room <code>deploy_brain.py</code>, per NOTE 001-4.)</li>
+</ol>
+<h2 id="bug-001-2-linux-teardown-purge-false-greens-when-userdel-fails-account-not-removed">BUG-001-2 — Linux <code>teardown --purge</code> false-greens when userdel fails (account not removed)</h2>
+<ol>
+<li><strong>Observed:</strong> 2026-07-23, first live Section 8. <code>deploy_brain.py teardown --brain dev_brain --purge --yes</code>
+   printed <code>[OK] account + home + brains/&lt;brain&gt; purged</code> and exited 0, but the account survived:
+   <code>userdel: user dev_brain is currently used by process 1256</code>.</li>
+<li><strong>Root cause:</strong> <code>_cmd_teardown_linux</code> ran <code>userdel --remove</code> with <code>check=False</code> and then printed the
+   "purged" OK line unconditionally — no rc check, no post-verify. The brain's <code>systemd --user</code> manager
+   (kept alive by linger) still held the account, so <code>userdel</code> refused; the false-green hid it.</li>
+<li><strong>Severity/priority:</strong> MEDIUM — teardown reports success while leaving the account behind; a following
+   redeploy then collides with a half-removed brain. Must be clear before close.</li>
+<li><strong>Status:</strong> FIXED (2026-07-23) — purge now tears the per-user session down first
+   (<code>loginctl terminate-user</code> + <code>systemctl stop user@&lt;uid&gt;</code>), force-reaps stragglers (<code>pkill -KILL -u</code>),
+   runs <code>userdel</code> with an rc check + one forced retry, and <strong>verifies</strong> both the account (<code>user_exists</code>)
+   and the folder are actually gone — <code>die()</code>ing with a diagnostic otherwise. Compile-clean.</li>
+</ol>
+<h2 id="bug-001-3-linux-deploy-stage-3-crashes-windows-icacls-invoked-on-linux">BUG-001-3 — Linux deploy stage 3 crashes: Windows <code>icacls</code> invoked on Linux</h2>
+<ol>
+<li><strong>Observed:</strong> 2026-07-23, first live Section 8 (after BUG-001-2 cleared). <code>deploy … --from-scratch</code>
+   reached <code>[3/10] Stage code</code> then died: <code>FileNotFoundError</code> from <code>subprocess.run(["icacls", …])</code> in
+   <code>_icacls_or_die</code> ← <code>_repair_staged_acls</code> ← <code>_stage_from_source</code>.</li>
+<li><strong>Root cause:</strong> <code>stage_package</code>/<code>_stage_from_source</code> is shared by both OSes, but line 1299 called the
+   Windows-only ACL repair (<code>_repair_staged_acls</code>, which shells out to <code>icacls</code>) unconditionally. Linux
+   has no <code>icacls</code>, and the copytree ran as root so the staged tree was left <code>root:root</code> — the brain
+   (which runs via <code>sudo -u &lt;brain&gt;</code>) could not own/write its own code.</li>
+<li><strong>Severity/priority:</strong> HIGH — blocks every Linux deploy at stage 3. Must clear before close.</li>
+<li><strong>Status:</strong> FIXED (2026-07-23) — <code>_stage_from_source</code> now branches: <code>_repair_staged_acls</code> only on
+   <code>_IS_WINDOWS</code>; on Linux it <code>chown -R &lt;brain&gt;:&lt;brain&gt;</code> the staged tree (the POSIX analog). Safe because
+   <code>_provision_runtime_linux</code> (stage 5, after staging) re-locks <code>brain_etc</code> to <code>root:root</code> for the seam.
+   Compile-clean; live-validated at the Section 8 re-run.</li>
+</ol>
+<h2 id="bug-001-4-from-scratch-linux-build-cant-resolve-dns-in-rootless-containers-model-seed-neuron-build">BUG-001-4 — from-scratch Linux build can't resolve DNS in rootless containers (model seed + neuron build)</h2>
+<ol>
+<li><strong>Observed:</strong> 2026-07-23, Section 8 (after BUG-001-3 cleared). <code>_build_engine_linux</code> stage 3 died:
+   <code>ollama pull nomic-embed-text</code> → <code>lookup registry.ollama.ai … : connection refused</code> / <code>FAIL</code>. Probed:
+   default-bridge containers cannot resolve (UDP/53 to <code>8.8.8.8</code> and <code>--dns 1.1.1.1</code> both fail); a
+   <strong>user-defined network resolves fine</strong> (Docker embedded DNS <code>127.0.0.11</code>).</li>
+<li><strong>Root cause:</strong> the ollama-seed container (and neuron <code>docker build</code> RUN steps) ran on rootless
+   Docker's <strong>default bridge</strong>, which has no embedded DNS — the container attempts plaintext UDP/53
+   directly. This host <strong>requires encrypted DNS (DoT/DoH) as a hardening control</strong>, so plaintext UDP/53
+   is intentionally unavailable; the container had no legitimate resolver path. <code>docker pull</code> (stages 2)
+   works because that resolves <strong>daemon-side</strong> (host), not in a container.</li>
+<li><strong>Severity/priority:</strong> HIGH — blocks every rootless <code>--from-scratch</code> build at model-seed. Must clear
+   before close.</li>
+<li><strong>Status:</strong> FIXED (2026-07-23) — <code>_build_engine_linux</code> creates a build-scoped <strong>user-defined network</strong>
+   (<code>brain-build-net-&lt;brain&gt;</code>) and runs the seed container + neuron builds on it (<code>--network</code>). Containers
+   then use Docker's embedded resolver (<code>127.0.0.11</code>), which forwards via the <strong>daemon's host-side
+   resolver = the host's encrypted DNS</strong> — so containers emit NO plaintext DNS, honoring the hardening
+   control (and closing the earlier container→LAN DNS-egress concern). Deliberately <strong>no <code>--dns</code></strong> (that
+   would bypass the control). Network is torn down after the neuron stage (idempotent pre-clean each run).
+   Compile-clean; live-validated at the Section 8 re-run.</li>
+</ol>
+<h2 id="bug-001-5-from-scratch-create-brain-omits-brains-group-brain-cant-traverse-to-its-own-tree">BUG-001-5 — from-scratch create-brain omits <code>brains</code> group → brain can't traverse to its own tree</h2>
+<ol>
+<li><strong>Observed:</strong> 2026-07-23, Section 8 (after BUG-001-4 cleared). Model seed succeeded; stage 4 neuron
+   build died: <code>docker build … input</code> → <code>unable to prepare context: path "…/common_neuron_platform/input"
+   not found</code>. The path exists and is <code>dev_brain:dev_brain</code>, but <code>sudo -u dev_brain ls …/input</code> →
+   <code>Permission denied</code>. <code>id dev_brain</code> showed <code>groups=dev_brain</code> only — <strong>not in the <code>brains</code> group</strong>
+   (before teardown it was <code>dev_brain,brains</code>).</li>
+<li><strong>Root cause:</strong> the AIOS ACL model (/harden) makes <code>$INSTALL_ROOT</code> and <code>brains/</code> root:root and grants
+   the shared <strong><code>brains</code> group <code>--x</code> traverse</strong> (verified via getfacl: <code>group:brains:--x</code>). A brain reaches
+   its OWN folder (brain:brain 0750) only by traversing those parents as a <code>brains</code>-group member. But the
+   unified deployer's inline <code>_create_brain_linux</code> runs <code>useradd</code> + subuid + linger and <strong>never joins the
+   brain to <code>brains</code></strong> (no brains-group reference existed in the create path). <code>docker build</code> runs as the
+   brain, so it could not read its own build context. (The original dev_brain had the membership because
+   the standalone <code>factory/create_brain.py</code> provisioner sets it; the minimal inline create dropped it.)</li>
+<li><strong>Severity/priority:</strong> HIGH — any brain operation that reads under <code>brains/&lt;brain&gt;/</code> as the brain fails;
+   blocks neuron build (and is a latent trap for other brain-run reads). Must clear before close.</li>
+<li><strong>Status:</strong> FIXED (2026-07-23) — <code>_create_brain_linux</code> now <code>groupadd -f brains</code> and <code>usermod -aG brains
+   &lt;brain&gt;</code> (idempotent; verifies via <code>id -nG</code>). <strong>Live-validated:</strong> adding the crashed account to <code>brains</code>
+   flipped <code>sudo -u dev_brain</code> access to the neuron context from <code>Permission denied</code> → <code>TRAVERSE_OK</code>.
+   Relates to DEBT-001-4 (inline v1 create vs the fuller standalone create_brain.py).</li>
+</ol>
+<h2 id="bug-001-6-neuron-docker-build-network-custom-rejected-by-buildkit">BUG-001-6 — neuron <code>docker build --network &lt;custom&gt;</code> rejected by BuildKit</h2>
+<ol>
+<li><strong>Observed:</strong> 2026-07-23, Section 8 (after BUG-001-5 cleared). Traversal fixed; neuron build then
+   died: <code>failed to build: network mode "brain-build-net-dev_brain" not supported by buildkit</code>.</li>
+<li><strong>Root cause:</strong> BUG-001-4 added the build-scoped user-defined network to BOTH the ollama-seed
+   <code>docker run</code> (valid) and the neuron <code>docker build</code> (invalid) — <strong>BuildKit only accepts <code>--network</code>
+   <code>default|none|host</code></strong>, not user-defined networks. The neuron Dockerfiles DO need build-time DNS
+   (<code>RUN pip install -r requirements.txt</code>; their own comment: "Build HAS internet; runtime does NOT"),
+   so simply dropping <code>--network</code> would fail the pip step under the encrypted-DNS control.</li>
+<li><strong>Severity/priority:</strong> HIGH — blocks neuron image build on every rootless from-scratch deploy.</li>
+<li><strong>Status:</strong> FIXED (2026-07-23) — the neuron <code>docker build</code> now uses <code>--network=host</code>. <strong>Tested both
+   candidates</strong> on the brain's rootless docker: legacy builder (<code>DOCKER_BUILDKIT=0</code>) + custom net →
+   <code>DNS_RESOLVED</code> but prints "legacy builder is deprecated"; <strong>BuildKit + <code>--network=host</code> →
+   <code>DNS_RESOLVED</code>, exit 0</strong> — modern and resolves via the host's own (encrypted) resolver, so it honors
+   the hardening control (plaintext-to-LAN stays blocked; a successful resolve proves the encrypted path
+   was used). Build-time only; runtime containers stay on compose's isolated <code>neuron_net</code>. The seed
+   CONTAINER keeps the more-isolated user-defined net (embedded DNS). Supersedes the neuron-build half of
+   BUG-001-4. Compile-clean; DNS path live-tested.</li>
+</ol>
+<h2 id="bug-001-7-seam-apply-fails-brain-cant-read-rootroot-0660-generated-config-on-the-ro-seam">BUG-001-7 — seam apply fails: brain can't read root:root 0660 generated config on the RO seam</h2>
+<ol>
+<li><strong>Observed:</strong> 2026-07-23, Section 8 (after BUG-001-6). Stage 8 reached <code>apply manifest rebuilt</code> then
+   <code>[ERROR] seam apply + stack recreate FAILED (rc=1)</code> / <code>apply_brain_truths: source missing on mount:
+   docker/.env.rendered</code>. The file existed on the mount but <code>sudo -u dev_brain</code> was DENIED
+   (<code>apply_brain_truths.sh:64</code> tests <code>[ -r ]</code>, not <code>[ -f ]</code>). Probing the whole manifest: EVERY
+   stage-8-generated source was denied (<code>.env.rendered</code>, all <code>nginx_auto_gen/</code>, <code>token_maps_auto_gen/</code>,
+   <code>fail2ban_autoconfigs/</code>); the stage-7-seeded sources were fine.</li>
+<li><strong>Root cause:</strong> <code>gateway_config.py</code> (+ token mint) generate the seam's derived config as ROOT, AFTER
+   the stage-7 <code>chmod -R go=rX</code> brain_etc lock. The token-bearing outputs are <code>0660 root:root</code>
+   (deliberately not world-readable). But <code>apply_brain_truths</code> runs AS THE BRAIN over the RO seam and
+   must read every source — and the brain is neither root nor in group root. Nothing re-normalized the
+   generated files for brain read.</li>
+<li><strong>Severity/priority:</strong> HIGH — final deploy stage fails; the stack is never applied/recreated.</li>
+<li><strong>Status:</strong> FIXED (2026-07-23) — after the gateway generation, <code>_gateway_linux</code> sets brain_etc group
+   to the <strong>per-brain group</strong> and strips group-write (<code>chgrp -R &lt;brain&gt;</code> + <code>chmod -R g-w</code>). This
+   faithfully translates the generators' own bits: <code>0660 -&gt; 0640</code> (brain-group READ, never write),
+   <code>0600</code> (token_registry) stays root-only, owner stays root (seam still read-only to the brain), world
+   untouched (<strong>tokens never become world-readable</strong>). <strong>Live-validated:</strong> all manifest sources flipped to
+   brain-readable; <code>.env.rendered</code> = <code>0640 root:&lt;brain&gt;</code> and <code>nobody</code> is denied; <code>token_registry</code> stays
+   <code>0600</code> root-only. Compile-clean.</li>
+<li><strong>Related hardening note (NOT this bug):</strong> the seam mountpoint <code>/opt/brain_truths</code> is <code>0755</code> and the
+     stage-7 lock makes the SEEDED config world-readable — <code>nobody</code> can read those (non-secret) files.
+     Pre-existing design ("world-readable seam"); flagged for the owner, not changed here. <strong>Now fixed by
+     BUG-001-8.</strong></li>
+</ol>
+<h2 id="bug-001-8-config-exposure-seam-is-world-readable-worldother-brain-can-read-seeded-config">BUG-001-8 — config-exposure seam is world-readable (world/other-brain can read seeded config)</h2>
+<ol>
+<li><strong>Observed:</strong> 2026-07-23, hardening pass on the config-exposure seam (the "Related hardening note" left
+   open by BUG-001-7). The seam (<code>/opt/brain_truths</code>, a <code>bind,ro</code> mount of <code>brains/&lt;brain&gt;/brain_etc</code>) was
+   reachable by any local user: the mountpoint was <code>0755 root:root</code> (world-traversable) and the stage-7
+   <code>_seam_linux</code> brain_etc lock did <code>chown -R root:root</code> + <code>chmod -R u=rwX,go=rX</code> — the <code>go=rX</code> left the
+   SEEDED config world-readable. Verified: <code>sudo -u nobody cat /opt/brain_truths/docker/compose.yaml</code>
+   SUCCEEDED (an unrelated user could read seam files). BUG-001-7's token-bearing GENERATED files were
+   already protected (<code>0640</code>/<code>0600</code>), but the seeded template was not.</li>
+<li><strong>Root cause:</strong> the seam was never scoped to the owning brain. World kept traverse (<code>o=rx</code>) on the
+   mountpoint and read (<code>o=r</code>) on every seeded file, so any local user or other brain could read one
+   brain's non-secret config.</li>
+<li><strong>Severity/priority:</strong> MEDIUM — no token leak (secrets were already off-world via BUG-001-7), but a
+   least-privilege gap: one brain's config exposed to <code>world</code>/other local users/other brains.</li>
+<li><strong>Status:</strong> FIXED (2026-07-23) — the seam is now reachable ONLY by root + the owning <strong>per-brain group</strong>
+   (same name as the brain), never world. Two changes in <code>_seam_linux</code>:</li>
+<li><strong>Mountpoint</strong> <code>/opt/brain_truths</code> → <code>0750 root:&lt;brain&gt;</code> (only root + brain-group may traverse). Set
+     right after the mkdir; because a live <code>bind,ro</code> mount is read-only, an idempotent redeploy stops the
+     active <code>opt-brain_truths.mount</code> first, sets the underlying perms, then <code>enable --now</code> remounts.</li>
+<li><strong>Stage-7 brain_etc lock</strong> → owner stays root, group = per-brain group, world dropped:
+     <code>chown -R root:&lt;brain&gt;</code> + <code>chmod -R u=rwX,g=rX,o=</code> (was <code>root:root</code> + <code>go=rX</code>). Seeded dirs become
+     <code>0750 root:&lt;brain&gt;</code>, files <code>0640 root:&lt;brain&gt;</code>.
+   This composes cleanly with BUG-001-7's later <code>chgrp -R &lt;brain&gt;</code> + <code>chmod -R g-w</code> (no regression): seeded
+   files are already <code>0640 root:&lt;brain&gt;</code> so <code>g-w</code> is a no-op on them; generated <code>0660</code> files still resolve
+   to <code>0640 root:&lt;brain&gt;</code> (brain reads, tokens off world); <code>token_registry</code> stays <code>0600</code> root-only.
+   <strong>Live-validated on the running dev_brain (install-root <code>/Horizon.AIOS</code>)</strong> after a full
+   <code>deploy --from-scratch</code> re-run (DEPLOY COMPLETE): <code>brain_doctor diagnose</code> = <strong>HEALTHY</strong> (4/4 containers,
+   seam ro, gateway sealed mode C on :8443); <code>sudo -u nobody cat /opt/brain_truths/docker/compose.yaml</code>
+   <strong>DENIED</strong>; all <strong>26/26</strong> sources in <code>wsl/apply.manifest</code> still readable by <code>sudo -u dev_brain</code>; brain
+   still <strong>cannot write</strong> the seam (<code>touch</code> denied); mountpoint = <code>drwxr-x--- root:dev_brain</code>;
+   <code>token_registry</code> still <code>0600 root:dev_brain</code> (<code>nobody</code> denied). Cross-refs BUG-001-7's Related hardening
+   note. Compile-clean.</li>
+</ol>
+<h2 id="debt-001-1-linux-deploy-is-missing-the-ollama_models-and-neuron_bundles-stages">DEBT-001-1 — Linux deploy is missing the ollama_models and neuron_bundles stages</h2>
+<ol>
+<li><strong>Decision/context:</strong> <code>linux_deploy_brain.py cmd_deploy</code> (8 stages) has no <code>ollama_models</code> and no
+   <code>neuron_bundles</code> stage; Windows has both (stages 8–9). A Linux brain never syncs its model roster
+   or starts neuron bundles.</li>
+<li><strong>Action needed:</strong> the unified <code>deploy()</code> (Section 4) must include both stages for both OSes.</li>
+<li><strong>Impact:</strong> MEDIUM — a Linux brain's <code>/ask</code> 404s until models are pulled; neurons never run.</li>
+<li><strong>Status:</strong> ✅ <strong>CLOSED (2026-07-23).</strong> <strong>Models: CLOSED</strong> — <code>_build_engine_linux</code> seeds the ollama
+   roster into the volume at build and <code>_deploy_engine_linux</code> restores it, so a Linux brain ships with
+   its models (net-new; the old driver seeded none). <strong>Neurons (DEBT-001-1b): NOW CLOSED</strong> — added
+   <code>_neuron_bundles_linux</code> as deploy stage 9 (renumber → 11 stages): scaffold-guard → <code>_deliver_data_seams</code>
+   (already Linux-aware: copies impulses/ + knowledge/brain_ro into the brain home, chowns) → add
+   <code>neurons</code> to <code>~/docker/.env</code> <code>COMPOSE_PROFILES</code> (idempotent — this also makes the residency unit's boot
+   <code>docker compose up -d</code> start neurons, so persistence is free, no unit-template change) → <code>docker compose
+   up -d --pull never</code> from the PRE-BAKED images (no runtime build/pull). <code>_verify_linux</code> now asserts
+   neuron liveness (fatal only on <code>Exited (N≠0)</code>; one-shot input/CLI neurons' <code>Exited (0)</code> and the
+   long-running API neuron's <code>running</code> are healthy), mirroring the Windows verify. <strong><code>brain_doctor.py</code>
+   LinuxBackend made neuron-aware too</strong> — its container probe now treats a <code>neuron</code> service that
+   <code>Exited (0)</code> as one-shot-complete, not "down" (otherwise every neuron-bearing brain false-reports
+   UNHEALTHY; relates to DEBT-001-3). <strong>Live-validated on dev_brain:</strong> DEPLOY COMPLETE (11/11), VERIFY
+   PASSED with "neuron bundle(s) healthy: 3 container(s)", and <code>brain_doctor diagnose</code> = HEALTHY
+   (<code>5/7 running … 2 one-shot done: action_neuron_cli, input_neuron_example</code>), <code>COMPOSE_PROFILES</code> carries
+   <code>neurons</code>.</li>
+</ol>
+<h2 id="debt-001-2-several-windows-engine-build-steps-have-no-linux-equivalent">DEBT-001-2 — Several Windows engine-build steps have no Linux equivalent</h2>
+<ol>
+<li><strong>Decision/context:</strong> unattended-upgrades policy (<code>stage5_root.sh</code>), maintenance tools + timers
+   (<code>stage6_root.sh</code>/<code>stage6_brain.sh</code>), the slir4netns port-driver pin (<code>stage3_brain.sh</code>), and the
+   full harden posture (<code>stage7_harden.sh</code>) are absent from the current Linux path.</li>
+<li><strong>Action needed:</strong> the shared build-engine (Section 2) runs these portable stage scripts on both
+   OSes, closing the gap for free.</li>
+<li><strong>Impact:</strong> MEDIUM — Linux brains lack auto-updates, maintenance timers, and full hardening.</li>
+<li><strong>Status:</strong> ✅ <strong>CLOSED (2026-07-24, owner decision).</strong> Re-examined per script: <code>stage2b/3/5/6/7</code> are
+   <strong>WSL-distro-OS provisioning</strong> — they configure the per-brain <em>WSL distro's operating system</em>
+   (disable rootful docker in the distro, install rootless docker in the distro, apt
+   unattended-upgrades, <code>systemd --user</code> maintenance timers, harden the distro's wsl.conf/automount).
+   On Linux there is <strong>no per-brain OS image</strong>: the brain is a user account + rootless docker on the
+   shared host, and the "engine" is the docker artifacts (<code>images.tar</code> + <code>ollama_models.tar</code> + <code>cert/</code>),
+   which <code>_build_engine_linux</code> already captures. Running host-level apt/hardening on every brain deploy
+   would be wrong (mutating the shared host) — so these stages are <strong>architecturally N/A on Linux</strong>, not
+   unfinished work. <strong>One</strong> piece was genuinely Linux-relevant — the real-client-IP requirement behind
+   <code>stage3_brain.sh</code>'s port-driver pin (ADR-0012 §5: fail2ban can only ban an attacker if nginx logs the
+   REAL source IP). Resolved as a <strong>fail-closed assertion</strong>, <code>_assert_real_client_ip</code> in
+   <code>_provision_runtime_linux</code>: it inspects the brain's live rootlesskit and <strong>refuses to deploy unless the
+   networking provably preserves the source IP</strong> — OK on <code>--net=pasta</code> (the modern rootless default, which
+   preserves it) or <code>--port-driver=slirp4netns</code>; <code>die</code> on the masquerading <code>builtin</code> driver or anything it
+   cannot prove. (Discovered live: this host runs <strong>pasta</strong>, not slirp4netns — pasta already preserves the
+   IP, so an earlier "require slirp4netns" framing would have wrongly failed a correct host; the assertion
+   targets the real requirement instead.) <strong>Live-validated on dev_brain (pasta):</strong> assertion passes,
+   DEPLOY COMPLETE, VERIFY PASSED, brain_doctor HEALTHY. <strong>Follow-up noted (not this item):</strong> the shipped
+   <code>fail2ban jail.d/gateway.conf</code> <code>ignoreip</code> still hard-codes slirp4netns's <code>10.0.2.0/24</code> host range —
+   harmless under pasta (loopback + <code>172.16/12</code> cover the internal cases) but worth reconciling to pasta's
+   range if/when a server-posture Linux brain is deployed → tracked as <strong>DEBT-001-5</strong>.</li>
+</ol>
+<h2 id="debt-001-5-fail2ban-jail-ignoreip-hard-codes-the-slirp4netns-host-range-pasta-hosts-differ">DEBT-001-5 — fail2ban jail <code>ignoreip</code> hard-codes the slirp4netns host range (pasta hosts differ)</h2>
+<ol>
+<li><strong>Decision/context:</strong> <code>factory/source/system/brain_bin/gateway/fail2ban/jail.d/gateway.conf</code> sets
+   <code>ignoreip = 127.0.0.1/8 ::1 10.0.2.0/24 172.16.0.0/12</code>. The <code>10.0.2.0/24</code> is the <strong>slirp4netns</strong> host
+   range; on a <strong>pasta</strong> host (the modern rootless default, e.g. this Fedora 44 box) host-local/forwarded
+   traffic does not use that range. Surfaced 2026-07-24 while closing DEBT-001-2 (<code>_assert_real_client_ip</code>).</li>
+<li><strong>Action needed:</strong> make the internal-exempt range posture/backend-aware (detect pasta vs slirp4netns and
+   set the correct host-local CIDR), or document the operator knob. Low urgency.</li>
+<li><strong>Impact:</strong> LOW — under personal posture it is moot (loopback only). Under server posture the stale
+   <code>10.0.2.0/24</code> is merely an over-broad exemption of an unused range; loopback + <code>172.16/12</code> still cover
+   the real internal cases, so it neither blocks bans of real attackers nor exempts them.</li>
+<li><strong>Status:</strong> DEFERRED (2026-07-24) → <strong>destination:</strong> revisit when a server-posture Linux brain is
+   first deployed — verify real external IPs are logged + bannable under pasta, and reconcile the exempt
+   range. Consciously carried past Project 001 close (LOW, inert under pasta/personal).</li>
+</ol>
+<h2 id="debt-001-3-brain_doctor-probes-must-track-the-unified-deployers-outputs">DEBT-001-3 — brain_doctor probes must track the unified deployer's outputs</h2>
+<ol>
+<li><strong>Decision/context:</strong> <code>brain_doctor.py</code> already dispatches per-OS, but its residency/seam/stack
+   probes assume the current per-driver artifact names. If unification changes any (unit name, seam
+   path, engine layout), the doctor's checks drift.</li>
+<li><strong>Action needed:</strong> (a) re-verify <code>brain_doctor diagnose</code> against a brain deployed by <code>deploy_brain.py</code>
+   (Section 8) and adjust probes if needed; (b) <strong>rewire <code>brain_doctor.py</code>'s LinuxBackend</strong> to import
+   <code>deploy_brain</code> instead of <code>linux_deploy_brain</code> and map its primitive calls (<code>ldb.as_brain</code>/<code>ldb.brain_sh</code>)
+   onto the trunk's names (<code>run_as_brain_argv</code>/<code>_brain_sh</code>) — this is the LAST blocker to DELETING
+   <code>linux_deploy_brain.py</code> (Section 7). The WindowsBackend is already repointed to <code>deploy_brain</code>.</li>
+<li><strong>Impact:</strong> LOW-MEDIUM — stale probes mis-report health; the lingering driver is a dead file kept only
+   for the doctor's Linux import (deploy no longer uses it).</li>
+<li><strong>Status:</strong> (b) <strong>FIXED</strong> (2026-07-23) — <code>brain_doctor.py</code>'s LinuxBackend now does
+   <code>import deploy_brain as ldb</code>; the three renamed primitives are mapped (<code>brain_sh</code>→<code>_brain_sh</code>,
+   <code>_docker_ready</code>→<code>_linux_docker_ready</code>, <code>require_root</code>→<code>require_admin</code>); all others keep their
+   names. Both files <code>py_compile</code>-clean; a smoke test confirms every <code>ldb.*</code> attribute resolves on
+   <code>deploy_brain</code>. <code>linux_deploy_brain.py</code> <strong>deleted</strong> (<code>git rm</code>) — Section 7 complete; no importer
+   remains. <strong>(a) CLEARED (2026-07-23)</strong> → the Section 8 live teardown + from-scratch redeploy of
+   dev_brain completed (VERIFY PASSED), and the <strong>rewired</strong> <code>brain_doctor diagnose</code> (importing
+   <code>deploy_brain</code>) reports <strong>HEALTHY</strong> against that deploy_brain-built brain — 4/4 containers, stack
+   active/enabled, seam ro, gateway sealed mode C on :8443, matching the pre-teardown baseline. Probes
+   did not drift. <strong>DEBT-001-3 fully closed.</strong></li>
+</ol>
+<h2 id="debt-001-4-linux-engine-build-runs-as-the-real-brain-account-not-an-isolated-build-user">DEBT-001-4 — Linux engine build runs as the real brain account, not an isolated build user</h2>
+<ol>
+<li><strong>Decision/context:</strong> Windows <code>build_engine</code> runs in a throwaway scratch distro, so the build never
+   touches the real brain account and the engine tar is fully portable/account-independent. The v1 Linux
+   build (<code>_build_engine_linux</code>, NOTE 001-6) runs as the <strong>real brain account</strong> against its rootless
+   docker — simpler (reuses <code>provision_runtime</code>'s setup) but gives Linux <code>build-engine</code> an account
+   side-effect Windows lacks, and (v1) REQUIRES the brain account to pre-exist.</li>
+<li><strong>Action needed:</strong> optionally add a throwaway build user (<code>brain-build-&lt;brain&gt;</code>: own subuid/subgid +
+   linger + rootless daemon + teardown) to match Windows' isolation, once Linux <code>create-brain</code> (Section
+   4) exists to factor the account/rootless setup out.</li>
+<li><strong>Impact:</strong> LOW — a functional artifact is produced either way; this is isolation purity + parity.</li>
+<li><strong>Status:</strong> ❌ <strong>CLOSED — WON'T-DO (2026-07-23, owner decision).</strong> The real-account build already
+   produces a correct, account-independent engine artifact (docker <code>images.tar</code> + ollama-volume
+   <code>ollama_models.tar</code> + baked <code>cert/</code> under <code>system/linux_engine/</code>), live-proven across the Section 8
+   from-scratch redeploys. The throwaway-build-user isolation is optional purity that mirrors exactly the
+   WSL scratch-distro isolation the owner has determined Linux does not need (the Linux "engine" is the
+   preserved docker artifacts, not a whole OS image). The only real side-effect — the build touching the
+   real brain's rootless docker — is benign (the account is created by deploy anyway, BUG-001-5) and is
+   overwritten cleanly on each redeploy. Not worth the added <code>brain-build-&lt;brain&gt;</code> account lifecycle
+   (subuid/subgid + linger + rootless daemon + teardown). Reopen only if a future requirement needs the
+   build to run with zero real-account side-effects.</li>
+</ol>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>
