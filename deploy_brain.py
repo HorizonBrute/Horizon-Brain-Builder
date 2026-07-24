@@ -1739,6 +1739,17 @@ def _build_engine_linux(args):
     _ensure_linux_build_runtime(args)
     run(["mkdir", "-p", str(eng_dir)], check=True)
 
+    # Build-scoped user-defined network for every CONTAINER-executed build step (ollama model
+    # pull, neuron RUN steps). Rootless Docker's DEFAULT bridge has no embedded DNS, so the
+    # container would try plaintext UDP/53 directly — which this host BLOCKS by design (encrypted
+    # DNS is a hardening control). A user-defined network gives containers Docker's embedded
+    # resolver (127.0.0.11), which forwards via the DAEMON's host-side resolver (the host's
+    # encrypted DNS). Containers emit no plaintext DNS, honoring the control. See BUG-001-4.
+    # (Deliberately NO `--dns` here — that would bypass the encrypted-DNS control.)
+    seednet = f"brain-build-net-{brain}"
+    _brain_docker(brain, f"docker network rm {shlex.quote(seednet)}", check=False)   # drop stale
+    _brain_docker(brain, f"docker network create {shlex.quote(seednet)}")
+
     # 2. Prefetch runtime images (analog of prefetch_images.sh).
     stage(2, total, f"Pull {len(image_refs)} runtime images")
     for ref in image_refs:
@@ -1753,7 +1764,8 @@ def _build_engine_linux(args):
                           "ollama/ollama:latest")
         _brain_docker(brain, f"docker volume create {shlex.quote(vol)}")
         _brain_docker(brain, f"docker rm -f {seed}", check=False)   # drop any stale seed container
-        _brain_docker(brain, f"docker run -d --name {seed} -v {shlex.quote(vol)}:/root/.ollama "
+        _brain_docker(brain, f"docker run -d --name {seed} --network {shlex.quote(seednet)} "
+                             f"-v {shlex.quote(vol)}:/root/.ollama "
                              f"{shlex.quote(ollama_ref)} serve")
         # wait for the ollama server to answer, then pull each roster model into the volume
         _brain_docker(brain, f"for i in $(seq 1 30); do docker exec {seed} ollama list "
@@ -1770,11 +1782,16 @@ def _build_engine_linux(args):
     neuron_imgs = []
     if have_neuron:
         for tag, ctx in ((f"{brain}-input_neurons", in_ctx), (f"{brain}-action_neurons", act_ctx)):
-            _brain_docker(brain, f"docker build --pull -t {tag} {shlex.quote(str(ctx))}")
+            _brain_docker(brain, f"docker build --pull --network {shlex.quote(seednet)} "
+                                 f"-t {tag} {shlex.quote(str(ctx))}")
             neuron_imgs.append(tag)
         ok(f"built neuron images: {', '.join(neuron_imgs)}")
     else:
         info("no neuron Dockerfiles under system/common_neuron_platform/{input,action} — skipping")
+
+    # Build network done its job — tear it down (idempotent; a failed build leaves it for the
+    # next run's pre-clean above). The runtime stack uses its own compose network, not this one.
+    _brain_docker(brain, f"docker network rm {shlex.quote(seednet)}", check=False)
 
     # 5. Bake the gateway TLS cert (no-arg gen-cert → personal SAN). FIXES the linux:576 posture bug
     #    (posture was passed as a bogus SAN). server-posture typed SANs: Section 4/6.

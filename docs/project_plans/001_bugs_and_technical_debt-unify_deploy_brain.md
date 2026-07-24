@@ -57,6 +57,26 @@ project closes. Ids are stable: `BUG-001-K` / `DEBT-001-K`.
    `_provision_runtime_linux` (stage 5, after staging) re-locks `brain_etc` to `root:root` for the seam.
    Compile-clean; live-validated at the Section 8 re-run.
 
+## BUG-001-4 — from-scratch Linux build can't resolve DNS in rootless containers (model seed + neuron build)
+1. **Observed:** 2026-07-23, Section 8 (after BUG-001-3 cleared). `_build_engine_linux` stage 3 died:
+   `ollama pull nomic-embed-text` → `lookup registry.ollama.ai … : connection refused` / `FAIL`. Probed:
+   default-bridge containers cannot resolve (UDP/53 to `8.8.8.8` and `--dns 1.1.1.1` both fail); a
+   **user-defined network resolves fine** (Docker embedded DNS `127.0.0.11`).
+2. **Root cause:** the ollama-seed container (and neuron `docker build` RUN steps) ran on rootless
+   Docker's **default bridge**, which has no embedded DNS — the container attempts plaintext UDP/53
+   directly. This host **requires encrypted DNS (DoT/DoH) as a hardening control**, so plaintext UDP/53
+   is intentionally unavailable; the container had no legitimate resolver path. `docker pull` (stages 2)
+   works because that resolves **daemon-side** (host), not in a container.
+3. **Severity/priority:** HIGH — blocks every rootless `--from-scratch` build at model-seed. Must clear
+   before close.
+4. **Status:** FIXED (2026-07-23) — `_build_engine_linux` creates a build-scoped **user-defined network**
+   (`brain-build-net-<brain>`) and runs the seed container + neuron builds on it (`--network`). Containers
+   then use Docker's embedded resolver (`127.0.0.11`), which forwards via the **daemon's host-side
+   resolver = the host's encrypted DNS** — so containers emit NO plaintext DNS, honoring the hardening
+   control (and closing the earlier container→LAN DNS-egress concern). Deliberately **no `--dns`** (that
+   would bypass the control). Network is torn down after the neuron stage (idempotent pre-clean each run).
+   Compile-clean; live-validated at the Section 8 re-run.
+
 ## DEBT-001-1 — Linux deploy is missing the ollama_models and neuron_bundles stages
 1. **Decision/context:** `linux_deploy_brain.py cmd_deploy` (8 stages) has no `ollama_models` and no
    `neuron_bundles` stage; Windows has both (stages 8–9). A Linux brain never syncs its model roster
