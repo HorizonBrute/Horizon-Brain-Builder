@@ -100,6 +100,12 @@ import threading
 import time
 from pathlib import Path
 
+# Shared system-scope-first/user-scope-fallback env var policy (env_scope.py lives
+# alongside this file at the repo root, so it resolves whether this module is run
+# directly or imported by brain_doctor.py — both share that same directory on
+# sys.path). See env_scope.py module docstring for the policy this implements.
+import env_scope
+
 # --- Platform seam (Project 001 — consolidate onto one deploy_brain.py) --------
 # This deployer began as Windows/WSL2-only and is the TRUNK the cross-platform
 # deployer is built from. Windows behavior stays byte-for-byte: every OS-forced
@@ -2925,29 +2931,40 @@ def _ensure_bootstrap_token(brain_dir, role, label="bootstrap"):
 
 
 def _persist_machine_token_env(brain, role, token):
-    """Persist a bootstrap token as a Windows SYSTEM (Machine) scope environment variable so it
+    """Persist a bootstrap token as a SYSTEM (machine) scope environment variable so it
     survives across users/sessions and new shells. Reader -> <BRAIN>_CHROMA_R, writer ->
     <BRAIN>_CHROMA_RW (the brain name uppercased; the brain-name regex only admits chars that
     are valid in an env var name once uppercased).
 
-    Machine-scope env vars live in HKLM\\SYSTEM\\...\\Session Manager\\Environment and REQUIRE an
-    elevated process to write. The deploy orchestrator runs elevated (require_admin, asserted up
-    front in main), so this gateway stage is the correct — and only viable — place to write them.
+    Windows: HKLM\\SYSTEM\\...\\Session Manager\\Environment via env_scope.set_windows_env_var
+    (Machine scope first; falls back to User scope with a loud warning if that write fails —
+    see env_scope.py for why that fallback is defensive/general-purpose rather than something
+    this call site can currently exercise).
+    Linux: /etc/environment via env_scope.set_linux_env_var (system scope; PAM-read, covers
+    non-login + most non-interactive contexts). Values are looked up by the deploy operator
+    from a NEW shell, so a flat KEY="value" line (no $VAR expansion needed — the token is
+    already a literal) is sufficient here.
 
-    The secret is passed to PowerShell via the child's ENVIRONMENT, never on the argv, so it
-    never lands in a command line / process listing / shell history. Returns the env var name on
-    success, else None (warn-only: failing to cache the token must not fail the deploy — the raw
-    tokens are still printed above)."""
+    Both branches require elevation to reach machine/system scope, and both are only called
+    from the `gateway` stage of `deploy`, which already called require_admin() up front in
+    main() — so in THIS call site the process is always already root/Administrator by the
+    time we get here. env_scope's fallback exists for its OTHER callers, not this one.
+
+    The secret is passed as a value only (PowerShell: via the child's ENVIRONMENT, never on
+    the argv, so it never lands in a command line / process listing / shell history; Linux:
+    written directly to the file). Returns the env var name on success, else None (warn-only:
+    failing to cache the token must not fail the deploy — the raw tokens are still printed
+    above)."""
     suffix = "CHROMA_RW" if role == "writer" else "CHROMA_R"
     name = f"{brain.upper()}_{suffix}"
-    ps = f"[Environment]::SetEnvironmentVariable('{name}', $env:BRAIN_TOKEN_VALUE, 'Machine')"
-    p = subprocess.run(["powershell", "-NoProfile", "-NonInteractive", "-Command", ps],
-                       capture_output=True, text=True,
-                       env=dict(os.environ, BRAIN_TOKEN_VALUE=token))
-    if p.returncode != 0:
-        warn(f"could not persist {name} at Machine scope (rc={p.returncode}): "
-             f"{(p.stderr or p.stdout).strip()}")
+    if _IS_LINUX:
+        scope, persisted = env_scope.set_linux_env_var(name, token, warn=warn)
+    else:
+        scope, persisted = env_scope.set_windows_env_var(name, token, warn=warn)
+    if not persisted:
         return None
+    # env_scope already warns loudly on its own if it had to degrade to user scope —
+    # nothing more to add here.
     return name
 
 
@@ -3174,13 +3191,16 @@ def gateway(args):
     ok("bootstrap tokens provisioned in brain_etc/gateway (SHOWN ONCE — save them):")
     print(f"    reader (read-only): Bearer {reader_tok}")
     print(f"    writer (read+write): Bearer {writer_tok}")
-    # Persist the raw tokens as SYSTEM (Machine) scope Windows env vars so the operator keeps
-    # them across users/sessions and freshly-opened shells. This stage runs ELEVATED
-    # (require_admin, asserted up front in main), which the HKLM Machine-scope write requires.
+    # Persist the raw tokens as system-scope env vars (Windows: HKLM Machine scope;
+    # Linux: /etc/environment) so the operator keeps them across users/sessions and
+    # freshly-opened shells. This stage runs ELEVATED (require_admin, asserted up
+    # front in main), which both writes require. See env_scope.py + the
+    # _persist_machine_token_env docstring for the fallback-to-user-scope policy
+    # (not reachable from here today, since elevation is already guaranteed).
     r_name = _persist_machine_token_env(args.brain, "reader", reader_tok)
     w_name = _persist_machine_token_env(args.brain, "writer", writer_tok)
     if r_name and w_name:
-        ok(f"tokens persisted as SYSTEM (Machine) env vars: {r_name} (reader), "
+        ok(f"tokens persisted as system-scope env vars: {r_name} (reader), "
            f"{w_name} (writer) — open a NEW shell to pick them up")
     # Auto-mint the NAMED neuron tokens the brain.env YAML zone references (config-flow Phase 3).
     # Each neuron declares `gateway_token: <name>`; gateway_config generate fails CLOSED if that

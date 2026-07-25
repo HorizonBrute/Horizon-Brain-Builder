@@ -25,7 +25,13 @@ loop: canon -> upstream (push) -> deployment (pull).
 Locations (resolved from env, overridable with --horizon-root):
   HORIZON_ROOT     AIOS root
   HORIZON_SYSTEM   <root>/horizon_system   (expected clone home: <system>/deployed_packages/)
-  HORIZON_ETC      <system>/ai_os_etc      (registry lives here)
+  HORIZON_ETC      <system>/ai_os_etc      (registry + the discovery-context pointer file both live
+                                            here: horizon_aios_options_packages.local.md)
+
+Context injection target: $HORIZON_ETC/horizon_aios_options_packages.local.md — a machine-local file
+(git-ignored via .git/info/exclude, never a tracked .gitignore entry) imported by the OS-source root
+agents.md, so it reaches every agent regardless of working directory. install/update migrate away a
+stale same-marker block left at the pre-retarget location ($HORIZON_ROOT/projects/agents.md).
 """
 from __future__ import annotations
 
@@ -42,6 +48,9 @@ PACKAGE_NAME = "horizon_brain_builder"
 DEFAULT_UPSTREAM = "https://github.com/HorizonBrute/Horizon-Brain-Builder"
 REGISTRY_NAME = "horizon_deployed_packages.local.json"
 REGISTRY_SCHEMA = "horizon_deployed_packages/v1"
+# Injection target: concatenated options-package context blocks, imported by OS-source root
+# agents.md. Machine-local (.local.) so it is git-ignored from OS canon and survives OS updates.
+PACKAGES_FILE_NAME = "horizon_aios_options_packages.local.md"
 CONTEXT_MARKER = "horizon-brain-builder"
 BEGIN_MARKER = f"<!-- BEGIN {CONTEXT_MARKER}"
 END_MARKER = f"<!-- END {CONTEXT_MARKER} -->"
@@ -76,7 +85,11 @@ def resolve_paths(horizon_root: "str | None") -> dict:
         "system": system,
         "etc": etc,
         "registry": etc / REGISTRY_NAME,
-        "agents_file": root_p / "projects" / "agents.md",
+        # current injection target: the machine-local, concatenated options-package context file
+        # imported by the OS-source root agents.md (git-ignored from OS canon; survives OS updates).
+        "agents_file": etc / PACKAGES_FILE_NAME,
+        # legacy injection target (pre-retarget); migrated away from on install/update.
+        "legacy_agents_file": root_p / "projects" / "agents.md",
     }
 
 
@@ -85,6 +98,80 @@ def rel_to_root(path: Path, root: Path) -> str:
         return path.resolve().relative_to(root).as_posix()
     except ValueError:
         return path.resolve().as_posix()
+
+
+PACKAGES_FILE_HEADER = (
+    "<!-- MACHINE-LOCAL — concatenated options-package context blocks.\n"
+    "     Managed by package installers (install/update/uninstall). Do not hand-edit: edits here\n"
+    "     are not preserved by a package `update` and this file is not part of OS canon (it is\n"
+    "     git-ignored from the official sync lane). Imported by the OS-source root `agents.md`. -->\n"
+)
+
+
+def ensure_gitignored(path: Path) -> str:
+    """Make `path` git-ignored in its containing repo via .git/info/exclude (machine-local,
+    never synced, never touches the tracked .gitignore that the official lane overwrites).
+
+    Returns a short status string. No-op if git is absent, the path is outside a repo, or it is
+    already ignored by an existing rule.
+    """
+    try:
+        top = subprocess.run(
+            ["git", "-C", str(path.parent), "rev-parse", "--show-toplevel"],
+            capture_output=True, text=True, check=False,
+        )
+    except (OSError, FileNotFoundError):
+        return "no-git"
+    if top.returncode != 0 or not top.stdout.strip():
+        return "not-in-repo"
+    repo = Path(top.stdout.strip())
+    already = subprocess.run(
+        ["git", "-C", str(repo), "check-ignore", "-q", str(path)],
+        capture_output=True, text=True, check=False,
+    )
+    if already.returncode == 0:
+        return "already-ignored"
+    try:
+        rel = path.resolve().relative_to(repo.resolve()).as_posix()
+    except ValueError:
+        return "outside-repo"
+    exclude = repo / ".git" / "info" / "exclude"
+    exclude.parent.mkdir(parents=True, exist_ok=True)
+    existing = exclude.read_text(encoding="utf-8") if exclude.exists() else ""
+    if rel in existing.splitlines():
+        return "already-excluded"
+    with exclude.open("a", encoding="utf-8", newline="\n") as fh:
+        if existing and not existing.endswith("\n"):
+            fh.write("\n")
+        fh.write(f"# {PACKAGE_NAME} (machine-local .local. override)\n{rel}\n")
+    return "excluded"
+
+
+def strip_marker_block(path: Path) -> bool:
+    """Strip this package's marker-delimited block from `path` if present. Returns True if a
+    block was found and removed. Safe (no-op) if the file does not exist."""
+    if not path.exists():
+        return False
+    text = path.read_text(encoding="utf-8")
+    if BEGIN_MARKER not in text:
+        return False
+    out, skip = [], False
+    for ln in text.splitlines():
+        if BEGIN_MARKER in ln:
+            skip = True
+            continue
+        if skip:
+            if END_MARKER in ln:
+                skip = False
+            continue
+        out.append(ln)
+    while out and out[-1].strip() == "":
+        out.pop()
+    if out:
+        path.write_text("\n".join(out) + "\n", encoding="utf-8")
+    else:
+        path.write_text("", encoding="utf-8")
+    return True
 
 
 def git_remotes(repo: Path) -> list:
@@ -161,42 +248,52 @@ def cmd_install(args) -> None:
     pkg = package_root()
     print(f"Installing '{PACKAGE_NAME}' (register + context; toolchain runs in place from {pkg})")
 
-    # 1. Discovery-context pointer into projects/agents.md (idempotent, marker-delimited). The factory
-    #    is a CLI toolchain — nothing is copied; the pointer tells agents where it lives + how to run it.
+    # 1. Migration: strip a stale same-marker block from the OLD injection target
+    #    (projects/agents.md) if present, so an upgraded install does not carry the block twice.
+    if strip_marker_block(p["legacy_agents_file"]):
+        print("  - migrated: stripped stale context block from legacy projects/agents.md")
+
+    # 2. Discovery-context pointer into the machine-local options-packages file (idempotent,
+    #    marker-delimited). The factory is a CLI toolchain — nothing is copied; the pointer tells
+    #    agents where it lives + how to run it. Create the file (with header) if it doesn't exist.
     agents = p["agents_file"]
     pointer_src = pkg / "aios" / "install" / "context_pointer.md"
     if not pointer_src.is_file():
         die(f"context pointer template missing: {pointer_src}")
     pointer = pointer_src.read_text(encoding="utf-8").replace(
         "[[CLONE_PATH]]", rel_to_root(pkg, p["root"]))
-    if agents.exists():
-        text = agents.read_text(encoding="utf-8")
-        if BEGIN_MARKER not in text:
-            with agents.open("a", encoding="utf-8", newline="\n") as fh:
-                if not text.endswith("\n"):
-                    fh.write("\n")
-                fh.write("\n" + pointer.rstrip() + "\n")
-            print("  - injected context pointer into projects/agents.md")
-        else:
-            # refresh the managed block in place (clone path may have changed)
-            out, skip = [], False
-            for ln in text.splitlines():
-                if BEGIN_MARKER in ln:
-                    skip = True
-                    continue
-                if skip:
-                    if END_MARKER in ln:
-                        skip = False
-                    continue
-                out.append(ln)
-            while out and out[-1].strip() == "":
-                out.pop()
-            agents.write_text("\n".join(out) + "\n\n" + pointer.rstrip() + "\n", encoding="utf-8")
-            print("  - refreshed context pointer in projects/agents.md")
+    if not agents.exists():
+        agents.parent.mkdir(parents=True, exist_ok=True)
+        agents.write_text(PACKAGES_FILE_HEADER, encoding="utf-8")
+        print(f"  - created {agents.name}")
+    text = agents.read_text(encoding="utf-8")
+    if BEGIN_MARKER not in text:
+        with agents.open("a", encoding="utf-8", newline="\n") as fh:
+            if not text.endswith("\n"):
+                fh.write("\n")
+            fh.write("\n" + pointer.rstrip() + "\n")
+        print(f"  - injected context pointer into {agents.name}")
     else:
-        print("  ! projects/agents.md not found; skipped context pointer")
+        # refresh the managed block in place (clone path may have changed)
+        out, skip = [], False
+        for ln in text.splitlines():
+            if BEGIN_MARKER in ln:
+                skip = True
+                continue
+            if skip:
+                if END_MARKER in ln:
+                    skip = False
+                continue
+            out.append(ln)
+        while out and out[-1].strip() == "":
+            out.pop()
+        agents.write_text("\n".join(out) + "\n\n" + pointer.rstrip() + "\n", encoding="utf-8")
+        print(f"  - refreshed context pointer in {agents.name}")
+    # keep the machine-local packages file out of git (via .git/info/exclude, not tracked .gitignore)
+    state = ensure_gitignored(agents)
+    print(f"  - gitignore ({agents.name}): {state}")
 
-    # 2. A DEPLOYMENT clone is a pull-only mirror of canon — allow fetch/pull, forbid push. The
+    # 3. A DEPLOYMENT clone is a pull-only mirror of canon — allow fetch/pull, forbid push. The
     #    development checkout (factory canon) is left push-enabled.
     deployment = is_deployment_clone(pkg, p["system"])
     pull_only = False
@@ -207,7 +304,7 @@ def cmd_install(args) -> None:
     else:
         print("  - development checkout (factory canon): push left enabled")
 
-    # 3. Register in the machine-local deployed-packages registry. No skill_dir/payload copy — the
+    # 4. Register in the machine-local deployed-packages registry. No skill_dir/payload copy — the
     #    only reversible artifact is the context block, so that is the whole payload manifest.
     data = read_registry(p["registry"])
     entry = {
@@ -250,25 +347,15 @@ def cmd_uninstall(args) -> None:
     print(f"Uninstalling '{PACKAGE_NAME}' (deregister + strip context; clone + brains untouched)")
 
     agents = p["agents_file"]
-    if agents.exists():
-        text = agents.read_text(encoding="utf-8")
-        if BEGIN_MARKER in text:
-            out, skip = [], False
-            for ln in text.splitlines():
-                if BEGIN_MARKER in ln:
-                    skip = True
-                    continue
-                if skip:
-                    if END_MARKER in ln:
-                        skip = False
-                    continue
-                out.append(ln)
-            while out and out[-1].strip() == "":
-                out.pop()
-            agents.write_text("\n".join(out) + "\n", encoding="utf-8")
-            print("  - stripped context pointer from projects/agents.md")
-        else:
-            print("  - no context pointer block found (skipped)")
+    if strip_marker_block(agents):
+        print(f"  - stripped context pointer from {agents.name}")
+    else:
+        print("  - no context pointer block found (skipped)")
+    # defensive: also strip a stray block from the pre-retarget legacy location, in case this
+    # machine never ran install/update (and thus the migration step in cmd_install) since the
+    # retarget landed.
+    if strip_marker_block(p["legacy_agents_file"]):
+        print("  - stripped stray context pointer from legacy projects/agents.md")
 
     if p["registry"].exists():
         data = read_registry(p["registry"])
@@ -319,6 +406,11 @@ def cmd_status(args) -> None:
     pkg = package_root()
     print(f"HORIZON_ROOT : {p['root']}")
     print(f"clone        : {pkg}  (version {_package_version(pkg)})")
+    print(f"context file : {p['agents_file']}"
+          + ("" if p["agents_file"].exists() else "  (absent)"))
+    if p["legacy_agents_file"].exists() and BEGIN_MARKER in p["legacy_agents_file"].read_text(encoding="utf-8"):
+        print(f"  ! stale context block still present at legacy {p['legacy_agents_file']}"
+              " (run install/update to migrate, or uninstall to strip)")
     print(f"registry     : {p['registry']}"
           + ("" if p["registry"].exists() else "  (absent)"))
     if p["registry"].exists():
