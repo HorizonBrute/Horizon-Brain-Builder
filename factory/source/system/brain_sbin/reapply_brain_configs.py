@@ -120,6 +120,34 @@ def main():
         info("backend generation FAILED - aborting before touching the stack.")
         return rc
 
+    # 1b. Keep the `neurons` compose profile alive across this re-render.
+    #     deploy_brain activates it by MERGING into the runtime ~/docker/.env (deliberately NOT a
+    #     CLI --profile, which REPLACES rather than merges COMPOSE_PROFILES), so the profile stays
+    #     live for the seam-apply recreate AND the residency unit's boot `docker compose up -d`.
+    #     But step 1 RE-RENDERS that .env from brain.env, whose shipped COMPOSE_PROFILES is
+    #     `gateway,ollama,fail2ban` — so every reapply silently dropped the profile and with it
+    #     every neuron service: the action (read-path) daemon never came back, here or at the next
+    #     boot, while its gateway publish and firewall rule stayed configured. Re-assert it with
+    #     the SAME guard deploy uses (real neuron code present), so a bare template scaffold — which
+    #     has no neuron images to start — is unaffected.
+    rendered = bd / "brain_etc" / "docker" / ".env.rendered"
+    cnp = bd / "system" / "common_neuron_platform"
+    if rendered.is_file() and ((cnp / "input" / "Dockerfile").is_file()
+                               or (cnp / "action" / "Dockerfile").is_file()):
+        lines = rendered.read_text(encoding="utf-8").split("\n")
+        key = "COMPOSE_PROFILES="
+        for i, line in enumerate(lines):
+            if not line.startswith(key):
+                continue
+            value, hash_, comment = line[len(key):].partition("#")
+            names = [p.strip() for p in value.split(",") if p.strip()]
+            if "neurons" not in names:
+                names.append("neurons")
+                lines[i] = key + ",".join(names) + ((" " + hash_ + comment) if hash_ else "")
+                rendered.write_bytes("\n".join(lines).encode("utf-8"))
+                info(f"1b/4 re-activated the 'neurons' compose profile -> {','.join(names)}")
+            break
+
     # 2. Regenerate the mount->runtime manifest (LF bytes; a stray CR breaks the sync - obj 008).
     manifest = bd / "brain_etc" / "wsl" / "apply.manifest"
     manifest_text = brain_truths.build_manifest(brain, bd)
