@@ -172,6 +172,72 @@ project closes. Ids are stable: `BUG-001-K` / `DEBT-001-K`.
    `token_registry` still `0600 root:dev_brain` (`nobody` denied). Cross-refs BUG-001-7's Related hardening
    note. Compile-clean.
 
+## BUG-001-9 — manual `run_as_brain.py` can't resolve the platform credential (bare-shell keyring seam)
+> **Logged after project close (2026-08-04).** Recorded here — not in a new tracker — because it is the
+> SAME provider-keyring seam this project built (`_export_provider_keyring_seam`, and commit `c025f1c`
+> which extended it to `cmd_verify`/`cmd_status`; see the "verify/status hangs" note in
+> `brain_bin/TROUBLESHOOTING.md`). This is the third and last entry point on that seam. Filed FIXED in
+> the same commit, so the project's closed state is unchanged and **no reopen is warranted**.
+
+1. **Observed:** 2026-08-04 (known-but-unfixed since 2026-07-18, carried as a manual workaround in
+   `handoffs/2026-07-18_211324_2ndbraindevelopment.md:62-63`). In a bare elevated operator shell with no
+   `BRAIN_KEYRING_*` exported, on the live AIOS-hosted `sorcerypunk_dev`:
+   `python …\brain_sbin\run_as_brain.py --wsl -- 'docker ps'` printed
+   `credential: retrieved from OS keystore (namespace 'brain:sorcerypunk_dev')` and then died with
+   `Exception calling "Start" with "0" argument(s): "The user name or password is incorrect"`
+   (CreateProcessWithLogonW). Setting `$env:BRAIN_KEYRING_SERVICE='horizon_aios'` fixed it instantly.
+2. **Root cause:** `run_as_brain._keyring_namespaces()` could learn the host's keystore namespace ONLY
+   from `$BRAIN_KEYRING_SERVICE`. That env seam is exported by a PARENT process
+   (`deploy_brain._export_provider_keyring_seam`), so the deployer's own children were fine — but a
+   MANUAL/standalone invocation inherits nothing, the AIOS never exports it into an operator shell, and
+   the lookup fell through to the brain-owned `brain:<brain>` namespace. On this brain that namespace
+   held a **stale** entry from a prior standalone incarnation, so the read "succeeded" with the wrong
+   password (a silent-wrong-credential failure, not a clean miss). The AIOS writes the real credential to
+   service `horizon_aios`, user `brain_account:<brain>` (`horizon_aios_brain_credential.py`
+   `KEYRING_SERVICE`/`_keyring_username`) — usernames already matched on both sides; only the SERVICE
+   name failed to reach the tool. `brain_installer_1_admin.py` had already worked around this with an
+   `.aios_provision.json`-presence marker that hardcodes `horizon_aios`; `run_as_brain.py` may not
+   (its header contract: the tool "carries no knowledge of any particular platform's convention").
+3. **Severity/priority:** HIGH — every manual brain operation through the tool fails or, worse,
+   authenticates with a stale credential; `gateway_port.py` inherits it (it dispatches through
+   `run_as_brain`). Repeated account-logon failures also risk lockout under a lockout policy.
+4. **Status:** FIXED (2026-08-04) — the host now ADVERTISES its namespace **in data the brain carries**,
+   keeping the tool platform-agnostic. `run_as_brain._declared_keyring_namespace()` reads any provisioning
+   record in the brain dir (`.*_provision.json` — the brain's own `.brain_provision.json` plus any host's
+   sibling, e.g. the AIOS's `.aios_provision.json`) for an unbranded `"keyring_service"` (+ optional
+   `"keyring_user"`, `{brain}` allowed). Precedence is preserved and now works in a bare shell:
+   `$BRAIN_KEYRING_SERVICE` when set → else the record-declared namespace → **brain-owned
+   `brain:<brain>`/`account_password` LAST**, so a stale entry can never shadow the host's credential.
+   The same reader was mirrored into `brain_installer_1_admin.py` ahead of its branded marker fallback
+   (which is kept for records written before the field existed). `gateway_port.py` needs no change — it
+   has no keyring logic of its own and is fixed transitively. **Live-validated on `sorcerypunk_dev`** in a
+   shell with zero `BRAIN_KEYRING_*` set: the same command that failed above now prints
+   `credential: retrieved from OS keystore (namespace 'horizon_aios')` and returns the running container
+   table. Both files `py_compile`-clean.
+   - **Companion change required OUTSIDE this repo (not fixed here):** the Horizon.AIOS provisioner
+     `$HORIZON_SBIN/horizon_aios_create_brain.py` must emit `"keyring_service": "horizon_aios"` (+
+     `"keyring_user": "brain_account:{brain}"`) into `.aios_provision.json`, and existing brains need that
+     field backfilled. Until it does, only backfilled brains resolve without the env seam.
+   - **Related, NOT fixed:** `deploy_brain._keyring_namespaces()` still infers the platform namespace from
+     `is_provider_host()` and hardcodes `horizon_aios`. Not a defect (it is the provider-side tool and is
+     allowed that knowledge) and it is never the broken path, but it could adopt the same record reader
+     for consistency → see DEBT-001-6.
+
+## DEBT-001-6 — two keyring-namespace resolvers still infer the platform brand instead of reading it
+1. **Decision/context:** after BUG-001-9, three `_keyring_namespaces()` implementations must stay in sync
+   (`deploy_brain.py`, `brain_bin/deploy/brain_installer_1_admin.py`, `brain_sbin/run_as_brain.py`). Only
+   `run_as_brain` is now purely declarative. The other two still carry a hardcoded `horizon_aios` behind a
+   brand inference — `is_provider_host()` (a `$HORIZON_ROOT` directory test) and an
+   `.aios_provision.json`-presence marker respectively.
+2. **Action needed:** once the AIOS provisioner emits `keyring_service` (the companion change in
+   BUG-001-9) and deployed brains are backfilled, drop both branded fallbacks so all three resolvers read
+   the advertised field only — one contract, no brand knowledge below the provider layer.
+3. **Impact:** LOW — the fallbacks are correct on a Horizon.AIOS host and harmless elsewhere (they are
+   guarded by a provider test); this is contract purity plus one less place for the three copies to drift.
+4. **Status:** DEFERRED (2026-08-04) → **destination:** blocked on the out-of-repo provisioner change;
+   revisit when `.aios_provision.json` carries `keyring_service` by construction. Logged post-close
+   alongside BUG-001-9; does not reopen the project.
+
 ## DEBT-001-1 — Linux deploy is missing the ollama_models and neuron_bundles stages
 1. **Decision/context:** `linux_deploy_brain.py cmd_deploy` (8 stages) has no `ollama_models` and no
    `neuron_bundles` stage; Windows has both (stages 8–9). A Linux brain never syncs its model roster

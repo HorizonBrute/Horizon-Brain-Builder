@@ -226,7 +226,8 @@ are about the deploy tool itself, not a running stack.
 `python deploy_brain.py verify --brain <brain> …` (or `status`) emits its banner and then
 blocks forever. **Cause:** these verbs hop into the brain's per-user distro via `run_as_brain`, which
 must resolve the brain's Windows password from the OS keystore — and that lookup only finds it when
-the platform keyring namespace is advertised via `$BRAIN_KEYRING_SERVICE`. Older builds set that seam
+the platform keyring namespace is advertised, either via `$BRAIN_KEYRING_SERVICE` or (current builds)
+via a `"keyring_service"` field in a provisioning record in the brain dir. Older builds set that seam
 in `deploy`/`teardown` but **not** in `cmd_verify`/`cmd_status`, so the first distro hop fell through
 to `run_as_brain.get_password()`'s interactive `getpass()` prompt on a non-interactive console →
 indefinite stdin block. (Deploy's *inline* `[10/10]` verify was never affected — `cmd_deploy` sets
@@ -234,6 +235,20 @@ the seam first.) **Fix:** current builds export the seam in `cmd_verify` (commit
 older build, update — or run from a context where the brain credential resolves (set
 `$AIOS_INSTALL_ROOT` / export the provider keyring seam) so the keystore hit succeeds instead of
 prompting. A wrong credential then surfaces as a nonzero rc the checks already `die` on, not a hang.
+
+**Manual `run_as_brain.py` fails: `Exception calling "Start" … "The user name or password is incorrect"`.**
+Running `run_as_brain.py` **by hand** (not through `deploy_brain.py`) dies at the identity switch, often
+after printing `credential: retrieved from OS keystore (namespace 'brain:<brain>')` — i.e. it *found* a
+password, just the wrong one. **Cause:** the deployer exports the platform keyring namespace into its own
+children; a hand-run invocation inherits nothing, so older builds fell through to the brain-owned
+`brain:<brain>` namespace, where a **stale** entry from a previous standalone incarnation can shadow the
+host's real credential. **Fix:** current builds also read the namespace from a `"keyring_service"` field
+in a provisioning record in the brain dir (`.brain_provision.json` / a host's `.aios_provision.json`), so
+a bare shell resolves correctly with nothing exported — confirm with
+`python -c "import json;print(json.load(open(r'<brain-dir>\.aios_provision.json')).get('keyring_service'))"`.
+If the record predates that field, either backfill it or export the seam for the session
+(`$env:BRAIN_KEYRING_SERVICE='<host namespace>'`). A `credential:` line naming the **host** namespace
+(not `brain:<brain>`) is the success signal.
 
 **Deploy dies at the gateway step: `port <N> is reserved by brain '<other>'`.**
 `gateway_port ERROR: port 8000 is reserved by brain '<other>' (registry …\gateway_ports.json) …

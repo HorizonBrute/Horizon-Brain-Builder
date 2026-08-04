@@ -88,22 +88,52 @@ PROVISION = BRAIN_DIR / ".brain_provision.json"
 # Credential namespaces in the ONE OS-native keystore (Windows Credential Manager /
 # macOS Keychain / Linux Secret Service, via the `keyring` lib). There is no separate
 # "brain keystore" — just namespaces in the same vault:
-#   brain-owned  : service 'brain:<brain>',  user 'account_password'
-#                  (a brain that provisioned its own credential) — always tried.
-#   host platform: whatever namespace the host's own provisioner wrote, named by
-#                  $BRAIN_KEYRING_SERVICE (+ optional $BRAIN_KEYRING_USER, which may
-#                  contain '{brain}'). Tried FIRST when set. This is the 'use the host's
-#                  vault if it has one' seam: the host names its own namespace, so this
-#                  tool carries no knowledge of any particular platform's convention.
+#   host platform: whatever namespace the host's own provisioner wrote. The host names it,
+#                  two ways, both unbranded — this tool carries no knowledge of any
+#                  particular platform's convention:
+#                    (1) $BRAIN_KEYRING_SERVICE (+ optional $BRAIN_KEYRING_USER, which may
+#                        contain '{brain}') — an env seam a PARENT process can export.
+#                    (2) a "keyring_service" (+ optional "keyring_user") field in a
+#                        provisioning record the host dropped in the brain dir. This is the
+#                        one that survives a BARE OPERATOR SHELL: a manual run_as_brain
+#                        invocation inherits no env from the host's deployer, so (1) alone
+#                        left every standalone invocation falling through to the brain-owned
+#                        namespace and failing CreateProcessWithLogonW ("The user name or
+#                        password is incorrect"). The record travels with the brain.
+#                  Tried FIRST when either is present.
+#   brain-owned  : service 'brain:<brain>', user 'account_password' (a brain that provisioned
+#                  its own credential) — always tried, and always LAST so a stale entry there
+#                  can never shadow the host's current credential.
 # Then prompt. NOTE: on Windows the vault is per-user, so this must run as the SAME
 # operator account that stored it (the elevated operator), then become the brain —
 # never the other way round.
+PROVISION_GLOB = ".*_provision.json"    # the brain's own record + any host's sibling record
+
+
+def _declared_keyring_namespace():
+    """The keystore namespace a host ADVERTISES in a provisioning record it left in the brain
+    dir: {"keyring_service": ..., "keyring_user": ...} ('{brain}' allowed in the user). None
+    when no record advertises one. Records are read in sorted-name order."""
+    for rec_path in sorted(BRAIN_DIR.glob(PROVISION_GLOB)):
+        try:
+            rec = json.loads(rec_path.read_text(encoding="utf-8"))
+        except Exception:
+            continue
+        if isinstance(rec, dict) and rec.get("keyring_service"):
+            return rec["keyring_service"], rec.get("keyring_user", "brain_account:{brain}")
+    return None
+
+
 def _keyring_namespaces():
     host_service = os.environ.get("BRAIN_KEYRING_SERVICE")
     ns = []
     if host_service:
         ns.append((host_service, os.environ.get("BRAIN_KEYRING_USER", "brain_account:{brain}")))
-    ns.append(("brain:{brain}", "account_password"))    # brain-owned namespace
+    else:
+        declared = _declared_keyring_namespace()
+        if declared:
+            ns.append(declared)
+    ns.append(("brain:{brain}", "account_password"))    # brain-owned namespace — LAST
     return tuple(ns)
 
 def info(m): print(f"  {m}")
@@ -151,11 +181,11 @@ def to_wsl_path(p):
 
 def get_password(brain):
     """Brain Windows password for Start-Process -Credential. Read the OS-native
-    keystore directly (the host-named namespace first when $BRAIN_KEYRING_SERVICE is
-    set, then the brain-owned namespace), else prompt. This is the 'use the host's
-    vault if there, but don't require it' seam — it depends only on the universal
-    `keyring` lib plus an env-named namespace, so it travels with the brain (see
-    _keyring_namespaces)."""
+    keystore directly (the host-named namespace first — from $BRAIN_KEYRING_SERVICE, else
+    from a provisioning record's "keyring_service" — then the brain-owned namespace), else
+    prompt. This is the 'use the host's vault if there, but don't require it' seam — it
+    depends only on the universal `keyring` lib plus a namespace the HOST names, so it
+    travels with the brain (see _keyring_namespaces)."""
     try:
         import keyring
     except ImportError:

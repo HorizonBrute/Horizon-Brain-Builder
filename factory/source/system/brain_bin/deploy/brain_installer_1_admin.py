@@ -44,17 +44,38 @@ PROVISION = BRAIN_DIR / ".brain_provision.json"
 # precedence (first hit wins). A Horizon.AIOS PLATFORM brain's create-brain
 # (horizon_aios_create_brain.py) writes the password to 'horizon_aios'/'brain_account:<brain>';
 # a STANDALONE factory create_brain.py writes 'brain:<brain>'/'account_password'. Prefer the
-# platform namespace when this is a platform-provisioned brain (the .aios_provision.json marker
-# is present) or when a host advertises its own namespace via $BRAIN_KEYRING_SERVICE, and always
-# try the brain-owned namespace LAST so a stale entry there can't shadow the real credential.
+# platform namespace when a host advertises it — via $BRAIN_KEYRING_SERVICE (an env seam a parent
+# can export) or, for a bare manual invocation that inherits no such env, via a "keyring_service"
+# field in a provisioning record the host left in the brain dir. Fall back to the branded guess
+# when only the .aios_provision.json marker is present (a record written before that field
+# existed), and always try the brain-owned namespace LAST so a stale entry there can't shadow
+# the real credential.
 AIOS_PROVISION = BRAIN_DIR / ".aios_provision.json"
+PROVISION_GLOB = ".*_provision.json"    # the brain's own record + any host's sibling record
+
+
+def _declared_keyring_namespace():
+    """The keystore namespace a host ADVERTISES in a provisioning record it left in the brain
+    dir: {"keyring_service": ..., "keyring_user": ...} ('{brain}' allowed in the user). None
+    when no record advertises one. Mirrors run_as_brain.py's reader of the same name."""
+    for rec_path in sorted(BRAIN_DIR.glob(PROVISION_GLOB)):
+        try:
+            rec = json.loads(rec_path.read_text(encoding="utf-8"))
+        except Exception:
+            continue
+        if isinstance(rec, dict) and rec.get("keyring_service"):
+            return rec["keyring_service"], rec.get("keyring_user", "brain_account:{brain}")
+    return None
 
 
 def _keyring_namespaces():
     ns = []
     host_service = os.environ.get("BRAIN_KEYRING_SERVICE")
+    declared = _declared_keyring_namespace()
     if host_service:
         ns.append((host_service, os.environ.get("BRAIN_KEYRING_USER", "brain_account:{brain}")))
+    elif declared:
+        ns.append(declared)                                    # host-advertised namespace
     elif AIOS_PROVISION.is_file():
         ns.append(("horizon_aios", "brain_account:{brain}"))   # Horizon.AIOS platform namespace
     ns.append(("brain:{brain}", "account_password"))           # standalone / brain-owned namespace
