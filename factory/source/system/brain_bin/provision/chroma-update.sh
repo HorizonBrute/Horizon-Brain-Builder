@@ -9,7 +9,20 @@ STACK="$HOME/docker"; ENVF="$STACK/.env"
 # probe. Health-check THROUGH the gateway over TLS on the configured port, verifying with
 # the stack's own CA. Probing http://127.0.0.1:8000 directly always fails and makes the
 # update timer thrash (bump -> "unhealthy" -> rollback -> "unhealthy"), stranding images.
-PORT="$(grep -E '^GATEWAY_PORT=' "$ENVF" | cut -d= -f2)"; PORT="${PORT:-8000}"
+# CHROMA_PORT is the authoritative knob: brain.env is the source of truth (ADR-0013) and
+# reapply RE-RENDERS ~/docker/.env from it. GATEWAY_PORT is legacy — deploy seds it straight
+# into the runtime .env, where the next reapply drops it (it has no brain.env counterpart), so
+# reading it first meant a non-default port silently reverted to 8000 here and the health probe
+# then hit the wrong port: update -> "unhealthy" -> rollback -> stranded images. Prefer the
+# authoritative knob, fall back to the legacy one, then the default.
+# NB: the rendered .env keeps the template's INLINE COMMENTS
+# (`CHROMA_PORT=8000    # EXTERNAL published port…`), so the value must be cut at the '#'
+# before it is used — a bare `cut -d= -f2` yields "8000#EXTERNALpublished…" and the probe
+# then builds a garbage URL that can never answer.
+_envval() { grep -m1 -E "^$1=" "$ENVF" 2>/dev/null | cut -d= -f2- | cut -d'#' -f1 | tr -d '[:space:]'; }
+PORT="$(_envval CHROMA_PORT)"
+[ -n "$PORT" ] || PORT="$(_envval GATEWAY_PORT)"
+PORT="${PORT:-8000}"
 CACERT="$HOME/gateway/gateway_out/cert.pem"; HB="https://127.0.0.1:${PORT}/api/v2/heartbeat"
 
 hc() { for _ in $(seq 1 15); do curl -fsS --connect-timeout 3 --max-time 10 --cacert "$CACERT" "$HB" >/dev/null 2>&1 && return 0; sleep 2; done; return 1; }

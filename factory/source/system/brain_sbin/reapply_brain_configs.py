@@ -27,6 +27,7 @@ Use it after ANY edit to a knob file, or just to slam the stack back to a known 
 """
 import argparse
 import os
+import re
 import subprocess
 import sys
 from argparse import Namespace
@@ -254,7 +255,59 @@ def main():
     # 4. Reconcile the host firewall to the LAN surfaces brain.env exposes. Only after a clean
     #    recreate: opening ports to a rolled-back stack would advertise a surface that isn't there.
     reconcile_firewall(brain, bd)
+
+    # 5. ASSERT THE END STATE. `deploy` ends in verify; reapply used to mutate a running stack
+    #    and exit 0 no matter what it left behind — so a reapply that took the read path down
+    #    reported success, and the operator found out days later (the dropped-`neurons`-profile
+    #    bug this tool now guards against in 1b). A recreate rc of 0 only says compose started
+    #    what it was asked to start; it says nothing about what it was asked to start.
+    #    Same liveness semantics as deploy's verify: one-shot neurons legitimately Exited(0),
+    #    a NON-ZERO exit means the ingest/query side is dead. Report-only for anything else —
+    #    this runs on a live stack, so it must never be more destructive than the thing it checks.
+    _assert_stack_live(brain, bd)
     return rc
+
+
+def _assert_stack_live(brain, bd):
+    """Post-reapply end-state check: neuron containers exist and none exited non-zero.
+
+    Guarded on real neuron source (mirrors deploy's neuron stage + verify), so a template
+    scaffold with no neuron images is not reported as broken. Non-fatal by design: it prints a
+    loud WARN rather than dying, because the stack is already reapplied by this point and the
+    operator needs the diagnosis, not an exception. Returns True when the stack looks healthy."""
+    cnp = bd / "system" / "common_neuron_platform"
+    if not ((cnp / "input" / "Dockerfile").is_file() or (cnp / "action" / "Dockerfile").is_file()):
+        return True
+    if not RUN_AS_BRAIN.is_file():
+        return True
+    proc = subprocess.run(
+        [sys.executable, str(RUN_AS_BRAIN), "--brain", brain, "--wsl", "--",
+         "docker ps -a --format '{{.Names}}|{{.Status}}'"],
+        capture_output=True, text=True)
+    rows = [l.strip() for l in (proc.stdout or "").splitlines() if "|" in l]
+    neurons = [r for r in rows
+               if r.split("|", 1)[0].startswith(f"{brain}-") and "neuron" in r.split("|", 1)[0]]
+    if not neurons:
+        info("5/5 END-STATE WARN - neuron source is present but NO neuron container exists. "
+             "The bundle's ingest/query side is absent; the brain serves nothing. "
+             "Check the 'neurons' compose profile in ~/docker/.env.")
+        return False
+    dead = []
+    for r in neurons:
+        name, status = (x.strip() for x in r.split("|", 1))
+        m = re.match(r"Exited \((\d+)\)", status)
+        if m and m.group(1) != "0":
+            dead.append(f"{name} [{status}]")
+    if dead:
+        info("5/5 END-STATE WARN - neuron container(s) exited non-zero: " + ", ".join(dead)
+             + " - the bundle is dead. Inspect as the brain: docker logs <name>.")
+        return False
+    running = [r.split("|", 1)[0] for r in neurons if "Up " in r]
+    oneshot = [r.split("|", 1)[0] for r in neurons if "Exited (0)" in r]
+    info(f"5/5 end state OK - {len(neurons)} neuron container(s): "
+         f"{len(running)} running, {len(oneshot)} one-shot done"
+         + (f" ({', '.join(sorted(running))})" if running else ""))
+    return True
 
 
 if __name__ == "__main__":
