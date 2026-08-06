@@ -1,0 +1,839 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Archive of completed/verified work-item blocks retired out of the live status doc.">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Project 001 — Unify the brain deployer (Status Archive) - Horizon Brain Builder</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#project-001-status-archive" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Horizon Brain Builder" class="md-header__button md-logo" aria-label="Horizon Brain Builder" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Horizon Brain Builder
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Project 001 — Unify the brain deployer (Status Archive)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../gateway_bearer_auth_SOP/" class="md-tabs__link">
+          
+  
+  
+  Gateway Authorization
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Horizon Brain Builder" class="md-nav__button md-logo" aria-label="Horizon Brain Builder" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Horizon Brain Builder
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gateway Authorization
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Gateway Authorization
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../gateway_bearer_auth_SOP/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bearer Auth SOP
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../gateway_token_admin_howto/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Token Admin How-To
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../gateway_auth_verification_matrix/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Auth Verification Matrix
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../gateway_offbox_validation_cookbook/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Off-box Validation Cookbook
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#archived-2026-07-24-project-close-all-sections-terminal-all-decisions-settled" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Archived 2026-07-24 — Project close (all Sections terminal, all decisions settled)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Archived 2026-07-24 — Project close (all Sections terminal, all decisions settled)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#section-1-platform-switch-inside-the-trunk" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Section 1 — Platform switch inside the trunk
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#section-2-fold-linux-path-into-trunk-build_engine" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Section 2 — Fold Linux path into trunk build_engine
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#section-3-linux-engine-artifact" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Section 3 — Linux engine artifact
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#section-4-fold-linux-branches-into-trunk-cmd_deploy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Section 4 — Fold Linux branches into trunk cmd_deploy
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#section-5-cli-parity-on-the-trunk" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Section 5 — CLI parity on the trunk
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#section-6-gen-cert-hardening-bug-001-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Section 6 — gen-cert hardening (BUG-001-1)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#section-7-migrate-retire-document" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Section 7 — Migrate, retire, document
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#section-8-validation-rebuild-dev_brain-via-unified-path" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Section 8 — Validation: rebuild dev_brain via unified path
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#archived-decision-log-note-001-1-001-10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Archived decision log (NOTE 001-1 … 001-10)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#note-001-1-2026-07-21-linux-engine-artifact-docker-save-config-bundle-confirmed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        NOTE 001-1 | 2026-07-21 | Linux engine artifact = docker save + config bundle (CONFIRMED)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#note-001-2-2026-07-21-gen-cert-hardening-can-land-first" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        NOTE 001-2 | 2026-07-21 | gen-cert hardening can land first
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#note-001-3-2026-07-21-dev_brain-stays-down-by-design-until-the-unified-path-exists" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        NOTE 001-3 | 2026-07-21 | dev_brain stays down by design until the unified path exists
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#note-001-4-2026-07-21-pivot-extend-the-windows-trunk-do-not-build-a-new-file-confirmed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        NOTE 001-4 | 2026-07-21 | PIVOT — extend the Windows trunk, do not build a new file (CONFIRMED)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#note-001-5-2026-07-21-centralize-os-forced-concepts-behind-helpers-not-scattered-inline-ifs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        NOTE 001-5 | 2026-07-21 | Centralize OS-forced concepts behind helpers, not scattered inline ifs
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#note-001-6-2026-07-22-linux-build-identity-the-real-brain-account-v1-throwaway-build-user-is-debt" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        NOTE 001-6 | 2026-07-22 | Linux build identity = the real brain account (v1); throwaway build-user is debt
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#note-001-7-2026-07-22-linux-engine-artifact-layout-systemlinux_engineimagestar-ollama_modelstar-cert" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        NOTE 001-7 | 2026-07-22 | Linux engine artifact layout = system/linux_engine/{images.tar, ollama_models.tar, cert/}
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#note-001-8-2026-07-23-rogue-session-hand-patched-linux_deploy_brainpy-against-instructions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        NOTE 001-8 | 2026-07-23 | Rogue session hand-patched linux_deploy_brain.py (against instructions)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#note-001-9-2026-07-23-debt-001-3b-done-brain_doctor-linuxbackend-rewired-old-driver-deleted" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        NOTE 001-9 | 2026-07-23 | DEBT-001-3b done — brain_doctor LinuxBackend rewired, old driver deleted
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#note-001-10-2026-07-23-section-8-passed-supervised-dev_brain-teardownfrom-scratch-redeploy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        NOTE 001-10 | 2026-07-23 | Section 8 PASSED — supervised dev_brain teardown+from-scratch redeploy
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="project-001-status-archive">Project 001 — Status Archive</h1>
+<p>Archived blocks below. See the live status doc's closeout <code>NOTE 001-11</code> for the project outcome.</p>
+<!-- Archived blocks go below, newest first. -->
+
+<h2 id="archived-2026-07-24-project-close-all-sections-terminal-all-decisions-settled">Archived 2026-07-24 — Project close (all Sections terminal, all decisions settled)</h2>
+<h3 id="section-1-platform-switch-inside-the-trunk">Section 1 — Platform switch inside the trunk</h3>
+<p><strong>Status:</strong> VERIFIED (live-validated at Section 8, 2026-07-23) · Platform seam foundation (<code>_IS_WINDOWS</code>/<code>_IS_LINUX</code>, <code>require_supported_os()</code> incl. honest macOS refusal, <code>require_admin()</code>→Linux <code>os.geteuid()==0</code>) + centralized identity-switch helper <code>run_as_brain_argv(path, brain, cmd, *, wsl, root)</code> (Windows argv byte-for-byte; Linux <code>sudo -u &lt;brain&gt; -H bash -lc</code>; <code>root=True</code> refused on Linux). All pure "run-as-brain" identity sites converted; <code>_deliver_data_seams</code> + <code>user_exists</code> Linux branches landed.</p>
+<h3 id="section-2-fold-linux-path-into-trunk-build_engine">Section 2 — Fold Linux path into trunk <code>build_engine</code></h3>
+<p><strong>Status:</strong> VERIFIED (live-validated at Section 8, 2026-07-23) · <code>build_engine()</code> dispatches to <code>_build_engine_linux</code> on Linux: ensure rootless-docker runtime → pull images → seed ollama models (net-new) → build neuron images → bake cert (no-arg gen-cert) → snapshot to <code>system/linux_engine/</code>. Windows <code>wsl --export</code> path untouched.</p>
+<h3 id="section-3-linux-engine-artifact">Section 3 — Linux engine artifact</h3>
+<p><strong>Status:</strong> VERIFIED (live-validated at Section 8, 2026-07-23) · Layout (NOTE 001-7): <code>system/linux_engine/{images.tar, ollama_models.tar, cert/{cert.pem,cert.key}}</code> + <code>linux_engine_dir()</code>. Produce in <code>_build_engine_linux</code>; consume (<code>docker load</code> + volume restore + cert place) in Section 4's deploy stages.</p>
+<h3 id="section-4-fold-linux-branches-into-trunk-cmd_deploy">Section 4 — Fold Linux branches into trunk <code>cmd_deploy</code></h3>
+<p><strong>Status:</strong> VERIFIED (Section 8) · <code>cmd_deploy/teardown/verify/status</code> dispatch to <code>_*_linux</code>. Full Linux deploy (<code>_preflight/_create_brain/_provision_runtime/_seam/_gateway/_residency/_verify</code> + <code>_ensure_engine</code>/<code>_deploy_engine</code> = <code>docker load</code> + volume restore → <code>compose --pull never</code>). Faithful port of the fixed <code>linux_deploy_brain.py</code> (NOTE 001-8).</p>
+<h3 id="section-5-cli-parity-on-the-trunk">Section 5 — CLI parity on the trunk</h3>
+<p><strong>Status:</strong> VERIFIED · Windows argparse was already a superset; added <code>teardown --port</code> (Linux ufw close).</p>
+<h3 id="section-6-gen-cert-hardening-bug-001-1">Section 6 — gen-cert hardening (BUG-001-1)</h3>
+<p><strong>Status:</strong> VERIFIED (e2e at Section 8) · Correct cert contract in both Linux paths: build bakes no-arg gen-cert (personal); deploy gens with server-posture typed-SAN-all-global-IPv4 + hard rc-check. Posture word never reaches gen-cert.</p>
+<h3 id="section-7-migrate-retire-document">Section 7 — Migrate, retire, document</h3>
+<p><strong>Status:</strong> VERIFIED (2026-07-23) · <code>git mv windows_deploy_brain.py → deploy_brain.py</code>; doc sweep; <code>brain_doctor.py</code> both backends repointed to <code>deploy_brain</code> (LinuxBackend rewire = DEBT-001-3b, NOTE 001-9); <code>linux_deploy_brain.py</code> deleted.</p>
+<h3 id="section-8-validation-rebuild-dev_brain-via-unified-path">Section 8 — Validation: rebuild dev_brain via unified path</h3>
+<p><strong>Status:</strong> VERIFIED (PASSED 2026-07-23, supervised; extended through 2026-07-24) · Live <code>teardown --purge</code> + <code>deploy --from-scratch</code> of dev_brain → all stages VERIFY PASSED (mode C: no-token 403 / reader 200 / reset 403); rewired <code>brain_doctor diagnose</code> = HEALTHY. First-live surfaced + fixed <strong>8 defects</strong> (BUG-001-1…8). Neuron bring-up later added (DEBT-001-1b) so the final validated brain runs base stack + neurons; the real-client-IP assertion (DEBT-001-2) and seam hardening (BUG-001-8) also landed + live-validated. See NOTE 001-10 and the closeout NOTE 001-11.</p>
+<hr />
+<h2 id="archived-decision-log-note-001-1-001-10">Archived decision log (NOTE 001-1 … 001-10)</h2>
+<h2 id="note-001-1-2026-07-21-linux-engine-artifact-docker-save-config-bundle-confirmed">NOTE 001-1 | 2026-07-21 | Linux engine artifact = docker save + config bundle (CONFIRMED)</h2>
+<ul>
+<li>Status: RESOLVED (user-confirmed 2026-07-21)</li>
+<li>Decision: <code>docker save</code> the pinned image list + a rendered config/cert bundle + an ollama-volume tar as the Linux engine artifact (portable analog of baking images into a rootfs tar; avoids rootless data-root UID/overlay fragility).</li>
+</ul>
+<h2 id="note-001-2-2026-07-21-gen-cert-hardening-can-land-first">NOTE 001-2 | 2026-07-21 | gen-cert hardening can land first</h2>
+<ul>
+<li>Status: RESOLVED (2026-07-23) — realized: BUG-001-1 FIXED, cert contract correct in both Linux paths, e2e-proven at Section 8.</li>
+</ul>
+<h2 id="note-001-3-2026-07-21-dev_brain-stays-down-by-design-until-the-unified-path-exists">NOTE 001-3 | 2026-07-21 | dev_brain stays down by design until the unified path exists</h2>
+<ul>
+<li>Status: RESOLVED (2026-07-23) — condition over: Section 8 rebuilt dev_brain through <code>deploy_brain.py</code>; now UP + HEALTHY.</li>
+</ul>
+<h2 id="note-001-4-2026-07-21-pivot-extend-the-windows-trunk-do-not-build-a-new-file-confirmed">NOTE 001-4 | 2026-07-21 | PIVOT — extend the Windows trunk, do not build a new file (CONFIRMED)</h2>
+<ul>
+<li>Status: RESOLVED (user-confirmed 2026-07-21)</li>
+<li>Decision: base everything on <code>windows_deploy_brain.py</code>, branch inline only at OS-forced touchpoints, rename to <code>deploy_brain.py</code> at Section 7, discard the rejected clean-room file, retire <code>linux_deploy_brain.py</code>.</li>
+</ul>
+<h2 id="note-001-5-2026-07-21-centralize-os-forced-concepts-behind-helpers-not-scattered-inline-ifs">NOTE 001-5 | 2026-07-21 | Centralize OS-forced concepts behind helpers, not scattered inline <code>if</code>s</h2>
+<ul>
+<li>Status: RESOLVED — realized each OS-forced concept behind one internally-branching helper (e.g. <code>run_as_brain_argv</code>); Windows path stays the untouched <code>else</code>; Windows-only subsystems get a single <code>if _IS_LINUX: return</code>/skip guard.</li>
+</ul>
+<h2 id="note-001-6-2026-07-22-linux-build-identity-the-real-brain-account-v1-throwaway-build-user-is-debt">NOTE 001-6 | 2026-07-22 | Linux build identity = the real brain account (v1); throwaway build-user is debt</h2>
+<ul>
+<li>Status: RESOLVED — v1 builds the Linux engine as the real brain account (reuses provision's rootless setup); throwaway build-user isolation tracked as DEBT-001-4 (later CLOSED won't-do).</li>
+</ul>
+<h2 id="note-001-7-2026-07-22-linux-engine-artifact-layout-systemlinux_engineimagestar-ollama_modelstar-cert">NOTE 001-7 | 2026-07-22 | Linux engine artifact layout = system/linux_engine/{images.tar, ollama_models.tar, cert/}</h2>
+<ul>
+<li>Status: RESOLVED — <code>linux_engine_dir(brain_dir)</code> holds <code>images.tar</code> (docker save of runtime + neuron images), <code>ollama_models.tar</code> (volume tar), <code>cert/{cert.pem,cert.key}</code>. Build vs deploy split defined.</li>
+</ul>
+<h2 id="note-001-8-2026-07-23-rogue-session-hand-patched-linux_deploy_brainpy-against-instructions">NOTE 001-8 | 2026-07-23 | Rogue session hand-patched linux_deploy_brain.py (against instructions)</h2>
+<ul>
+<li>Status: RESOLVED (user-confirmed 2026-07-23) — three rogue commits to the retired driver (cert SAN, chroma port, server SAN) were unwanted but correct; left in place (superseded when <code>linux_deploy_brain.py</code> was deleted at Section 7); their logic folded into the trunk's Linux path.</li>
+</ul>
+<h2 id="note-001-9-2026-07-23-debt-001-3b-done-brain_doctor-linuxbackend-rewired-old-driver-deleted">NOTE 001-9 | 2026-07-23 | DEBT-001-3b done — brain_doctor LinuxBackend rewired, old driver deleted</h2>
+<ul>
+<li>Status: DONE — LinuxBackend → <code>import deploy_brain as ldb</code>; renamed primitives mapped (<code>brain_sh</code>→<code>_brain_sh</code>, <code>_docker_ready</code>→<code>_linux_docker_ready</code>, <code>require_root</code>→<code>require_admin</code>); <code>linux_deploy_brain.py</code> <code>git rm</code>'d; smoke-tested.</li>
+</ul>
+<h2 id="note-001-10-2026-07-23-section-8-passed-supervised-dev_brain-teardownfrom-scratch-redeploy">NOTE 001-10 | 2026-07-23 | Section 8 PASSED — supervised dev_brain teardown+from-scratch redeploy</h2>
+<ul>
+<li>Status: DONE — all deploy stages → VERIFY PASSED; <code>brain_doctor</code> = HEALTHY. First live contact surfaced 7 defects (BUG-001-2…7 at the time), each fixed + pushed; BUG-001-8 + DEBT-001-1b/2 followed. (Full narrative retained in git history and the action log.)</li>
+</ul>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

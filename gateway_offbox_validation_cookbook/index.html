@@ -1,0 +1,1084 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Operational documentation for the brain builder: per-brain sealed RAG runtimes (ChromaDB + Ollama + nginx gateway).">
+      
+      
+      
+      
+        <link rel="prev" href="../gateway_auth_verification_matrix/">
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Off-box Validation Cookbook - Horizon Brain Builder</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#off-box-external-lan-gateway-validation-cookbook-all-services" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Horizon Brain Builder" class="md-header__button md-logo" aria-label="Horizon Brain Builder" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Horizon Brain Builder
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Off-box Validation Cookbook
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../gateway_bearer_auth_SOP/" class="md-tabs__link">
+          
+  
+  
+  Gateway Authorization
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Horizon Brain Builder" class="md-nav__button md-logo" aria-label="Horizon Brain Builder" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Horizon Brain Builder
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gateway Authorization
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Gateway Authorization
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../gateway_bearer_auth_SOP/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bearer Auth SOP
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../gateway_token_admin_howto/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Token Admin How-To
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../gateway_auth_verification_matrix/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Auth Verification Matrix
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Off-box Validation Cookbook
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Off-box Validation Cookbook
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#0-what-this-proves-and-how-it-differs-from-the-localhost-matrix" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        0. What this proves (and how it differs from the localhost matrix)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-re-read-the-brains-lan-ip-live-first" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Re-read the brain's LAN IP live first
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-tcp-reachability-pre-check-distinguish-unreachable-from-auth-failure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. TCP reachability pre-check (distinguish "unreachable" from "auth failure")
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-tokens-for-this-run-placeholders-never-embed-a-real-token" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Tokens for this run (placeholders — never embed a real token)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-tls-trust" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. TLS trust
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-the-auth-matrix-run-from-the-remote-host" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. The auth matrix (run from the remote host)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. The auth matrix (run from the remote host)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51-chroma-8000" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1 Chroma :8000
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-ollama-11434" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.2 Ollama :11434
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#53-action-query-api-8443-path-router" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.3 action query API :8443 (path-router)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-full-expected-matrix-eyeball-against-this" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Full expected matrix (eyeball against this)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-critical-caveat-token-ops-can-drop-the-published-lan-ports-note-001-58" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. CRITICAL caveat — token ops can drop the published LAN ports (NOTE 001-58)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-cross-links" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Cross-links
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#0-what-this-proves-and-how-it-differs-from-the-localhost-matrix" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        0. What this proves (and how it differs from the localhost matrix)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-re-read-the-brains-lan-ip-live-first" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Re-read the brain's LAN IP live first
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-tcp-reachability-pre-check-distinguish-unreachable-from-auth-failure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. TCP reachability pre-check (distinguish "unreachable" from "auth failure")
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-tokens-for-this-run-placeholders-never-embed-a-real-token" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Tokens for this run (placeholders — never embed a real token)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-tls-trust" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. TLS trust
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-the-auth-matrix-run-from-the-remote-host" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. The auth matrix (run from the remote host)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. The auth matrix (run from the remote host)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51-chroma-8000" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1 Chroma :8000
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-ollama-11434" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.2 Ollama :11434
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#53-action-query-api-8443-path-router" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.3 action query API :8443 (path-router)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-full-expected-matrix-eyeball-against-this" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Full expected matrix (eyeball against this)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-critical-caveat-token-ops-can-drop-the-published-lan-ports-note-001-58" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. CRITICAL caveat — token ops can drop the published LAN ports (NOTE 001-58)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-cross-links" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Cross-links
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="off-box-external-lan-gateway-validation-cookbook-all-services">Off-Box / External LAN Gateway Validation Cookbook (all services)</h1>
+<p><strong>Applies to:</strong> proving the brain's gateway auth boundary <strong>from a separate host on the LAN</strong> — not localhost — across <strong>all three exposed services</strong>: Chroma (<code>:8000</code>), Ollama (<code>:11434</code>), and the action query API (<code>:8443</code>).
+<strong>Audience:</strong> the brain <strong>operator</strong>, running from a second machine (SSH box, laptop) that can reach the brain over the LAN.
+<strong>Companion docs:</strong> localhost / Chroma-only proof is <code>gateway_auth_verification_matrix.md</code>; the full model is <code>gateway_bearer_auth_SOP.md</code>; minting tokens is <code>gateway_token_admin_howto.md</code>.
+<strong>Status:</strong> proven green live 2026-07-19 against a running brain. This encodes the <strong>method</strong>, not any secret or a specific brain's IP.</p>
+<hr />
+<h2 id="0-what-this-proves-and-how-it-differs-from-the-localhost-matrix">0. What this proves (and how it differs from the localhost matrix)</h2>
+<p><code>gateway_auth_verification_matrix.md</code> proves Chroma auth <strong>on 127.0.0.1</strong>. This cookbook proves the same auth boundary <strong>over the LAN, off-box</strong>, and extends it to <strong>every published door</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Port</th>
+<th>Read/use gate</th>
+<th>Write/mgmt gate</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Chroma</strong></td>
+<td><code>:8000</code></td>
+<td>reader/writer → 200, none → 403</td>
+<td>writer → 200, reader/none → 403</td>
+</tr>
+<tr>
+<td><strong>Ollama</strong></td>
+<td><code>:11434</code></td>
+<td><code>ollama:use</code> → 200, none → 403</td>
+<td>mgmt (<code>/api/pull</code>) → 403 even for a use token (admin-gated)</td>
+</tr>
+<tr>
+<td><strong>action API</strong></td>
+<td><code>:8443</code></td>
+<td><code>action:call</code> → 200, none → 403</td>
+<td>(single admission grant; no read/write tiers)</td>
+</tr>
+</tbody>
+</table>
+<p>Off-box adds two failure modes localhost never sees: <strong>unreachable</strong> (wrong IP, ports not published, firewall) and <strong>TLS SAN mismatch</strong> (cert only covers <code>127.0.0.1</code>). The pre-checks below exist to tell those apart from a genuine <code>403</code>.</p>
+<hr />
+<h2 id="1-re-read-the-brains-lan-ip-live-first">1. Re-read the brain's LAN IP <strong>live</strong> first</h2>
+<p>The brain gets its LAN address from <strong>DHCP</strong> — it can change across reboots. Never trust a remembered IP. Ask the brain for its current address before every off-box run:</p>
+<pre><code class="language-bash"># host-side, as the operator (resolves the brain's own network namespace)
+run_as_brain.py --brain &lt;brain&gt; --wsl -- bash -lc 'ip -brief addr show eth0'
+</code></pre>
+<p>Take the IPv4 from that output and use it as <code>&lt;BRAIN_LAN_IP&gt;</code> below. (If mirrored networking is in play, cross-check against <code>TROUBLESHOOTING.md</code> — a host that only answers on loopback is <strong>not</strong> LAN-reachable.)</p>
+<pre><code class="language-bash"># on the remote LAN host, after SSHing in:
+BRAIN_LAN_IP=&lt;BRAIN_LAN_IP&gt;     # from `ip -brief addr show eth0` above — re-read every run
+</code></pre>
+<hr />
+<h2 id="2-tcp-reachability-pre-check-distinguish-unreachable-from-auth-failure">2. TCP reachability pre-check (distinguish "unreachable" from "auth failure")</h2>
+<p>Do this <strong>before</strong> any curl. A closed/dropped port and a <code>403</code> are completely different problems; prove the socket is open first so an auth result is meaningful.</p>
+<pre><code class="language-bash">for p in 8000 11434 8443; do
+  if timeout 3 bash -c &quot;&lt;/dev/tcp/$BRAIN_LAN_IP/$p&quot; 2&gt;/dev/null; then
+    echo &quot;port $p: OPEN&quot;
+  else
+    echo &quot;port $p: UNREACHABLE&quot;
+  fi
+done
+</code></pre>
+<ul>
+<li>All three <strong>OPEN</strong> → proceed to the auth matrix.</li>
+<li>Any <strong>UNREACHABLE</strong> → do <strong>not</strong> interpret later <code>403</code>/timeouts as auth results. Jump to §7 (the port-publish caveat) first.</li>
+</ul>
+<blockquote>
+<p><code>nc -vz $BRAIN_LAN_IP 8000 11434 8443</code> works too if <code>nc</code> is installed. The <code>/dev/tcp</code> form needs nothing but bash.</p>
+</blockquote>
+<hr />
+<h2 id="3-tokens-for-this-run-placeholders-never-embed-a-real-token">3. Tokens for this run (placeholders — never embed a real token)</h2>
+<p>Mint via <code>gateway_tokens.py grant</code> (details + ACL rules in <code>gateway_token_admin_howto.md</code>). Off-box validation needs two tokens:</p>
+<pre><code class="language-bash"># host-side, operator — one read-only, one multi-service use/write/call token:
+python &lt;install-root&gt;/&lt;brain&gt;/brain_sbin/gateway_tokens.py grant --label offbox-reader --grant chroma:reader
+python &lt;install-root&gt;/&lt;brain&gt;/brain_sbin/gateway_tokens.py grant \
+    --label offbox-rwc --grant chroma:writer --grant ollama:use --grant action:call
+</code></pre>
+<p>Each <code>grant</code> prints its raw token <strong>once</strong>. Copy the values into the remote host's shell (never commit them, never paste a live token into these docs):</p>
+<pre><code class="language-bash"># on the remote LAN host:
+RD=&quot;&lt;reader-token&gt;&quot;     # grants chroma:reader
+WR=&quot;&lt;writer-token&gt;&quot;     # grants chroma:writer + ollama:use + action:call
+</code></pre>
+<blockquote>
+<p><strong>Important:</strong> any token op (grant/rotate/revoke) can drop the gateway's published LAN ports — see §7. If §2 was green and turns red right after minting, that is the cause, not a bad token.</p>
+</blockquote>
+<hr />
+<h2 id="4-tls-trust">4. TLS trust</h2>
+<p>The gateway is TLS on every port. Two options off-box:</p>
+<ul>
+<li><strong>Quick check:</strong> add <code>-k</code> to curl (skips CA verify). Fine for proving the auth codes; not for production clients.</li>
+<li><strong>Verified:</strong> copy the gateway CA to the remote host and use <code>--cacert</code>:
+  <code>bash
+  # the CA lives on the brain at /home/&lt;brain&gt;/gateway/gateway_out/cert.pem
+  # copy it to the remote host, then:
+  CA=/path/to/cert.pem
+  # curl ... --cacert "$CA" ...   instead of  -k</code>
+  The default cert's SAN covers only <code>localhost</code>/<code>127.0.0.1</code>. For a <strong>clean off-box</strong> <code>--cacert</code> run the cert must be re-issued with a LAN SAN (see <code>gateway_bearer_auth_SOP.md</code> §2); otherwise <code>-k</code> is the pragmatic path.</li>
+</ul>
+<p>Every curl below uses <strong><code>--connect-timeout 5 -m 15</code></strong> so a dropped or hung connection fails fast. (A curl with no timeout against a silently-dropped port hangs indefinitely — a real trap that masquerades as "stuck".)</p>
+<pre><code class="language-bash">C=&quot;curl.exe -s -k --connect-timeout 5 -m 15 -o /dev/null -w&quot;   # swap -k for --cacert \&quot;$CA\&quot; when verified
+</code></pre>
+<hr />
+<h2 id="5-the-auth-matrix-run-from-the-remote-host">5. The auth matrix (run from the remote host)</h2>
+<h3 id="51-chroma-8000">5.1 Chroma <code>:8000</code></h3>
+<pre><code class="language-bash">COL=&quot;https://$BRAIN_LAN_IP:8000/api/v2/tenants/default_tenant/databases/default_database/collections&quot;
+
+# READ  reader/writer -&gt; 200, none -&gt; 403
+$C 'chroma read reader=%{http_code}\n' --oauth2-bearer &quot;$RD&quot; &quot;https://$BRAIN_LAN_IP:8000/api/v2/heartbeat&quot;
+$C 'chroma read writer=%{http_code}\n' --oauth2-bearer &quot;$WR&quot; &quot;https://$BRAIN_LAN_IP:8000/api/v2/heartbeat&quot;
+$C 'chroma read none  =%{http_code}\n'                        &quot;https://$BRAIN_LAN_IP:8000/api/v2/heartbeat&quot;
+
+# WRITE  writer create -&gt; 200, reader create -&gt; 403, writer delete -&gt; 200
+#   throwaway collection &quot;auth_probe&quot;; NEVER use /reset as a write probe (it wipes the store).
+$C 'chroma write writer-create=%{http_code}\n' -X POST   --oauth2-bearer &quot;$WR&quot; -H 'Content-Type: application/json' --data '{&quot;name&quot;:&quot;auth_probe&quot;}' &quot;$COL&quot;
+$C 'chroma write reader-create=%{http_code}\n' -X POST   --oauth2-bearer &quot;$RD&quot; -H 'Content-Type: application/json' --data '{&quot;name&quot;:&quot;auth_probe&quot;}' &quot;$COL&quot;
+$C 'chroma write writer-delete=%{http_code}\n' -X DELETE --oauth2-bearer &quot;$WR&quot; &quot;$COL/auth_probe&quot;
+</code></pre>
+<p>Expected: read <code>200/200/403</code>; write <code>200/403/200</code>.</p>
+<h3 id="52-ollama-11434">5.2 Ollama <code>:11434</code></h3>
+<pre><code class="language-bash"># USE  use-token (/api/tags) -&gt; 200, none -&gt; 403
+$C 'ollama use use-tok=%{http_code}\n' --oauth2-bearer &quot;$WR&quot; &quot;https://$BRAIN_LAN_IP:11434/api/tags&quot;
+$C 'ollama use none   =%{http_code}\n'                        &quot;https://$BRAIN_LAN_IP:11434/api/tags&quot;
+
+# MGMT  a use-token hitting a management path (/api/pull) -&gt; 403 (admin-gated, not use-gated)
+$C 'ollama mgmt use-tok=%{http_code}\n' -X POST --oauth2-bearer &quot;$WR&quot; -H 'Content-Type: application/json' --data '{&quot;name&quot;:&quot;nonexistent-probe&quot;}' &quot;https://$BRAIN_LAN_IP:11434/api/pull&quot;
+</code></pre>
+<p>Expected: use <code>200/403</code>; mgmt <code>403</code> (the use token carries <code>ollama:use</code>, not <code>ollama:admin</code>, so management stays closed).</p>
+<h3 id="53-action-query-api-8443-path-router">5.3 action query API <code>:8443</code> (path-router)</h3>
+<p>The gateway path-routes <code>/{bundle}/{neuron}/...</code> on <code>:8443</code> to the action neuron. Example bundle/neuron: <code>example_neuron_bundle/action_neuron_api</code>.</p>
+<pre><code class="language-bash">B=example_neuron_bundle/action_neuron_api
+
+# HEALTH  call-token -&gt; 200, none -&gt; 403
+$C 'action health call-tok=%{http_code}\n' --oauth2-bearer &quot;$WR&quot; &quot;https://$BRAIN_LAN_IP:8443/$B/health&quot;
+$C 'action health none    =%{http_code}\n'                        &quot;https://$BRAIN_LAN_IP:8443/$B/health&quot;
+
+# ASK  call-token -&gt; 200, none -&gt; 403
+$C 'action ask call-tok=%{http_code}\n' --oauth2-bearer &quot;$WR&quot; &quot;https://$BRAIN_LAN_IP:8443/$B/ask?q=ping&quot;
+$C 'action ask none    =%{http_code}\n'                        &quot;https://$BRAIN_LAN_IP:8443/$B/ask?q=ping&quot;
+</code></pre>
+<p>Expected: health <code>200/403</code>; ask <code>200/403</code>. (<code>action:call</code> is a single admission grant — no read/write tiers; the app behind it holds its own scoped reader token.)</p>
+<hr />
+<h2 id="6-full-expected-matrix-eyeball-against-this">6. Full expected matrix (eyeball against this)</h2>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Cell</th>
+<th>token</th>
+<th>expected</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>chroma</td>
+<td>read</td>
+<td>reader / writer / none</td>
+<td><strong>200 / 200 / 403</strong></td>
+</tr>
+<tr>
+<td>chroma</td>
+<td>write (create/create/delete)</td>
+<td>writer / reader / writer</td>
+<td><strong>200 / 403 / 200</strong></td>
+</tr>
+<tr>
+<td>ollama</td>
+<td>use <code>/api/tags</code></td>
+<td>use / none</td>
+<td><strong>200 / 403</strong></td>
+</tr>
+<tr>
+<td>ollama</td>
+<td>mgmt <code>/api/pull</code></td>
+<td>use</td>
+<td><strong>403</strong></td>
+</tr>
+<tr>
+<td>action</td>
+<td><code>/…/health</code></td>
+<td>call / none</td>
+<td><strong>200 / 403</strong></td>
+</tr>
+<tr>
+<td>action</td>
+<td><code>/…/ask?q=</code></td>
+<td>call / none</td>
+<td><strong>200 / 403</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Any disagreement → <code>gateway_bearer_auth_SOP.md</code> §6 troubleshooting; if it's specifically <strong>unreachable/timeout</strong> right after a token op, §7 first.</p>
+<hr />
+<h2 id="7-critical-caveat-token-ops-can-drop-the-published-lan-ports-note-001-58">7. CRITICAL caveat — token ops can drop the published LAN ports (NOTE 001-58)</h2>
+<p>Minting / rotating / revoking a token, or <strong>any</strong> base-only <code>docker compose up --force-recreate gateway</code>, can leave the gateway <strong>running but with NO published LAN ports</strong> — so every off-box probe in §2 times out even though auth is fine and localhost still works. The port publish lives in the deploy overlay, and a base-only recreate drops it.</p>
+<p><strong>If reachability (§2) fails right after a token op, re-publish, then re-test:</strong></p>
+<pre><code class="language-bash"># host-side, operator — reconciles the port publish (and firewall) without re-pulling images
+python &lt;install-root&gt;/&lt;brain&gt;/brain_sbin/reapply_brain_configs.py --no-pull --services gateway
+</code></pre>
+<p>Then re-run §2. Ports OPEN again → the auth matrix results from §5 are trustworthy. This is why §2 runs <strong>before</strong> you interpret any <code>403</code>: an off-box timeout after minting is almost always the dropped-publish, not the token.</p>
+<hr />
+<h2 id="8-cross-links">8. Cross-links</h2>
+<ul>
+<li><code>gateway_auth_verification_matrix.md</code> — the localhost / Chroma-only by-hand matrix (start here for a same-box check).</li>
+<li><code>gateway_bearer_auth_SOP.md</code> — the full auth model, TLS/CA (incl. LAN-SAN reissue), troubleshooting.</li>
+<li><code>gateway_token_admin_howto.md</code> — mint / rotate / revoke tokens and the operator ACL gate.</li>
+<li><code>TROUBLESHOOTING.md</code> — LAN-vs-loopback reachability (mirrored networking, port publish) when §2 is red.</li>
+</ul>
+<hr />
+<p><em>Tool source of truth: <code>factory/source/system/brain_sbin/gateway_tokens.py</code> and <code>reapply_brain_configs.py</code> (canon); run the per-brain deployed mirror.</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,187 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1820 1240" font-family="Segoe UI, Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="ar" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L7,3 L0,6 Z" fill="#5f6368"/></marker>
+    <marker id="arB" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L7,3 L0,6 Z" fill="#1a73e8"/></marker>
+    <marker id="arG" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L7,3 L0,6 Z" fill="#188038"/></marker>
+    <marker id="arP" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L7,3 L0,6 Z" fill="#8028cf"/></marker>
+    <marker id="arR" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L7,3 L0,6 Z" fill="#c5221f"/></marker>
+    <marker id="arY" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L7,3 L0,6 Z" fill="#b06000"/></marker>
+    <style>
+      text { fill:#202124; }
+      .zone { font-size:15px; font-weight:700; }
+      .sub  { font-size:12px; font-style:italic; }
+      .nt   { font-size:15px; font-weight:700; }
+      .ns   { font-size:12px; fill:#5f6368; }
+      .el   { font-size:11.5px; }
+      .mono { font-family:Consolas,"Courier New",monospace; }
+      .pill { font-size:10.5px; font-weight:700; }
+    </style>
+  </defs>
+
+  <!-- Title -->
+  <text x="40" y="44" font-size="26" font-weight="800">Default Brain — Network Topology <tspan font-size="15" font-weight="600" fill="#80868b">· DETAIL</tspan></text>
+  <text x="40" y="70" font-size="14" fill="#5f6368">brain_workshop reference stack (example_neuron_bundle). Neurons reach the backends ONLY through the gateway — the non-bypassable chokepoint.</text>
+  <text x="40" y="90" font-size="12" fill="#9aa0a6" class="mono">Source: factory/brain_etc.example/docker/compose.yaml + brain.env · posture=server, EXTERNAL_GATEWAY_ENABLE=on</text>
+
+  <!-- ============ CONSUMER SIDE ============ -->
+  <rect x="40" y="150" width="280" height="490" rx="12" fill="#fdecea" stroke="#e07a5f" stroke-width="2" stroke-dasharray="6 4"/>
+  <text x="62" y="178" class="zone" fill="#b3402a">Consumer side</text>
+  <text x="62" y="197" class="sub" fill="#b3402a">who can reach the gateway's ports</text>
+
+  <rect x="64" y="214" width="232" height="128" rx="10" fill="#fff" stroke="#e07a5f" stroke-width="1.6"/>
+  <text x="180" y="242" text-anchor="middle" class="nt">Client / caller</text>
+  <text x="180" y="268" text-anchor="middle" class="ns">curl · app · another service</text>
+  <text x="180" y="290" text-anchor="middle" class="ns">holds an action token</text>
+  <text x="180" y="320" text-anchor="middle" class="ns mono" fill="#b3402a">reaches gateway over TLS</text>
+
+  <rect x="64" y="362" width="232" height="256" rx="10" fill="#fff6f4" stroke="#e07a5f" stroke-width="1.2" stroke-dasharray="3 3"/>
+  <text x="80" y="386" class="ns" font-weight="700" fill="#b3402a">Who is "the client"? — set by posture</text>
+  <rect x="80" y="398" width="200" height="96" rx="8" fill="#fff" stroke="#c98d7f"/>
+  <text x="94" y="420" class="ns" font-weight="700" fill="#8a3520">workstation</text>
+  <text x="94" y="440" class="ns">every surface binds <tspan class="mono">127.0.0.1</tspan></text>
+  <text x="94" y="459" class="ns">→ callers must be <tspan font-weight="700">local to</tspan></text>
+  <text x="94" y="476" class="ns"><tspan font-weight="700">this System host</tspan>; nothing</text>
+  <text x="94" y="489" class="ns">faces the LAN.</text>
+  <rect x="80" y="504" width="200" height="100" rx="8" fill="#fff" stroke="#c98d7f"/>
+  <text x="94" y="526" class="ns" font-weight="700" fill="#8a3520">server  (this default)</text>
+  <text x="94" y="546" class="ns">surfaces bind <tspan class="mono">0.0.0.0</tspan> and are</text>
+  <text x="94" y="564" class="ns">LAN-<tspan font-style="italic">eligible</tspan>, each opting in via</text>
+  <text x="94" y="582" class="ns"><tspan class="mono">PUBLISH_TO_LAN</tspan>. Off-box callers</text>
+  <text x="94" y="597" class="ns">only for published ports.</text>
+
+  <!-- ============ GATEWAY ============ -->
+  <rect x="420" y="150" width="360" height="490" rx="12" fill="#eaf1fd" stroke="#1a73e8" stroke-width="2.5"/>
+  <text x="440" y="178" class="zone" fill="#1558b0">GATEWAY · nginx 1.27</text>
+  <text x="440" y="197" class="sub" fill="#1558b0">the single front door + interior chokepoint</text>
+
+  <rect x="442" y="214" width="316" height="74" rx="9" fill="#fce8e6" stroke="#c5221f" stroke-width="1.6"/>
+  <text x="458" y="238" class="nt" font-size="13.5" fill="#a50e0e">fail2ban · sidecar (NET_ADMIN)</text>
+  <text x="458" y="260" class="ns" fill="#a50e0e">shares gateway netns → L3 iptables DROP,</text>
+  <text x="458" y="277" class="ns" fill="#a50e0e">in front of nginx. Reads access log (ro).</text>
+
+  <rect x="442" y="308" width="316" height="138" rx="9" fill="#fff" stroke="#1a73e8" stroke-width="1.8"/>
+  <text x="600" y="334" text-anchor="middle" class="nt">nginx reverse proxy</text>
+  <text x="600" y="358" text-anchor="middle" class="ns">TLS · token-role authz · rate-limit</text>
+  <text x="600" y="378" text-anchor="middle" class="ns">njs content logging · injects master token</text>
+  <line x1="460" y1="392" x2="740" y2="392" stroke="#d2e3fc"/>
+  <text x="600" y="412" text-anchor="middle" class="ns mono" fill="#1558b0">neuron listeners @ .2 :8000 / :11434</text>
+  <text x="600" y="430" text-anchor="middle" class="ns mono" fill="#1558b0">answers to  chroma / ollama</text>
+
+  <rect x="442" y="466" width="316" height="150" rx="9" fill="#f8fbff" stroke="#1a73e8" stroke-width="1.3" stroke-dasharray="3 3"/>
+  <text x="600" y="488" text-anchor="middle" class="ns" font-weight="700" fill="#1558b0">Published host listeners · bind per posture</text>
+  <rect x="458" y="500" width="284" height="30" rx="6" fill="#e6f4ea" stroke="#188038"/>
+  <text x="470" y="520" class="ns mono" fill="#137333">:8443  action query API</text>
+  <text x="728" y="520" text-anchor="end" class="pill" fill="#137333">ON</text>
+  <rect x="458" y="536" width="284" height="30" rx="6" fill="#f1f3f4" stroke="#9aa0a6" stroke-dasharray="3 3"/>
+  <text x="470" y="556" class="ns mono" fill="#5f6368">:8000  chroma</text>
+  <text x="728" y="556" text-anchor="end" class="pill" fill="#80868b">OFF</text>
+  <rect x="458" y="572" width="284" height="30" rx="6" fill="#f1f3f4" stroke="#9aa0a6" stroke-dasharray="3 3"/>
+  <text x="470" y="592" class="ns mono" fill="#5f6368">:11434 ollama</text>
+  <text x="728" y="592" text-anchor="end" class="pill" fill="#80868b">OFF</text>
+
+  <!-- ============ NEURON_NET (shifted right) ============ -->
+  <rect x="1000" y="150" width="760" height="366" rx="12" fill="#f6ecfd" stroke="#a142f4" stroke-width="2.5"/>
+  <text x="1022" y="178" class="zone" fill="#8028cf">neuron_net · bundle "example_neuron_bundle"</text>
+  <text x="1022" y="197" class="sub mono" fill="#8028cf">192.168.255.0/24 · isolated · read-only rootfs</text>
+
+  <rect x="1026" y="216" width="322" height="126" rx="10" fill="#fff" stroke="#a142f4" stroke-width="1.8"/>
+  <text x="1044" y="242" class="nt">input_neuron_example</text>
+  <rect x="1258" y="224" width="82" height="22" rx="11" fill="#fce8e6"/><text x="1299" y="240" text-anchor="middle" class="pill" fill="#a50e0e">WRITE</text>
+  <text x="1044" y="270" class="ns">ingests docs → 'example_docs'</text>
+  <text x="1044" y="292" class="ns">embed <tspan class="mono" fill="#8028cf">nomic-embed-text</tspan></text>
+  <text x="1044" y="312" class="ns">caption <tspan class="mono" fill="#8028cf">moondream</tspan> · writer token</text>
+
+  <rect x="1406" y="216" width="322" height="126" rx="10" fill="#fff" stroke="#a142f4" stroke-width="1.8"/>
+  <text x="1424" y="242" class="nt">action_neuron_cli</text>
+  <rect x="1640" y="224" width="78" height="22" rx="11" fill="#e6f4ea"/><text x="1679" y="240" text-anchor="middle" class="pill" fill="#137333">READ</text>
+  <text x="1424" y="270" class="ns">one-shot CLI (compose run)</text>
+  <text x="1424" y="292" class="ns">synth <tspan class="mono" fill="#8028cf">qwen2.5:1.5b</tspan></text>
+  <text x="1424" y="312" class="ns">reader token · cannot write</text>
+
+  <rect x="1026" y="378" width="702" height="126" rx="10" fill="#fff" stroke="#a142f4" stroke-width="1.8"/>
+  <text x="1044" y="404" class="nt">action_neuron_api</text>
+  <rect x="1258" y="386" width="78" height="22" rx="11" fill="#e6f4ea"/><text x="1297" y="402" text-anchor="middle" class="pill" fill="#137333">READ</text>
+  <text x="1044" y="430" class="ns">daemon — serves query API on <tspan class="mono">0.0.0.0:8080</tspan> (neuron_net only)</text>
+  <text x="1044" y="452" class="ns">gateway path-routes external <tspan class="mono" fill="#137333">:8443</tspan> here · retrieves + synthesizes</text>
+  <text x="1044" y="474" class="ns">reader + ollama-use token · write-funnel enforced by the gateway</text>
+
+  <!-- ============ BRAIN_NET (shifted right; boxes dropped lower) ============ -->
+  <rect x="1000" y="560" width="760" height="380" rx="12" fill="#e9f6ec" stroke="#188038" stroke-width="2.5"/>
+  <text x="1022" y="588" class="zone" fill="#137333">brain_net · sealed interior — backends have NO host port</text>
+  <text x="1022" y="606" class="sub mono" fill="#137333">172.16.254.0/23 · reachable only inside brain_net · token-required</text>
+
+  <rect x="1026" y="716" width="322" height="200" rx="10" fill="#fff" stroke="#188038" stroke-width="1.8"/>
+  <text x="1044" y="744" class="nt">chroma</text>
+  <text x="1044" y="770" class="ns">vector store</text>
+  <text x="1044" y="792" class="ns mono" fill="#137333">chroma-svc:8000</text>
+  <text x="1044" y="816" class="ns">token-auth required (master token)</text>
+  <text x="1044" y="838" class="ns">store: ~/knowledge/brain_rw/chroma</text>
+  <text x="1044" y="866" class="ns">collection: <tspan class="mono">example_docs</tspan></text>
+  <text x="1044" y="898" class="ns mono" fill="#137333">expose 8000 · NO ports</text>
+
+  <rect x="1406" y="716" width="322" height="200" rx="10" fill="#fff" stroke="#188038" stroke-width="1.8"/>
+  <text x="1424" y="744" class="nt">ollama</text>
+  <text x="1424" y="770" class="ns">model server</text>
+  <text x="1424" y="792" class="ns mono" fill="#137333">ollama-svc:11434</text>
+  <text x="1424" y="816" class="ns">roster: <tspan class="mono" fill="#8028cf">nomic-embed-text</tspan></text>
+  <text x="1424" y="838" class="ns">· <tspan class="mono" fill="#8028cf">qwen2.5:1.5b</tspan></text>
+  <text x="1424" y="866" class="ns">CPU-only · model cache volume</text>
+  <text x="1424" y="898" class="ns mono" fill="#137333">expose 11434 · NO ports</text>
+
+  <!-- ============ EDGES ============ -->
+
+  <!-- fail2ban reads log -->
+  <path d="M600,308 L600,290" fill="none" stroke="#c5221f" stroke-width="1.6" marker-end="url(#arR)"/>
+
+  <!-- E1 client -> gateway :8443 -->
+  <path d="M296,278 L360,278 L360,510 L436,510" fill="none" stroke="#1a73e8" stroke-width="2.4" marker-end="url(#arB)"/>
+  <text x="336" y="270" text-anchor="middle" class="el mono" fill="#1558b0">TLS :8443</text>
+
+  <!-- E2 gateway :8443 -> action_api (path-route) -->
+  <path d="M758,510 L890,510 L890,440 L1022,440" fill="none" stroke="#188038" stroke-width="2.2" marker-end="url(#arG)"/>
+  <text x="906" y="502" text-anchor="middle" class="el" fill="#137333">→ :8080 path-route</text>
+
+  <!-- E3 neurons -> gateway internal listeners -->
+  <path d="M1022,322 L762,322" fill="none" stroke="#a142f4" stroke-width="2.2" marker-end="url(#arP)"/>
+  <text x="892" y="314" text-anchor="middle" class="el" fill="#8028cf">as chroma / ollama</text>
+  <text x="892" y="337" text-anchor="middle" class="el mono" fill="#8028cf">neuron_net → gw .2</text>
+
+  <!-- brain_ro host mount stub into input neuron -->
+  <path d="M978,258 L1022,258" fill="none" stroke="#b06000" stroke-width="2" stroke-dasharray="5 3" marker-end="url(#arY)"/>
+  <rect x="912" y="249" width="56" height="18" rx="4" fill="#fff8e1" stroke="#f9ab00"/>
+  <text x="940" y="262" text-anchor="middle" class="el" fill="#b06000">brain_ro</text>
+  <text x="916" y="282" class="el" fill="#b06000" font-style="italic">bind :ro</text>
+
+  <!-- E4 gateway -> chroma-svc (long run; label sits in the clear band above the line) -->
+  <text x="820" y="636" class="el" fill="#137333">→ chroma-svc:8000  +master token</text>
+  <path d="M780,650 L1187,650 L1187,712" fill="none" stroke="#188038" stroke-width="2.2" marker-end="url(#arG)"/>
+
+  <!-- E5 gateway -> ollama-svc — EE bump over E4's riser, high above the arrowheads -->
+  <text x="1300" y="650" text-anchor="middle" class="el" fill="#137333">→ ollama-svc:11434  +master token</text>
+  <path d="M780,664 L1179,664 A8,8 0 0 0 1195,664 L1567,664 L1567,712" fill="none" stroke="#188038" stroke-width="2.2" marker-end="url(#arG)"/>
+
+  <!-- ============ LEGEND ============ -->
+  <rect x="40" y="972" width="1720" height="238" rx="12" fill="#fafafa" stroke="#dadce0" stroke-width="1.5"/>
+  <text x="62" y="1002" font-size="16" font-weight="700">Legend &amp; posture notes</text>
+
+  <rect x="62" y="1018" width="22" height="15" rx="3" fill="#fdecea" stroke="#e07a5f"/><text x="94" y="1031" class="ns" fill="#333">Consumer side (outside the brain)</text>
+  <rect x="62" y="1046" width="22" height="15" rx="3" fill="#eaf1fd" stroke="#1a73e8"/><text x="94" y="1059" class="ns" fill="#333">Gateway boundary (nginx + fail2ban)</text>
+  <rect x="62" y="1074" width="22" height="15" rx="3" fill="#f6ecfd" stroke="#a142f4"/><text x="94" y="1087" class="ns" fill="#333">neuron_net — bundle (isolated, read-only rootfs)</text>
+  <rect x="62" y="1102" width="22" height="15" rx="3" fill="#e9f6ec" stroke="#188038"/><text x="94" y="1115" class="ns" fill="#333">brain_net — sealed backends (no host port)</text>
+  <rect x="62" y="1130" width="22" height="15" rx="3" fill="#fff8e1" stroke="#f9ab00"/><text x="94" y="1143" class="ns" fill="#333">host read-only knowledge source (bind mount)</text>
+
+  <line x1="520" y1="1026" x2="562" y2="1026" stroke="#1a73e8" stroke-width="2.4" marker-end="url(#arB)"/><text x="574" y="1030" class="ns" fill="#333">external TLS request</text>
+  <line x1="520" y1="1054" x2="562" y2="1054" stroke="#188038" stroke-width="2.2" marker-end="url(#arG)"/><text x="574" y="1058" class="ns" fill="#333">gateway → sealed backend (master token injected)</text>
+  <line x1="520" y1="1082" x2="562" y2="1082" stroke="#a142f4" stroke-width="2.2" marker-end="url(#arP)"/><text x="574" y="1086" class="ns" fill="#333">neuron → gateway (resolves gw as chroma/ollama)</text>
+  <line x1="520" y1="1110" x2="562" y2="1110" stroke="#b06000" stroke-width="2" stroke-dasharray="5 3" marker-end="url(#arY)"/><text x="574" y="1114" class="ns" fill="#333">host bind mount (read-only)</text>
+  <path d="M520,1138 L534,1138 A7,7 0 0 0 548,1138 L562,1138" fill="none" stroke="#188038" stroke-width="2.2"/><text x="574" y="1142" class="ns" fill="#333">wire "bump" = lines cross, NOT connected</text>
+
+  <text x="1000" y="1028" class="ns" font-weight="700" fill="#333">Default posture (brain.env)</text>
+  <text x="1000" y="1050" class="ns" fill="#5f6368">• BRAIN_POSTURE=server → LAN-eligible; workstation = loopback-only (host-local)</text>
+  <text x="1000" y="1070" class="ns" fill="#5f6368">• EXTERNAL_GATEWAY_ENABLE=on (master kill-switch for ALL host ports)</text>
+  <text x="1000" y="1090" class="ns" fill="#5f6368">• CHROMA_PUBLISH_TO_LAN=NO · OLLAMA_PUBLISH_TO_LAN=NO → backends sealed</text>
+  <text x="1000" y="1110" class="ns" fill="#5f6368">• Only external door published: action API :8443 (TLS, token authz)</text>
+  <text x="1000" y="1130" class="ns" fill="#5f6368">• COMPOSE_PROFILES=gateway,ollama,fail2ban (+ neurons for the smoke test)</text>
+  <text x="1000" y="1150" class="ns" fill="#5f6368">• Write-funnel: only input neurons hold a writer token; action side is read-only</text>
+  <text x="1000" y="1176" class="ns" font-style="italic" fill="#80868b">Chroma &amp; Ollama are optional/replaceable backends. The gateway is not.</text>
+</svg>

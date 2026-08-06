@@ -1,0 +1,861 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Operational documentation for the brain builder: per-brain sealed RAG runtimes (ChromaDB + Ollama + nginx gateway).">
+      
+      
+      
+      
+        <link rel="prev" href="../gateway_bearer_auth_SOP/">
+      
+      
+        <link rel="next" href="../gateway_auth_verification_matrix/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Token Admin How-To - Horizon Brain Builder</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#administrator-how-to-creating-gateway-bearer-tokens" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Horizon Brain Builder" class="md-header__button md-logo" aria-label="Horizon Brain Builder" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Horizon Brain Builder
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Token Admin How-To
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../gateway_bearer_auth_SOP/" class="md-tabs__link">
+          
+  
+  
+  Gateway Authorization
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Horizon Brain Builder" class="md-nav__button md-logo" aria-label="Horizon Brain Builder" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Horizon Brain Builder
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gateway Authorization
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Gateway Authorization
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../gateway_bearer_auth_SOP/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bearer Auth SOP
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Token Admin How-To
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Token Admin How-To
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-who-can-do-this-and-why" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Who can do this, and why
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Prerequisites
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-list-existing-tokens-safe-no-gate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. List existing tokens (safe, no gate)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-create-a-token" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Create a token
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-rotate-revoke" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Rotate / revoke
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-what-happens-under-the-hood" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. What happens under the hood
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-crlf-discipline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. CRLF discipline
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-verify-the-new-token-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Verify the new token works
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../gateway_auth_verification_matrix/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Auth Verification Matrix
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../gateway_offbox_validation_cookbook/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Off-box Validation Cookbook
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-who-can-do-this-and-why" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Who can do this, and why
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Prerequisites
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-list-existing-tokens-safe-no-gate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. List existing tokens (safe, no gate)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-create-a-token" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Create a token
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-rotate-revoke" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Rotate / revoke
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-what-happens-under-the-hood" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. What happens under the hood
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-crlf-discipline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. CRLF discipline
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-verify-the-new-token-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Verify the new token works
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="administrator-how-to-creating-gateway-bearer-tokens">Administrator How-To — Creating Gateway Bearer Tokens</h1>
+<p><strong>Applies to:</strong> issuing / rotating / revoking the bearer tokens the Chroma gateway matches (reader + writer, authz <strong>mode C</strong>).
+<strong>Audience:</strong> the brain <strong>operator</strong> — the human owner of <code>&lt;install-root&gt;/&lt;brain&gt;</code>, or an admin. <strong>Not</strong> the brain account.
+<strong>Tool:</strong> <code>brains/&lt;brain&gt;/brain_sbin/gateway_token.py</code>.
+<strong>Companion:</strong> verify new tokens with <code>gateway_auth_verification_matrix.md</code>; full model in <code>gateway_bearer_auth_SOP.md</code>.</p>
+<hr />
+<h2 id="1-who-can-do-this-and-why">1. Who can do this, and why</h2>
+<p>Token management writes the gateway's <strong>seam source of truth</strong> — the host-side, operator-owned config exposure <code>&lt;install-root&gt;/&lt;brain&gt;/brain_etc/gateway/*.map</code>. The security gate is the <strong>filesystem ACL on that seam</strong>, not an elevation check:</p>
+<ul>
+<li><strong>Write is granted to the operator set:</strong> the file <strong>owner</strong>, <strong>Administrators</strong>, and <strong>SYSTEM</strong>. (If the host defines its own human-operator group, grant it here too — the tool's gate reads the ACL, it does not hardcode a group.)</li>
+<li><strong>The brain account/group is granted RX only</strong> — read + execute, <strong>no write</strong> (and there is deliberately no DENY ACE — an explicit DENY here out-prioritized the RX grant and broke the brain's own read of its config, the mode-C read-wall). A brain that could write these maps could grant itself write, which is exactly why it can't.</li>
+<li><strong>Elevation is neither necessary nor sufficient.</strong> Not necessary — the operator already owns the files. Not sufficient — being admin doesn't make you the operator; the tool's gate is a <strong>probe write</strong> that HONORS the ACL (<code>require_operator</code>). It passes for anyone the ACL lets write and fails otherwise.</li>
+<li>Making the change <strong>live</strong> additionally needs the brain's own credential (via <code>run_as_brain</code>) — a second thing the brain account does not hold for itself.</li>
+</ul>
+<p><strong><code>list</code> is read-only</strong> and skips the gate; every write verb (<code>create</code> / <code>rotate</code> / <code>revoke</code>) runs the probe-write gate first.</p>
+<hr />
+<h2 id="2-prerequisites">2. Prerequisites</h2>
+<ol>
+<li>You are the operator (owner or admin) of <code>&lt;install-root&gt;/&lt;brain&gt;</code>.</li>
+<li>Run the tool from the <strong>brain's deployed mirror copy</strong>: <code>&lt;install-root&gt;/&lt;brain&gt;/brain_sbin/gateway_token.py</code>. It resolves its brain <strong>from its own folder</strong> — <code>BRAIN_DIR</code> is the tool's parent's parent, and <code>/home/&lt;brain&gt;</code> is derived from that. The map path is derived from the tool's location, <strong>not</strong> from <code>--brain</code> (<code>--brain</code> only overrides the name, defaulting to the folder). <strong>Do not</strong> run the canon source copy; run the mirror so it targets the right brain's seam.</li>
+<li>The gateway stack is up (for the live recreate to succeed). If it is down, the token change still saves durably to the seam and applies on the next keepalive.</li>
+</ol>
+<hr />
+<h2 id="3-list-existing-tokens-safe-no-gate">3. List existing tokens (safe, no gate)</h2>
+<pre><code class="language-powershell">python %AIOS_INSTALL_ROOT%\&lt;brain&gt;\brain_sbin\gateway_token.py list
+</code></pre>
+<p>Shows label + <code>sha256:</code> fingerprint + created timestamp per role. <strong>The raw token is never echoed by <code>list</code></strong> — only at create/rotate, once.</p>
+<pre><code>WRITER tokens (…\brain_etc\gateway\writer_tokens.map):
+  bootstrap                sha256:3159bdfe849c   created=2026-07-04T…Z
+
+READER tokens (…\brain_etc\gateway\reader_tokens.map):
+  bootstrap                sha256:7cba73d411a9   created=2026-07-04T…Z
+</code></pre>
+<hr />
+<h2 id="4-create-a-token">4. Create a token</h2>
+<p><code>--role writer</code> is the <strong>default</strong>; pass <code>--role reader</code> for a read-only key. Use <strong>one label per consumer</strong> so you can rotate/revoke that consumer alone.</p>
+<pre><code class="language-powershell"># READ-only key
+python %AIOS_INSTALL_ROOT%\&lt;brain&gt;\brain_sbin\gateway_token.py create --label obsidian-readback --role reader
+
+# READ/WRITE key (writer is default)
+python %AIOS_INSTALL_ROOT%\&lt;brain&gt;\brain_sbin\gateway_token.py create --label ingest-pipeline --role writer
+</code></pre>
+<p>Expected output — the raw token is printed <strong>exactly once</strong>:</p>
+<pre><code>================================================================
+  NEW reader token  (label=obsidian-readback)
+  Authorization: Bearer 1f7b112ccf29…be96089d
+  ^ shown ONCE — copy it now; it cannot be recovered, only rotated.
+================================================================
+[gateway_token] gateway synced + recreated — change is live.
+</code></pre>
+<p><strong>Copy it immediately</strong> into the consumer's secret store. It is never recoverable — only rotated. (A duplicate label in the same role is rejected: use <code>rotate</code>.)</p>
+<hr />
+<h2 id="5-rotate-revoke">5. Rotate / revoke</h2>
+<pre><code class="language-powershell"># Rotate: mint a new secret under the same label+role; the OLD secret dies immediately.
+python %AIOS_INSTALL_ROOT%\&lt;brain&gt;\brain_sbin\gateway_token.py rotate --label obsidian-readback
+
+# Revoke: kill a label entirely.
+python %AIOS_INSTALL_ROOT%\&lt;brain&gt;\brain_sbin\gateway_token.py revoke --label ingest-pipeline
+</code></pre>
+<p><code>rotate</code> prints a fresh token once (same one-shot rule as create). <code>revoke</code> finds the label across both maps and removes it. Both make the change live.</p>
+<hr />
+<h2 id="6-what-happens-under-the-hood">6. What happens under the hood</h2>
+<p>Each write verb:
+1. <strong>Writes the seam source</strong> — <code>&lt;install-root&gt;/&lt;brain&gt;/brain_etc/gateway/{reader,writer}_tokens.map</code>, host-side and operator-owned, as <strong>LF bytes</strong> (never CRLF — see §7). This is the durable source of truth; the synced in-container copy is disposable and re-derived every keepalive cycle.
+2. <strong>Syncs it into the running stack</strong> via the apply primitive (<code>apply_brain_truths.sh</code>), run <strong>as the brain</strong> (<code>run_as_brain --wsl</code>, never root — the gateway is rootless Docker whose socket lives in the brain's <code>XDG_RUNTIME_DIR</code>).
+3. <strong>Force-recreates the gateway container</strong> (<code>docker compose up -d --force-recreate gateway</code>).</p>
+<p><strong>Why force-recreate, not <code>nginx -s reload</code>:</strong> the token maps are bind-mounted into the container as individual <strong>files</strong>, and the apply primitive replaces each via atomic rename (<code>cp tmp; mv tmp dst</code>). A file bind mount binds the <strong>inode</strong>, not the path — so after the <code>mv</code> the container still resolves the OLD inode, and a reload re-reads stale content (proven live: a reload left the container on the pre-change map). Recreating the container re-establishes the bind mounts against the current inodes (and re-runs envsubst).</p>
+<p>If the live recreate can't run right now (stack down, <code>run_as_brain</code> missing), the change is still <strong>saved to the seam</strong> and applies on the next keepalive — the tool says so and points you at a <code>ps</code> check.</p>
+<hr />
+<h2 id="7-crlf-discipline">7. CRLF discipline</h2>
+<p>The maps are authored on Windows (host-side) but parsed in bash / read by nginx on the WSL side. The tool writes <strong>pure LF</strong> on every platform (<code>newline=""</code> + explicit <code>\n</code>, atomic replace). A stray <code>\r</code> has bitten this seam twice (keepalive manifest + phantom-file bugs) — if you ever hand-edit a <code>.map</code>, keep it LF-only.</p>
+<hr />
+<h2 id="8-verify-the-new-token-works">8. Verify the new token works</h2>
+<p>Prove the new token end-to-end with the by-hand matrix: <strong><code>gateway_auth_verification_matrix.md</code></strong>. Point <code>$RD</code>/<code>$WR</code> at the token value you just issued (a <code>chroma:reader</code>- / <code>chroma:writer</code>-scoped token as recorded in <code>brain_etc/gateway/token_registry</code>) and confirm the expected cell:</p>
+<ul>
+<li>reader → READ <strong>200</strong>, WRITE <strong>403</strong></li>
+<li>writer → READ <strong>200</strong>, WRITE <strong>200</strong></li>
+<li>no token → <strong>403</strong></li>
+</ul>
+<p>If a token you just made returns <strong>403</strong> on a path it should allow: confirm <code>create</code> ended with "change is live", check reader-vs-writer for the path, and run <code>list</code> to confirm it's stored.</p>
+<hr />
+<p><em>Tool source of truth: <code>factory/source/system/brain_sbin/gateway_token.py</code> (canon); run the per-brain deployed mirror.</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

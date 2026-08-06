@@ -1,0 +1,681 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="The read-instead-of-a-handoff cold-start orientation for Project 001.">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Project 001 — Unify the brain deployer (Current Orientation) - Horizon Brain Builder</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#project-001-current-orientation" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Horizon Brain Builder" class="md-header__button md-logo" aria-label="Horizon Brain Builder" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Horizon Brain Builder
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Project 001 — Unify the brain deployer (Current Orientation)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../gateway_bearer_auth_SOP/" class="md-tabs__link">
+          
+  
+  
+  Gateway Authorization
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Horizon Brain Builder" class="md-nav__button md-logo" aria-label="Horizon Brain Builder" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Horizon Brain Builder
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gateway Authorization
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Gateway Authorization
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../gateway_bearer_auth_SOP/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bearer Auth SOP
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../gateway_token_admin_howto/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Token Admin How-To
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../gateway_auth_verification_matrix/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Auth Verification Matrix
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../gateway_offbox_validation_cookbook/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Off-box Validation Cookbook
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#what-this-project-is" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What this project is
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-one-thing-to-understand-first" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The one thing to understand first
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#where-the-project-stands" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Where the project stands
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-to-read-in-order" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What to read, in order
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#standing-rules-for-keeping-this-project-current-do-these-without-being-asked" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Standing rules for keeping THIS project current (do these without being asked)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related-tracking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related tracking
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="project-001-current-orientation">Project 001 — Current Orientation</h1>
+<blockquote>
+<p><strong>STATUS: CLOSED 2026-07-24</strong> — one cross-platform <code>deploy_brain.py</code> (Windows/WSL2 + native Linux);
+dev_brain rebuilt from scratch and HEALTHY (base stack + neurons). Sections 1–8 VERIFIED; 8 first-live
+defects fixed (BUG-001-1…8); all DEBT closed except DEBT-001-5 (deferred, server-posture fail2ban
+range). See the closeout <strong>NOTE 001-11</strong> in <code>001_status-unify_deploy_brain.md</code>. The text below is
+historical reference.</p>
+<p>Read this instead of a handoff to resume Project 001 cold. Short by design.</p>
+</blockquote>
+<h2 id="what-this-project-is">What this project is</h2>
+<p>Fold Linux parity INTO the already-working <code>windows_deploy_brain.py</code> (branch inline only at OS-forced
+steps), then rename that consolidated trunk to <code>deploy_brain.py</code> and retire <code>linux_deploy_brain.py</code>.
+One shared build→deploy→verify spine (the Windows script's), with an <code>if _IS_LINUX</code> branch only at the
+five OS-forced touchpoints. Full detail: <code>001_detail-unify_deploy_brain.md</code>. <strong>Read NOTE 001-4 first.</strong></p>
+<h2 id="the-one-thing-to-understand-first">The one thing to understand first</h2>
+<p>The Windows deployer already runs the correct process end-to-end; the Linux one diverged and broke
+(gateway TLS cert never generated — a false-green from a bad <code>gen-cert.sh</code> call). So this is a <strong>merge
+into the Windows trunk</strong>, not a rewrite and not a new file. <strong>PIVOT (NOTE 001-4):</strong> the earlier
+clean-room <code>deploy_brain.py</code> + <code>PlatformBackend</code> ABC is REJECTED and discarded — we edit
+<code>windows_deploy_brain.py</code> in place. Only five things are genuinely OS-forced (engine host+snapshot,
+identity switch, seam mount, residency, firewall); everything else stays the Windows trunk untouched.</p>
+<h2 id="where-the-project-stands">Where the project stands</h2>
+<p><strong>Sections 1–7 essentially DONE; the file is now <code>deploy_brain.py</code></strong> (renamed from <code>windows_deploy_brain.py</code>).
+The Windows path is byte-for-byte untouched (asserted); Linux was folded in as top-level dispatches
+(<code>build_engine</code>, <code>cmd_deploy</code>, <code>cmd_teardown</code>, <code>cmd_verify</code>, <code>cmd_status</code> → <code>_*_linux</code>) + a centralized
+identity helper (<code>run_as_brain_argv</code>). Landed + pushed:
+- <strong>S1</strong> platform seam + identity switch (<code>run_as_brain_argv</code>), <code>_deliver_data_seams</code>/<code>user_exists</code> Linux branches.
+- <strong>S2/3</strong> <code>_build_engine_linux</code> — pull images, <strong>seed ollama models</strong> (net-new), build neurons, no-arg cert bake, snapshot to <code>system/linux_engine/{images.tar,ollama_models.tar,cert/}</code>.
+- <strong>S4/5/6</strong> full Linux deploy (<code>_cmd_deploy_linux</code>: preflight/create/provision/seam/gateway/residency/verify) + engine restore (<code>docker load</code> + volume restore → <code>compose --pull never</code>); CLI parity; cert contract (server-SAN-all-global-IPv4) in both paths. Ported faithfully from the FIXED <code>linux_deploy_brain.py</code> (NOTE 001-8).
+- <strong>S7</strong> rename done; <code>brain_doctor</code> Windows import repointed; doc sweep done.
+Everything compiles and every Linux command sequence is asserted via stubbed-run harnesses.
+<strong>Status: ✅ COMPLETE — Sections 1–8 done, ALL debt resolved (2026-07-24). Ready to close.</strong>
+<strong>S8 live validation — PASSED</strong> (NOTE 001-10): supervised <code>teardown --purge</code> + <code>deploy --from-scratch</code> of
+dev_brain, all 11 stages → VERIFY PASSED, rewired <code>brain_doctor diagnose</code> = HEALTHY. First-live fixed
+<strong>8 defects</strong> (BUG-001-1…8, all pushed). Debt ledger, all closed:
+- <strong>DEBT-001-1</strong> (models + neurons): CLOSED — neuron bring-up on Linux (<code>_neuron_bundles_linux</code>, stage 9)
+  + neuron-aware verify &amp; doctor. <strong>DEBT-001-3</strong> CLOSED (LinuxBackend rewired, <code>linux_deploy_brain.py</code>
+  deleted, live re-verify). <strong>DEBT-001-2</strong> CLOSED — WSL provision stages are N/A on Linux (engine = docker
+  artifacts); the one Linux-relevant piece (real client IP / fail2ban, ADR-0012 §5) is a fail-closed
+  assertion <code>_assert_real_client_ip</code> (OK on pasta or slirp4netns-port-driver, die on masquerading builtin).
+  <strong>DEBT-001-4</strong> CLOSED won't-do (real-account build yields a correct artifact; throwaway-user isolation
+  unneeded). <strong>DEBT-001-5</strong> (new, deferred): fail2ban <code>ignoreip</code> slirp4netns range vs pasta — low, revisit
+  at first server-posture Linux brain.
+Nothing outstanding. Next action: <code>/project-plan close 001</code> (archive) whenever convenient.</p>
+<h2 id="what-to-read-in-order">What to read, in order</h2>
+<ol>
+<li>This file.</li>
+<li><code>001_status-unify_deploy_brain.md</code> — per-item status + <code>NOTE 001-K</code> decisions.</li>
+<li><code>001_detail-unify_deploy_brain.md</code> — the full plan, verbatim brief, traced code map.</li>
+<li><code>001_bugs_and_technical_debt-unify_deploy_brain.md</code> — BUG-001-1 (the cert false-green) + debt.</li>
+</ol>
+<h2 id="standing-rules-for-keeping-this-project-current-do-these-without-being-asked">Standing rules for keeping THIS project current (do these without being asked)</h2>
+<ol>
+<li><strong>Keep the status doc live</strong> — update each item's status as work lands; add a <code>NOTE 001-K</code> for
+   every decision (<code>grep "NOTE 001-"</code>).</li>
+<li><strong>Archive verified sections</strong> — move <code>VERIFIED</code> blocks into
+   <code>001_status_archive-unify_deploy_brain.md</code>; leave a one-line stub.</li>
+<li><strong>Keep this orientation current</strong> — a couple of plain lines when the shape or next step changes.</li>
+<li><strong>Log every meaningful action</strong> — append ONE line to <code>001_action_log-unify_deploy_brain.md</code>.</li>
+</ol>
+<p>The full lifecycle rules live in <code>PROJECT_PLAN_GUIDE.md</code> (same folder).</p>
+<h2 id="related-tracking">Related tracking</h2>
+<ul>
+<li>Bugs &amp; tech debt: <code>001_bugs_and_technical_debt-unify_deploy_brain.md</code>.</li>
+<li>Sibling tool already cross-platform: <code>brain_doctor.py</code> (diagnose/repair) — consumes whatever this
+  deployer produces; keep its probes in sync (DEBT-001-1).</li>
+</ul>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

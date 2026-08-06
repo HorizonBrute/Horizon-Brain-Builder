@@ -1,0 +1,1329 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Operational documentation for the brain builder: per-brain sealed RAG runtimes (ChromaDB + Ollama + nginx gateway).">
+      
+      
+      
+      
+        <link rel="prev" href="..">
+      
+      
+        <link rel="next" href="../gateway_token_admin_howto/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Bearer Auth SOP - Horizon Brain Builder</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#sop-gateway-bearer-token-authorization-read-readwrite" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Horizon Brain Builder" class="md-header__button md-logo" aria-label="Horizon Brain Builder" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Horizon Brain Builder
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Bearer Auth SOP
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="./" class="md-tabs__link">
+          
+  
+  
+  Gateway Authorization
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Horizon Brain Builder" class="md-nav__button md-logo" aria-label="Horizon Brain Builder" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Horizon Brain Builder
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gateway Authorization
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Gateway Authorization
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bearer Auth SOP
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bearer Auth SOP
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#0-the-model-in-one-picture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        0. The model in one picture
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-create-keys-operator-task" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Create keys (operator task)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. Create keys (operator task)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#create-a-read-only-key" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Create a READ-only key
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#create-a-readwrite-key" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Create a READ/WRITE key
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-other-verbs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The other verbs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#where-tokens-live-why-theyre-durable" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Where tokens live &amp; why they're durable
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#who-gets-which-key" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Who gets which key
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-what-you-need-to-connect-any-client" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. What you need to connect (any client)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-test-with-curl-verified-live" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Test with curl ✅ (verified live)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-test-with-a-python-https-request-requests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Test with a Python HTTPS request (requests)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-test-via-the-chroma-client-chromadbhttpclient-verified-live-chromadb-159" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Test via the Chroma client (chromadb.HttpClient) ✅ (verified live, chromadb 1.5.9)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Test via the Chroma client (chromadb.HttpClient) ✅ (verified live, chromadb 1.5.9)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#two-gotchas-found-while-verifying-this-both-real" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Two gotchas found while verifying this (both real)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Troubleshooting
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-defense-in-depth-note-why-the-gateway-isnt-the-only-wall" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Defense-in-depth note (why the gateway isn't the only wall)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-client-tool-compatibility-popular-second-brain-tools-on-chroma" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Client-tool compatibility (popular second-brain tools on Chroma)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../gateway_token_admin_howto/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Token Admin How-To
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../gateway_auth_verification_matrix/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Auth Verification Matrix
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../gateway_offbox_validation_cookbook/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Off-box Validation Cookbook
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#0-the-model-in-one-picture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        0. The model in one picture
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-create-keys-operator-task" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Create keys (operator task)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. Create keys (operator task)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#create-a-read-only-key" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Create a READ-only key
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#create-a-readwrite-key" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Create a READ/WRITE key
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-other-verbs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The other verbs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#where-tokens-live-why-theyre-durable" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Where tokens live &amp; why they're durable
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#who-gets-which-key" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Who gets which key
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-what-you-need-to-connect-any-client" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. What you need to connect (any client)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-test-with-curl-verified-live" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Test with curl ✅ (verified live)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-test-with-a-python-https-request-requests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Test with a Python HTTPS request (requests)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-test-via-the-chroma-client-chromadbhttpclient-verified-live-chromadb-159" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Test via the Chroma client (chromadb.HttpClient) ✅ (verified live, chromadb 1.5.9)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Test via the Chroma client (chromadb.HttpClient) ✅ (verified live, chromadb 1.5.9)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#two-gotchas-found-while-verifying-this-both-real" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Two gotchas found while verifying this (both real)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Troubleshooting
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-defense-in-depth-note-why-the-gateway-isnt-the-only-wall" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Defense-in-depth note (why the gateway isn't the only wall)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-client-tool-compatibility-popular-second-brain-tools-on-chroma" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Client-tool compatibility (popular second-brain tools on Chroma)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="sop-gateway-bearer-token-authorization-read-readwrite">SOP — Gateway Bearer-Token Authorization (Read &amp; Read/Write)</h1>
+<p><strong>Applies to:</strong> any brain running the Chroma read-access gateway (nginx TLS front, authz <strong>mode C</strong>).
+<strong>Audience:</strong> the brain <strong>operator</strong> — whoever owns <code>&lt;install-root&gt;/&lt;brain&gt;</code> on the host. Not the brain account.
+<strong>Status:</strong> operator path (create/rotate/revoke/list) proven live; curl client path proven live; Python/Chroma paths documented against the same verified HTTP contract.</p>
+<hr />
+<h2 id="0-the-model-in-one-picture">0. The model in one picture</h2>
+<p>The gateway is the <strong>auth boundary</strong>. Chroma is never exposed directly.</p>
+<pre><code>client  ──TLS :8000──►  nginx gateway  ──plaintext (brain_net)──►  chroma:8000
+        Bearer &lt;reader|writer&gt;          strips client header,        TokenAuthn:
+                                        injects Bearer &lt;CHROMA_TOKEN&gt;  requires the
+                                                                       static token
+</code></pre>
+<ul>
+<li><strong>Reader token</strong> → only safe read methods pass (GET heartbeat / version / query / get / list).</li>
+<li><strong>Writer token</strong> → any method (add / upsert / delete / reset, plus all reads).</li>
+<li><strong>No token / bad token</strong> → <code>403</code> at the gateway. Chroma is never reached.</li>
+<li>The client <strong>never sees</strong> <code>CHROMA_TOKEN</code>; the gateway swaps the client's reader/writer bearer for Chroma's static token upstream.</li>
+</ul>
+<p>Scope is decided by the <strong>scope grant(s)</strong> carried by the token in the gateway <strong>token registry</strong> (<code>&lt;brain_root&gt;/brain_etc/gateway/token_registry</code>): <code>chroma:reader</code> vs <code>chroma:writer</code> (plus <code>ollama:use</code>, <code>ollama:admin</code>, <code>action:call</code> for the other surfaces). The per-service nginx maps (<code>reader_tokens.map</code> / <code>writer_tokens.map</code> / …) are <strong>generated</strong> from that registry — they are derived artifacts, not the source of truth, and are never hand-edited.</p>
+<hr />
+<h2 id="1-create-keys-operator-task">1. Create keys (operator task)</h2>
+<p>The tool: <code>brains/&lt;brain&gt;/brain_sbin/gateway_token.py</code>. Run the <strong>deployed mirror</strong> (it resolves its own brain + <code>/home/&lt;brain&gt;</code> from its own path). Run it <strong>host-side, as the operator</strong> — no elevation needed as long as you can write the seam (owner or admin). It writes the authoritative seam (<code>brain_etc/gateway/*.map</code>), syncs it into the running stack, and force-recreates the gateway so the change is live.</p>
+<h3 id="create-a-read-only-key">Create a READ-only key</h3>
+<pre><code class="language-powershell">python %AIOS_INSTALL_ROOT%\&lt;brain&gt;\brain_sbin\gateway_token.py create --label obsidian-readback --role reader
+</code></pre>
+<h3 id="create-a-readwrite-key">Create a READ/WRITE key</h3>
+<pre><code class="language-powershell">python %AIOS_INSTALL_ROOT%\&lt;brain&gt;\brain_sbin\gateway_token.py create --role writer --label ingest-pipeline
+</code></pre>
+<p>Each <code>create</code> prints the raw token <strong>exactly once</strong>:</p>
+<pre><code>================================================================
+  NEW reader token  (label=obsidian-readback)
+  Authorization: Bearer 1f7b112ccf29...be96089d
+  ^ shown ONCE — copy it now; it cannot be recovered, only rotated.
+================================================================
+</code></pre>
+<p>Copy it immediately into the consumer's secret store. It is never echoed again.</p>
+<h3 id="the-other-verbs">The other verbs</h3>
+<pre><code class="language-powershell"># list labels + fingerprints (never the secret); read-only, no gate
+python ...\gateway_token.py list
+
+# replace a key: the new secret works, the old one dies
+python ...\gateway_token.py rotate --label obsidian-readback
+
+# kill a key
+python ...\gateway_token.py revoke --label ingest-pipeline
+</code></pre>
+<h3 id="where-tokens-live-why-theyre-durable">Where tokens live &amp; why they're durable</h3>
+<ul>
+<li>Source of truth (authoritative): <code>brains/&lt;brain&gt;/brain_etc/gateway/{reader,writer}_tokens.map</code> — <strong>operator-writable, brain is RX-only</strong>.</li>
+<li>The keepalive re-syncs that seam into the running container every cycle, so a token written here <strong>survives</strong>. (Writing the in-distro copy directly does not — that was the old bug.)</li>
+<li>Format is byte-identical to the deploy's bootstrap mint, so <code>list/rotate/revoke</code> interoperate with bootstrap tokens.</li>
+</ul>
+<h3 id="who-gets-which-key">Who gets which key</h3>
+<table>
+<thead>
+<tr>
+<th>Consumer</th>
+<th>Role</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Query-only readers (notes UI, search, an Obsidian read-back plugin)</td>
+<td><strong>reader</strong></td>
+<td>can search, cannot mutate the store</td>
+</tr>
+<tr>
+<td>Ingesters / writers (neuron pipeline, bulk import)</td>
+<td><strong>writer</strong></td>
+<td>needs add/upsert/delete</td>
+</tr>
+</tbody>
+</table>
+<p>Issue <strong>one label per consumer</strong> so you can rotate/revoke that consumer without touching others.</p>
+<hr />
+<h2 id="2-what-you-need-to-connect-any-client">2. What you need to connect (any client)</h2>
+<ol>
+<li><strong>Endpoint:</strong> <code>https://&lt;host&gt;:8000</code> (TLS is always on, both postures).</li>
+<li><strong>The token:</strong> <code>Authorization: Bearer &lt;token&gt;</code> on every request.</li>
+<li><strong>The CA cert</strong> to trust the gateway's TLS: <code>~/gateway/gateway_out/cert.pem</code> on the brain
+   (<code>/home/&lt;brain&gt;/gateway/gateway_out/cert.pem</code>). Copy it to the client host.</li>
+<li>The cert's SAN currently covers <strong>only</strong> <code>localhost</code> / <code>127.0.0.1</code>. For an <strong>off-box</strong> client to validate TLS, re-issue the cert with a LAN SAN:
+     <code>run_as_brain.py --brain &lt;brain&gt; --wsl -- bash -lc 'cd ~/docker &amp;&amp; ./gen-cert.sh DNS:&lt;host&gt;.lan IP:&lt;lan-ip&gt;'</code>
+     then restart the gateway.</li>
+</ol>
+<hr />
+<h2 id="3-test-with-curl-verified-live">3. Test with <strong>curl</strong>  ✅ (verified live)</h2>
+<p><code>--oauth2-bearer</code> builds the <code>Authorization: Bearer</code> header for you (avoids quoting a space in the header value). <code>-H "Authorization: Bearer &lt;tok&gt;"</code> is equivalent.</p>
+<pre><code class="language-bash">CA=~/gateway/gateway_out/cert.pem
+U=https://127.0.0.1:8000
+RD=1f7b112c...   # reader token
+WR=886a859f...   # writer token
+
+# no token  -&gt; 403
+curl -s -o /dev/null -w '%{http_code}\n' --cacert $CA $U/api/v2/heartbeat
+
+# reader, READ  -&gt; 200
+curl -s -o /dev/null -w '%{http_code}\n' --cacert $CA --oauth2-bearer $RD $U/api/v2/heartbeat
+
+# reader, WRITE -&gt; 403 (reset is a write/seal path)
+curl -s -o /dev/null -w '%{http_code}\n' -X POST --cacert $CA --oauth2-bearer $RD $U/api/v2/reset
+
+# writer, READ + WRITE -&gt; 200
+curl -s -o /dev/null -w '%{http_code}\n' --cacert $CA --oauth2-bearer $WR $U/api/v2/heartbeat
+</code></pre>
+<p><strong>Verified enforcement matrix:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Request</th>
+<th>reader</th>
+<th>writer</th>
+<th>none</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GET /api/v2/heartbeat</code> (read)</td>
+<td><strong>200</strong></td>
+<td>200</td>
+<td><strong>403</strong></td>
+</tr>
+<tr>
+<td><code>POST /api/v2/reset</code> (write)</td>
+<td><strong>403</strong></td>
+<td>200</td>
+<td>403</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>Reading tip: no-token <strong>403</strong> = correct (mode C). Heartbeat JSON with no token = mode B (misconfigured). Empty response = stack down.</p>
+</blockquote>
+<hr />
+<h2 id="4-test-with-a-python-https-request-requests">4. Test with a <strong>Python HTTPS request</strong> (<code>requests</code>)</h2>
+<p>Same contract — set the header, trust the CA. Copy <code>cert.pem</code> to the client host first.</p>
+<pre><code class="language-python">import requests
+
+BASE  = &quot;https://127.0.0.1:8000&quot;
+CA    = r&quot;C:\path\to\cert.pem&quot;          # copy of ~/gateway/gateway_out/cert.pem
+TOKEN = &quot;1f7b112c...be96089d&quot;           # reader or writer
+H     = {&quot;Authorization&quot;: f&quot;Bearer {TOKEN}&quot;}
+
+# READ  (reader or writer) -&gt; 200
+print(requests.get(f&quot;{BASE}/api/v2/heartbeat&quot;, headers=H, verify=CA).status_code)
+
+# WRITE (writer only; reader -&gt; 403)
+print(requests.post(f&quot;{BASE}/api/v2/reset&quot;, headers=H, verify=CA).status_code)
+</code></pre>
+<ul>
+<li><code>verify=CA</code> points requests at the gateway's CA cert. Off-box, this <strong>requires</strong> the LAN-SAN cert from §2.</li>
+<li>Dev-only shortcut: <code>verify=False</code> skips TLS validation (silences the warning with <code>urllib3.disable_warnings()</code>), but do not ship that.</li>
+</ul>
+<hr />
+<h2 id="5-test-via-the-chroma-client-chromadbhttpclient-verified-live-chromadb-159">5. Test via the <strong>Chroma client</strong> (<code>chromadb.HttpClient</code>)  ✅ (verified live, chromadb 1.5.9)</h2>
+<p>The gateway only cares about the <code>Authorization: Bearer</code> header, so pass it directly. <code>HttpClient</code> has <strong>no</strong> <code>verify=</code> param, so trust the self-signed CA via <code>SSL_CERT_FILE</code> <strong>before</strong> constructing the client (see the CA gotcha below).</p>
+<pre><code class="language-python">import os, chromadb
+os.environ[&quot;SSL_CERT_FILE&quot;] = r&quot;C:\path\to\cert.pem&quot;    # gateway CA (SAN must match host)
+
+def client(tok):
+    return chromadb.HttpClient(host=&quot;127.0.0.1&quot;, port=8000, ssl=True,
+                               headers={&quot;Authorization&quot;: f&quot;Bearer {tok}&quot;})
+
+# READ  (reader or writer) — returns a nanosecond int
+print(client(&quot;&lt;reader-token&gt;&quot;).heartbeat())   # token granting chroma:reader (from brain_etc/gateway/token_registry)
+
+# WRITE (writer only; reader → 403)
+wc  = client(&quot;&lt;writer-token&gt;&quot;)                # token granting chroma:writer (from brain_etc/gateway/token_registry)
+col = wc.create_collection(&quot;auth_probe&quot;, get_or_create=True)
+col.add(ids=[&quot;1&quot;], embeddings=[[0.1, 0.2, 0.3, 0.4]], documents=[&quot;hello brain&quot;])
+print(col.count())                    # -&gt; 1
+wc.delete_collection(&quot;auth_probe&quot;)    # cleanup
+</code></pre>
+<p>Native-auth equivalent (Chroma's own knob, same header on the wire):</p>
+<pre><code class="language-python">from chromadb.config import Settings
+client = chromadb.HttpClient(host=&quot;127.0.0.1&quot;, port=8000, ssl=True,
+    settings=Settings(
+        chroma_client_auth_provider=&quot;chromadb.auth.token_authn.TokenAuthClientProvider&quot;,
+        chroma_client_auth_credentials=TOKEN))       # sent as Authorization: Bearer &lt;TOKEN&gt;
+</code></pre>
+<h3 id="two-gotchas-found-while-verifying-this-both-real">Two gotchas found while verifying this (both real)</h3>
+<ol>
+<li><strong><code>SSL_CERT_FILE</code> <em>replaces</em> the public CA bundle</strong> for <code>chromadb</code>'s HTTP client (httpx). So if you also do <strong>client-side embedding</strong> — <code>col.add(documents=[...])</code> <em>without</em> passing <code>embeddings=</code> — Chroma downloads its default embedding model over the internet on first use, and that TLS handshake fails (<code>CERTIFICATE_VERIFY_FAILED</code>) because only the gateway cert is trusted. Fixes: <strong>(a)</strong> pass explicit <code>embeddings=</code> (as above — the write proof needs no model), or <strong>(b)</strong> trust a <strong>combined</strong> bundle:
+   <code>python -c "import certifi,shutil; shutil.copy(certifi.where(),'combined.pem')"
+   Get-Content C:\path\to\cert.pem | Add-Content combined.pem     # append gateway cert
+   $env:SSL_CERT_FILE = 'combined.pem'                             # trusts internet AND gateway</code>
+   or <strong>(c)</strong> install a real-SAN gateway cert and skip <code>SSL_CERT_FILE</code> entirely.</li>
+<li><strong>Client init issues several reads</strong> (heartbeat / version / tenant+db / auth identity). Those are all GETs and are allow-listed for readers, so a reader client constructs fine — it only fails at the first <em>mutating</em> call.</li>
+</ol>
+<p><strong>Verified live:</strong> reader <code>heartbeat</code> → ok · writer <code>create_collection</code>+<code>add</code> → count 1 → deleted · reader <code>create_collection</code> → <code>{"status":403,"message":"forbidden"}</code>.</p>
+<hr />
+<h2 id="6-troubleshooting">6. Troubleshooting</h2>
+<table>
+<thead>
+<tr>
+<th>Symptom</th>
+<th>Meaning</th>
+<th>Fix</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>403</code> with no/blank token</td>
+<td>Correct — mode C denies anonymous</td>
+<td>expected</td>
+</tr>
+<tr>
+<td><code>403</code> with a token you just made</td>
+<td>token not live yet, or wrong role for the path</td>
+<td>confirm <code>create</code> ended with "change is live"; check reader-vs-writer; <code>list</code> to confirm it's there</td>
+</tr>
+<tr>
+<td>Heartbeat returns JSON with <strong>no</strong> token</td>
+<td>gateway is in mode B (read-open), not C</td>
+<td>re-apply canon gateway template / redeploy gateway</td>
+</tr>
+<tr>
+<td>Empty / connection refused</td>
+<td>stack down</td>
+<td><code>run_as_brain --brain &lt;brain&gt; --wsl -- docker compose -f /home/&lt;brain&gt;/docker/compose.yaml ps</code></td>
+</tr>
+<tr>
+<td>curl error 60 / cert verify failed</td>
+<td>CA not trusted or SAN mismatch (off-box)</td>
+<td>use <code>--cacert</code>; regen cert with LAN SAN (§2)</td>
+</tr>
+<tr>
+<td>Token vanished after a minute</td>
+<td>(legacy bug) tool wrote in-distro copy</td>
+<td>fixed — the tool writes the seam source; ensure you're on the current <code>gateway_token.py</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="7-defense-in-depth-note-why-the-gateway-isnt-the-only-wall">7. Defense-in-depth note (why the gateway isn't the only wall)</h2>
+<p>Chroma itself also requires the static <code>CHROMA_TOKEN</code> for <strong>every</strong> request (compose env: <code>CHROMA_SERVER_AUTHN_PROVIDER</code> = token auth). So even a foothold on <code>brain_net</code> that bypasses the gateway hits Chroma's own <code>401/403</code> without that token. The gateway's job is to turn that one all-or-nothing token into scoped reader/writer roles — not to be the sole guard. (Bypass test: from a container on <code>brain_net</code>, <code>curl http://chroma:8000/api/v2/heartbeat</code> with no token → expect 401/403; with <code>Bearer &lt;CHROMA_TOKEN&gt;</code> → 200.)</p>
+<hr />
+<h2 id="8-client-tool-compatibility-popular-second-brain-tools-on-chroma">8. Client-tool compatibility (popular second-brain tools on Chroma)</h2>
+<p>To work through this gateway a tool must: (a) use Chroma, (b) via <strong>HttpClient</strong> (not embedded/<code>PersistentClient</code>), (c) let you set a custom <code>Authorization: Bearer</code> header (or Chroma's token auth provider), and (d) trust a custom self-signed CA.</p>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Uses Chroma?</th>
+<th>Connects via</th>
+<th>Bearer header configurable?</th>
+<th>Custom CA/TLS?</th>
+<th>Verdict</th>
+<th>Evidence</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>AnythingLLM</strong></td>
+<td>Optional (1 of ~10)</td>
+<td>HttpClient (<code>CHROMA_ENDPOINT</code>)</td>
+<td><strong>Yes</strong> — <code>CHROMA_API_HEADER=Authorization</code> + <code>CHROMA_API_KEY=Bearer &lt;tok&gt;</code></td>
+<td>via <code>NODE_EXTRA_CA_CERTS</code> (Node), no UI field</td>
+<td><strong>With config</strong></td>
+<td><a href="https://github.com/Mintplex-Labs/anything-llm/blob/master/docker/.env.example">.env.example</a>, <a href="https://docs.anythingllm.com/setup/vector-database-configuration/local/chroma">docs</a></td>
+</tr>
+<tr>
+<td><strong>LangChain apps</strong> (<code>langchain-chroma</code>)</td>
+<td>Yes (if app picks Chroma)</td>
+<td>HttpClient (<code>host/port/ssl/headers</code>)</td>
+<td><strong>Yes</strong> — native <code>headers=</code> or token auth provider</td>
+<td><code>ssl=True</code> + <code>REQUESTS_CA_BUNDLE</code></td>
+<td><strong>Yes</strong></td>
+<td><a href="https://docs.langchain.com/oss/python/integrations/vectorstores/chroma">docs</a></td>
+</tr>
+<tr>
+<td><strong>Mem0</strong></td>
+<td>Optional (20+)</td>
+<td>HttpClient <strong>or</strong> inject your own <code>client=</code></td>
+<td><strong>Yes</strong> — pass a pre-built <code>chromadb.HttpClient(headers=…, ssl=True)</code></td>
+<td>via injected client</td>
+<td><strong>With config</strong></td>
+<td><a href="https://docs.mem0.ai/components/vectordbs/dbs/chroma">docs</a></td>
+</tr>
+<tr>
+<td><strong>PrivateGPT</strong></td>
+<td>Optional (default Qdrant)</td>
+<td>HttpClient (<code>database: chroma</code>)</td>
+<td>Not in <code>settings.yaml</code> — needs code patch to inject <code>headers=</code>/auth <code>Settings</code></td>
+<td>no first-class field</td>
+<td><strong>Code edit</strong></td>
+<td><a href="https://docs.privategpt.dev/manual/storage/vector-stores">docs</a></td>
+</tr>
+<tr>
+<td><code>chromadb</code> client (reference/escape hatch)</td>
+<td>Yes</td>
+<td>HttpClient</td>
+<td><strong>Yes</strong> — <code>headers={"Authorization":"Bearer …"}</code></td>
+<td><code>ssl=True</code> + env CA</td>
+<td><strong>Yes</strong></td>
+<td><a href="https://cookbook.chromadb.dev/security/auth-1.0.x/">auth cookbook</a></td>
+</tr>
+<tr>
+<td>Khoj</td>
+<td><strong>No</strong> (pgvector)</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>Excluded</td>
+<td><a href="https://docs.khoj.dev/get-started/setup/">setup</a></td>
+</tr>
+<tr>
+<td>Reor / Continue.dev</td>
+<td><strong>No</strong> (LanceDB, embedded)</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>Excluded</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Quivr</td>
+<td><strong>No</strong> (Supabase/pgvector)</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>Excluded</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Danswer / Onyx</td>
+<td><strong>No</strong> (Vespa→OpenSearch)</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>Excluded</td>
+<td>—</td>
+</tr>
+<tr>
+<td>GPT4All (LocalDocs)</td>
+<td><strong>No</strong> (SQLite+hnswlib)</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>Excluded</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Obsidian: Smart Connections / Copilot</td>
+<td><strong>No</strong> (local/Orama, in-vault)</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>Excluded</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Obsidian / Logseq "chroma" plugins</td>
+<td>No mainstream plugin ships an authed Chroma HttpClient; render-process can't easily present a CA</td>
+<td>—</td>
+<td>Unknown</td>
+<td>Unknown</td>
+<td>Unlikely</td>
+<td>(gap — verify in plugin registry if needed)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Takeaways</strong>
+- <strong>Most "second brain" apps are excluded outright</strong> — Khoj, Reor, Quivr, Danswer/Onyx, GPT4All, and both major Obsidian plugins <strong>don't use Chroma</strong>, so this gateway is moot for them.
+- <strong>Embedded-only ⇒ can't reach the gateway.</strong> Only tools that use Chroma's <strong>HttpClient</strong> open a network socket and are even candidates.
+- <strong><code>headers={"Authorization":"Bearer …"}</code> on <code>chromadb.HttpClient</code> is the universal escape hatch</strong> — tools exposing the raw client (LangChain, Mem0 via <code>client=</code>) get bearer + CA support for free; host/port-only tools (PrivateGPT) need a small patch.
+- <strong>AnythingLLM is the one turnkey PKM app that works with config</strong> (arbitrary <code>CHROMA_API_HEADER</code>/<code>CHROMA_API_KEY</code>). Validate its TLS/CA trust (<code>NODE_EXTRA_CA_CERTS</code>) before relying on it.
+- <strong>Self-signed CA trust is the weakest link everywhere</strong> — no tool has a "trust this CA" field; every path depends on the client runtime's env (<code>REQUESTS_CA_BUNDLE</code>/<code>SSL_CERT_FILE</code> for Python, <code>NODE_EXTRA_CA_CERTS</code> for Node). Treat it as a per-tool prerequisite. A real-SAN cert (§2) removes this friction for LAN consumers.</p>
+<p><em>Confidence: high for the Chroma-usage and auth-param rows; the Obsidian/Logseq "chroma plugin" row is a genuine gap (Low-Med) worth a direct plugin-registry check if it matters.</em></p>
+<hr />
+<p><em>Tool source of truth: <code>factory/source/system/brain_sbin/gateway_token.py</code> (canon); run the per-brain deployed mirror.</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

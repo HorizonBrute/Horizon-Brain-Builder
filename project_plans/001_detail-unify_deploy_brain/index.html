@@ -1,0 +1,940 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Fold Linux parity INTO the working windows_deploy_brain.py, branching only at OS-forced steps, then rename that consolidated trunk to deploy_brain.py; retire linux_deploy_brain.py.">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Project 001 — Unify the brain deployer (Plan Detail) - Horizon Brain Builder</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#project-001-unify-the-brain-deployer" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Horizon Brain Builder" class="md-header__button md-logo" aria-label="Horizon Brain Builder" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Horizon Brain Builder
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Project 001 — Unify the brain deployer (Plan Detail)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../gateway_bearer_auth_SOP/" class="md-tabs__link">
+          
+  
+  
+  Gateway Authorization
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Horizon Brain Builder" class="md-nav__button md-logo" aria-label="Horizon Brain Builder" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Horizon Brain Builder
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gateway Authorization
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Gateway Authorization
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../gateway_bearer_auth_SOP/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bearer Auth SOP
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../gateway_token_admin_howto/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Token Admin How-To
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../gateway_auth_verification_matrix/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Auth Verification Matrix
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../gateway_offbox_validation_cookbook/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Off-box Validation Cookbook
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#headline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Headline
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#executive-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Executive summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dependencies
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#relevant-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Relevant files
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#relevant-vocabulary-concepts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Relevant vocabulary / concepts
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#my-initial-brief" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        My Initial Brief
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#your-initial-understanding-from-that-brief" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Your Initial Understanding From That Brief
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#plan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Plan
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Plan">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#section-1-platform-switch-inside-the-trunk-the-os-forced-branch-points" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Section 1 — Platform switch inside the trunk (the OS-forced branch points)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#section-2-fold-the-linux-path-into-the-trunks-build_engine" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Section 2 — Fold the Linux path into the trunk's build_engine
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#section-3-linux-engine-artifact-design-open-see-note-001-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Section 3 — Linux engine artifact (DESIGN-OPEN — see NOTE 001-1)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#section-4-fold-linux-branches-into-the-trunks-cmd_deploy-stages" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Section 4 — Fold Linux branches into the trunk's cmd_deploy stages
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#section-5-cli-parity-on-the-trunks-argparse" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Section 5 — CLI parity on the trunk's argparse
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#section-6-gen-cert-hardening-the-bug-that-started-this" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Section 6 — gen-cert hardening (the bug that started this)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#section-7-rename-the-trunk-retire-the-linux-driver-document" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Section 7 — Rename the trunk, retire the Linux driver, document
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#section-8-validation-rebuild-dev_brain-via-the-unified-path-on-linux" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Section 8 — Validation: rebuild dev_brain via the unified path on Linux
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cross-cutting-invariants-do-not-violate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cross-cutting invariants (do not violate)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="project-001-unify-the-brain-deployer">Project 001 — Unify the brain deployer</h1>
+<blockquote>
+<p><strong>PIVOT (2026-07-21, NOTE 001-4).</strong> This plan previously called for a clean-room <code>deploy_brain.py</code>
+with a <code>PlatformBackend</code> ABC re-implementing the deploy lifecycle. <strong>That architecture is rejected.</strong>
+The user's directive: take the <strong>already-working <code>windows_deploy_brain.py</code></strong> as the trunk, fold
+<strong>Linux parity into it</strong> (branch inline only where a step is OS-forced), and <strong>rename the consolidated
+file to <code>deploy_brain.py</code></strong> once done. The rejected foundation file (<code>deploy_brain.py</code>, Sections 1+6)
+is discarded; its one good idea — the no-false-green cert guard — is applied when folding Linux in.</p>
+</blockquote>
+<h2 id="headline">Headline</h2>
+<p>Take <code>windows_deploy_brain.py</code> (3247 ln, works end-to-end) as the trunk, fold <code>linux_deploy_brain.py</code>'s
+Linux-specific realizations INTO it as inline branches at the OS-forced steps, then rename the trunk to
+<code>deploy_brain.py</code> and retire <code>linux_deploy_brain.py</code>.</p>
+<h2 id="executive-summary">Executive summary</h2>
+<p><code>windows_deploy_brain.py</code> already runs the correct build→deploy→verify process end-to-end. The Linux
+driver diverged and broke — the gateway TLS cert was never generated, a <strong>gratuitous transcription bug</strong>,
+not an OS constraint: <code>linux_deploy_brain.py:576</code> calls <code>gen-cert.sh personal</code>, but that script reads
+positional args as SubjectAltName entries, so openssl rejects the SAN, <code>set -euo pipefail</code> aborts before
+writing <code>cert.pem</code>, and the un-checked return code is reported as success (a false-green). The Windows
+trunk runs the identical script correctly (no arg, at build time). So we <strong>stop maintaining two flows</strong>:
+keep the Windows script as the single spine and add Linux behavior <em>inside it</em> — where a step is
+OS-forced (identity switch, engine host + snapshot, seam mount, residency, firewall) we branch on the
+platform right there; everything else stays exactly as the Windows script already has it. Linux gains a
+build step it lacks today (Section 3 decides the Linux engine artifact). The Linux realizations to fold
+in already exist and are traced in <code>linux_deploy_brain.py</code> — this is a <strong>merge into the trunk</strong>, not a
+rewrite. <strong>Load-bearing sequencing:</strong> the cert is baked at BUILD time via a no-arg <code>gen-cert.sh</code> with an
+rc check (already correct on the Windows path), so the false-green class cannot recur.</p>
+<h2 id="dependencies">Dependencies</h2>
+<ol>
+<li><strong>Upstream (this project depends on):</strong> none.</li>
+<li><strong>Downstream (projects that depend on this one):</strong> <code>brain_doctor.py</code> (already cross-platform via a
+   backend pattern) diagnoses/repairs whatever the deployer produces; its probes must track the
+   unified deployer's residency/seam/stack outputs. No separate project yet — tracked as DEBT here.</li>
+</ol>
+<h2 id="relevant-files">Relevant files</h2>
+<p>Confirmed by trace on branch <code>main</code> (2026-07-21) across two investigation agents. Real symbols; the
+Linux-engine artifact is (DESIGN-OPEN).</p>
+<ul>
+<li><code>windows_deploy_brain.py</code> — the WORKING template. <code>build_engine:1566</code>, <code>_obtain_base:1466</code>,
+  <code>ensure_engine:1275</code>, <code>deploy_engine:1730</code>, <code>cmd_deploy:2504</code> (10 stages), deploy-time stages
+  <code>seam:1859</code> / <code>gateway:2174</code> / <code>ollama_models:2254</code> / <code>neuron_bundles:2083</code> / <code>verify:2292</code>.</li>
+<li><code>linux_deploy_brain.py</code> — the driver with the gap. <code>provision_runtime:496</code> (buggy <code>gen-cert</code> at
+  <code>:576</code>, no rc check at <code>:578</code>), <code>gateway:742</code> (no cert gen at all), <code>residency:854</code>, <code>verify:889</code>,
+  <code>cmd_deploy:949</code> (8 stages; NO build, NO ollama_models, NO neuron_bundles).</li>
+<li><code>factory/source/system/brain_bin/provision/*.sh</code> — the 12 in-distro stage scripts Windows runs to
+  build the engine: <code>provision_stage2.sh</code> (brain user + <strong>docker-ce install</strong> :61-64),
+  <code>stage2b_root.sh</code>, <code>stage3_brain.sh</code> (rootless setup + slirp4netns pin), <code>stage4_brain.sh</code>
+  (<strong>lays stack + bakes cert, no-arg gen-cert :99</strong>), <code>stage5_root.sh</code>, <code>stage6_root.sh</code>,
+  <code>stage6_brain.sh</code>, <code>stage7_harden.sh</code> (posture + <code>/opt/brain_truths</code> mount unit), <code>cleanup_brain.sh</code>,
+  <code>prefetch_images.sh</code>, <code>prefetch_models.sh</code>, <code>prefetch_neurons.sh</code>.</li>
+<li><code>factory/source/system/brain_bin/gateway/gen-cert.sh</code> — args are treated as <strong>extra SAN entries</strong>
+  (<code>:26-30</code>); correct call is zero-arg (personal SAN) or typed <code>DNS:… IP:…</code> for server. Root of the bug.</li>
+<li><code>brain_doctor.py</code> — the backend-dispatch pattern to generalize (LinuxBackend / WindowsBackend).</li>
+</ul>
+<h2 id="relevant-vocabulary-concepts">Relevant vocabulary / concepts</h2>
+<ul>
+<li><strong>Engine</strong> — the pre-provisioned, cert-and-image-complete runtime snapshot deployed into a brain.
+  Windows: a WSL2 distro exported via <code>wsl --export</code> to <code>&lt;brain&gt;_engine.tar</code>. Linux: (DESIGN-OPEN, §3).</li>
+<li><strong>Seam</strong> — the config-exposure read-only mount of the host <code>brain_etc</code> at <code>/opt/brain_truths</code>
+  (Windows drvfs+ACL; Linux bind+POSIX).</li>
+<li><strong>Residency</strong> — keep the stack up headless/at boot (Windows Task Scheduler keepalive; Linux
+  <code>systemd --user</code> unit + <code>loginctl</code> linger).</li>
+<li><strong>Mode C / posture</strong> — the sealed gateway posture verify asserts (no-token 403, reader 200, reset
+  403); posture = <code>personal</code> (bind 127.0.0.1) | <code>server</code> (bind 0.0.0.0 + firewall).</li>
+<li><strong>Neuron</strong> — an input/action bundle image (<code>&lt;brain&gt;-{input,action}_neurons</code>) fronted by the gateway.</li>
+</ul>
+<hr />
+<h2 id="my-initial-brief">My Initial Brief</h2>
+<blockquote>
+<p>Verbatim, as given by the user at project kickoff (2026-07-21). Not edited for grammar.</p>
+</blockquote>
+<p>"because... rather than fix the linux deployer I would actually prefer to unify.. and not have any
+platform-specific deployer.. just deploy_brain.py"</p>
+<p>"Linux and windows, outside of WSL should be the same process -- the goal is eventually to move to
+one.. and since Windows installer currently works.. one wonders why we can't just use that."</p>
+<p>[Engine-model decision, selecting "Also unify Linux onto build-an-engine":] "Both OSes: build_engine
+→ (cert baked at build); deploy: import/activate engine; gateway/verify shared. Linux gains a build
+step it doesn't currently have."</p>
+<p>"The windows orchestration should already do the gencert well.."</p>
+<hr />
+<h2 id="your-initial-understanding-from-that-brief">Your Initial Understanding From That Brief</h2>
+<blockquote>
+<p>My reading after tracing the current code across two investigation agents.</p>
+</blockquote>
+<ol>
+<li><strong>The divergence is a bug, not an OS constraint.</strong> Cert gen, token minting, <code>gateway_config</code>
+   render, seam apply, and the verify gates are portable host-side Python/bash that Windows already
+   runs correctly; Linux either mis-calls (<code>gen-cert.sh posture</code>) or omits them (no <code>ollama_models</code>,
+   no <code>neuron_bundles</code>). Converging onto the Windows process is therefore subtraction, not a merge.</li>
+<li><strong>Only five things are genuinely OS-forced</strong> and get an inline branch in the trunk: engine host +
+   snapshot (WSL VM + <code>wsl --export/--import</code> vs a native mechanism), identity switch
+   (<code>run_as_brain --wsl</code> vs <code>sudo -u</code>), seam mount (drvfs+ACL vs bind+POSIX), residency (schtasks vs
+   systemd+linger), firewall (Defender vs ufw). Everything else stays the Windows trunk's shared code,
+   untouched.</li>
+<li><strong>The one real open design question is the Linux engine artifact</strong> (§3): Linux has no distro to
+   <code>wsl --export</code>. This is the only place the "build-an-engine on both" decision needs a concrete new
+   mechanism rather than a port.</li>
+<li><strong>Never re-introduce a false-green.</strong> The bug survived because a failed cert step returned nonzero
+   and nobody checked. Every side-effecting sub-step in the unified path must gate on rc (invariant).</li>
+</ol>
+<hr />
+<h2 id="plan">Plan</h2>
+<p>Each <code>### Section</code> is a unit of work; status tracked in <code>001_status-unify_deploy_brain.md</code>.</p>
+<h3 id="section-1-platform-switch-inside-the-trunk-the-os-forced-branch-points">Section 1 — Platform switch inside the trunk (the OS-forced branch points)</h3>
+<ul>
+<li>Work in <code>windows_deploy_brain.py</code> directly. Add a runtime platform detection and, at each OS-forced
+  touchpoint, an inline branch (<code>if _IS_LINUX: … else: &lt;existing Windows code unchanged&gt;</code>). The
+  OS-forced touchpoints are exactly: identity switch (<code>run_as_brain --wsl</code> vs <code>sudo -u &lt;brain&gt; -H</code>),
+  engine host + snapshot (<code>wsl --export/--import</code> vs the §3 Linux artifact), seam mount (drvfs+icacls
+  RX vs bind+POSIX RO), residency (schtasks keepalive vs <code>systemd --user</code> + linger), firewall
+  (Defender vs ufw).</li>
+<li>Do <strong>not</strong> introduce a <code>PlatformBackend</code> ABC or a second file. The Windows script's existing
+  functions ARE the shared spine; only these touchpoints branch. Keep the branch surface small and
+  co-located with the step it guards so the Windows path stays byte-for-byte what works today.</li>
+<li>Context: this replaces the rejected clean-room-orchestrator design. Refuse unsupported OS with the
+  same honest macOS message <code>brain_doctor</code> uses.</li>
+</ul>
+<h3 id="section-2-fold-the-linux-path-into-the-trunks-build_engine">Section 2 — Fold the Linux path into the trunk's <code>build_engine</code></h3>
+<ul>
+<li>The Windows <code>build_engine:1566</code> already runs the 12 <code>provision/*.sh</code> stage scripts in the throwaway
+  <code>brain-build-&lt;brain&gt;</code> distro and bakes the cert (no-arg <code>gen-cert.sh</code> at <code>stage4_brain.sh:99</code>).
+  Add a Linux branch that runs the same OS-portable stage scripts in the §3 Linux engine host and
+  produces the §3 Linux engine artifact; everything else in <code>build_engine</code> stays shared.</li>
+<li>The stage scripts are already OS-portable bash/docker; only the host they run in and the snapshot
+  mechanism are OS-forced (branch there, per §1).</li>
+<li>Context: Cert + images are BAKED here (same as Windows) so deploy is offline-capable. Linux gains a
+  build step it lacks today.</li>
+</ul>
+<h3 id="section-3-linux-engine-artifact-design-open-see-note-001-1">Section 3 — Linux engine artifact (DESIGN-OPEN — see NOTE 001-1)</h3>
+<ul>
+<li>Decide what a Linux "engine" IS and how <code>engine_snapshot</code>/<code>engine_restore</code> realize it.</li>
+<li>Candidates (from the build-engine investigation): (a) tar the brain runtime dirs + rootless image
+  store + ollama volume; (b) <code>docker save</code> the pinned images + a rendered-config/cert bundle + a
+  volume tar; (c) provision live, skip export. The user chose "build-an-engine", so (c) is out.</li>
+<li><strong>Recommendation: (b)</strong> — <code>docker save</code>/<code>load</code> is the OS-portable analog of "images baked into the
+  rootfs tar"; images are already a clean pinned list (<code>_runtime_image_refs</code>), the config/cert bundle
+  reuses host-side tooling, and it avoids the UID/overlay-store fragility of tarring the rootless
+  data-root (a). Confirm before building §2's Linux path.</li>
+<li>Context: this is the ONLY novel mechanism; everything else is a port. See NOTE 001-1.</li>
+</ul>
+<h3 id="section-4-fold-linux-branches-into-the-trunks-cmd_deploy-stages">Section 4 — Fold Linux branches into the trunk's <code>cmd_deploy</code> stages</h3>
+<ul>
+<li>The Windows <code>cmd_deploy:2504</code> already sequences the 10 deploy stages (ensure_engine → deploy_engine
+  → seam:1859 → gateway:2174 → ollama_models:2254 → neuron_bundles:2083 → verify:2292). Add the
+  Linux realization at each OS-forced stage only: <code>deploy_engine</code> (restore the §3 artifact vs
+  <code>wsl --import</code>), <code>seam</code> (bind+POSIX RO at <code>/opt/brain_truths</code> via <code>opt-brain_truths.mount</code> vs
+  drvfs+icacls), and the residency+firewall steps (systemd user unit + linger + ufw vs schtasks +
+  Defender). Gateway/models/neurons/verify are host-side Python and stay shared.</li>
+<li>Context: this is the merge of <code>linux_deploy_brain.py</code>'s <code>provision_runtime</code>/<code>seam</code>/<code>residency</code>/
+  <code>verify</code> realizations INTO the Windows stages. Tokens/rendered-config stay DEPLOY-time (host seam),
+  never baked, or the residency seam-sync reverts them. Apply the §6 rc-checked cert contract here.</li>
+</ul>
+<h3 id="section-5-cli-parity-on-the-trunks-argparse">Section 5 — CLI parity on the trunk's argparse</h3>
+<ul>
+<li>Keep the Windows script's existing argparse surface as the base; ensure every flag <code>linux_deploy_brain.py</code>
+  exposes is present (verbs <code>build-engine | deploy | teardown | verify | status</code>, <code>--brain</code>,
+  <code>--posture</code>, <code>--port</code>, <code>--install-root</code>, <code>--skip-*</code>). Platform detected at runtime.</li>
+<li>Context: preserve every flag both drivers expose so no caller breaks. The Windows CLI is already the
+  superset for most; reconcile any Linux-only flag names.</li>
+</ul>
+<h3 id="section-6-gen-cert-hardening-the-bug-that-started-this">Section 6 — gen-cert hardening (the bug that started this)</h3>
+<ul>
+<li>Shared cert stage calls <code>gen-cert.sh</code> with NO posture arg (personal SAN); for <code>server</code> posture map
+  to typed SAN entries (<code>DNS:&lt;host&gt; IP:&lt;addr&gt;</code>), never the bare word. <strong>Check the rc — a cert failure
+  is fatal, not a warning.</strong></li>
+<li>Context: closes BUG-001-1 permanently and enforces the no-false-green invariant at its origin.</li>
+</ul>
+<h3 id="section-7-rename-the-trunk-retire-the-linux-driver-document">Section 7 — Rename the trunk, retire the Linux driver, document</h3>
+<ul>
+<li>Once Linux parity is folded in and validated (§8), <strong>rename</strong> the consolidated
+  <code>windows_deploy_brain.py</code> → <code>deploy_brain.py</code> (<code>git mv</code>). Delete <code>linux_deploy_brain.py</code>; leave a thin
+  shim or deprecation error at both old names for one release. Retarget <code>brain_doctor.py</code> if any probe
+  assumed a driver-specific artifact.</li>
+<li>Delete the rejected clean-room <code>deploy_brain.py</code> foundation BEFORE the rename so the target name is
+  free (its only good idea, the cert rc-guard, is carried by §6). Update <code>README.md</code> / <code>docs/</code> and
+  <code>aios/install/*</code> context pointers to name the one deployer.</li>
+<li>Context: the package installer and README currently name both <code>windows_deploy_brain.py</code> /
+  <code>linux_deploy_brain.py</code>; keep them consistent (AIOS consistency-check discipline).</li>
+</ul>
+<h3 id="section-8-validation-rebuild-dev_brain-via-the-unified-path-on-linux">Section 8 — Validation: rebuild dev_brain via the unified path on Linux</h3>
+<ul>
+<li><code>teardown</code> then <code>build-engine</code> + <code>deploy</code> <code>dev_brain</code> through <code>deploy_brain.py</code> on this live Linux
+  host; assert <code>brain_doctor diagnose</code> returns HEALTHY (gateway cert present, nginx + fail2ban up,
+  verify gates pass).</li>
+<li>Context: this is the end-to-end proof; it also finally clears the live dev_brain outage.</li>
+</ul>
+<h2 id="cross-cutting-invariants-do-not-violate">Cross-cutting invariants (do not violate)</h2>
+<ul>
+<li><strong>No false-greens.</strong> Every side-effecting sub-step checks its return code; success is never printed
+  unconditionally. (This bug's root cause.)</li>
+<li><strong>Only OS-forced steps branch.</strong> Anything outside the five OS-forced touchpoints stays the Windows
+  trunk's shared code — no parallel re-implementation, no ABC.</li>
+<li><strong>The Windows path stays what works today.</strong> Every branch is <code>if _IS_LINUX: … else: &lt;unchanged&gt;</code>;
+  the <code>else</code> is the existing Windows code, byte-for-byte, so consolidation never regresses Windows.</li>
+<li><strong>Idempotent + re-runnable.</strong> Every stage may run twice without harm (both drivers already aim for
+  this).</li>
+<li><strong>Posture parity.</strong> Linux and Windows must reach the same mode-C verify posture from the same
+  process.</li>
+</ul>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

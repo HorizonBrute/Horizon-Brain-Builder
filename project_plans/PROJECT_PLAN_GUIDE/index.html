@@ -1,0 +1,743 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Operational documentation for the brain builder: per-brain sealed RAG runtimes (ChromaDB + Ollama + nginx gateway).">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>PROJECT PLAN GUIDE - Horizon Brain Builder</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#project-plan-guide-this-folder" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Horizon Brain Builder" class="md-header__button md-logo" aria-label="Horizon Brain Builder" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Horizon Brain Builder
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              PROJECT PLAN GUIDE
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../gateway_bearer_auth_SOP/" class="md-tabs__link">
+          
+  
+  
+  Gateway Authorization
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Horizon Brain Builder" class="md-nav__button md-logo" aria-label="Horizon Brain Builder" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Horizon Brain Builder
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gateway Authorization
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Gateway Authorization
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../gateway_bearer_auth_SOP/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bearer Auth SOP
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../gateway_token_admin_howto/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Token Admin How-To
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../gateway_auth_verification_matrix/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Auth Verification Matrix
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../gateway_offbox_validation_cookbook/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Off-box Validation Cookbook
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#creating-a-new-project" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Creating a new project
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#standing-upkeep-rules-do-these-without-being-asked" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Standing upkeep rules (do these without being asked)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#closing-a-project-clean-rest-state" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Closing a project (clean rest state)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#overriding-these-rules-for-this-folder-local" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overriding these rules for this folder (.local.)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#conventions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Conventions
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<!-- ADMIN-EDITABLE — SYSTEM-WIDE PROJECT-PLAN GUIDE (.local. override).
+     This machine-local copy is used as the default PROJECT_PLAN_GUIDE.md when
+     scaffolding new project plans on this machine. Edit freely to change the
+     system-wide project-plan rules; it is never overwritten by package updates
+     or by the AIOS sync. Delete it to fall back to the package's shipped default.
+     A single project/folder can override this further with its own
+     PROJECT_PLAN_GUIDE.local.md referenced from that folder's agents.md. -->
+
+<h1 id="project-plan-guide-this-folder">Project Plan Guide (this folder)</h1>
+<blockquote>
+<p><strong>This file makes the folder self-managing.</strong> It is a copy dropped in when the first project plan
+was scaffolded. Everything needed to create, run, and close project plans in THIS folder is here —
+you do not need to consult any external kit or repository again. If you're an agent picking up work
+in this project, this file plus <code>index.md</code> are your source of truth for how plans are run.</p>
+</blockquote>
+<p>A <strong>project plan</strong> is a doc-truth roadmap for a multi-session body of work. Each project is a set of
+six files sharing a zero-padded serial (<code>001_</code>, <code>002_</code>, …) and a topic slug, registered in
+<code>index.md</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Role</th>
+<th>File</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Detail</td>
+<td><code>NNN_detail-slug.md</code></td>
+<td>Plan of record: headline, summary, dependencies, traced file map, verbatim brief, your synthesis, the sectioned plan.</td>
+</tr>
+<tr>
+<td>Status</td>
+<td><code>NNN_status-slug.md</code></td>
+<td>Live per-item status + append-only serialized <code>NOTE NNN-K</code> decisions.</td>
+</tr>
+<tr>
+<td>Status archive</td>
+<td><code>NNN_status_archive-slug.md</code></td>
+<td>Completed/verified blocks retired out of the live status doc.</td>
+</tr>
+<tr>
+<td>Orientation</td>
+<td><code>NNN_current_orientation-slug.md</code></td>
+<td>Cold-start doc — read instead of a handoff.</td>
+</tr>
+<tr>
+<td>Action log</td>
+<td><code>NNN_action_log-slug.md</code></td>
+<td>Append-only one-line-per-action timeline (no frontmatter).</td>
+</tr>
+<tr>
+<td>Bugs &amp; debt</td>
+<td><code>NNN_bugs_and_technical_debt-slug.md</code></td>
+<td>Running list; cleared or deferred-with-reason before close.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="creating-a-new-project">Creating a new project</h2>
+<ol>
+<li><strong>Serial</strong> — next unused <code>NNN</code> from the <code># Projects</code> list in <code>index.md</code>.</li>
+<li><strong>Slug</strong> — lowercase, underscore-joined topic (e.g. <code>auth_token_rotation</code>). Stable for life.</li>
+<li><strong>Create the six files</strong> by copying an existing project's set (or the originals) and substituting
+   <code>NNN</code>/<code>SLUG</code> throughout. Fill: detail (headline → summary → dependencies → relevant files → verbatim
+   brief → your understanding → sectioned plan); status (one item per plan section); the others start
+   near-empty per their headers.</li>
+<li><strong>Register</strong> in <code>index.md</code>, linking all six files.</li>
+<li><strong>First postcard</strong> in the action log: <code>project scaffold created (six files + index); planning-only</code>.</li>
+<li><strong>Seed decisions</strong> — record kickoff decisions/open questions as <code>NOTE NNN-1</code>, <code>NOTE NNN-2</code> in status.</li>
+</ol>
+<p>Paste the user's brief <strong>verbatim</strong> into the detail doc. Trace the code before writing your
+understanding and the relevant-files map — name real symbols; mark guesses (UNVERIFIED).</p>
+<hr />
+<h2 id="standing-upkeep-rules-do-these-without-being-asked">Standing upkeep rules (do these without being asked)</h2>
+<ol>
+<li><strong>Status stays live.</strong> Update each item's <code>**Status:**</code> as work lands. Legend:
+   <code>NOT STARTED</code> · <code>IN PROGRESS</code> · <code>BLOCKED</code> · <code>DONE</code> (landed, build-clean) · <code>VERIFIED</code> (confirmed in
+   the running system). Only <code>VERIFIED</code> work is archivable. Keep <code>DONE</code> vs <code>VERIFIED</code> honest — don't
+   claim verified what you haven't run or the user hasn't confirmed.</li>
+<li><strong>Record every decision</strong> as a serialized, append-only <code>## NOTE NNN-K</code> (newest at bottom; never
+   rewrite — supersede). Grep-able: <code>grep "NOTE NNN-"</code>.
+   ```
+   ## NOTE NNN-K | YYYY-MM-DD | <short title></li>
+<li>Status: OPEN | RESOLVED | SUPERSEDED-BY-NOTE-NNN-J</li>
+<li>Sections: <e.g. 1.1, 4.3></li>
+<li>Context: <the forces></li>
+<li>Decision/Update: <what changed>
+   ```</li>
+<li><strong>Archive verified work.</strong> Move a <code>VERIFIED</code> Section block verbatim into the status archive under a
+   dated <code>## Archived YYYY-MM-DD — &lt;Section&gt;</code> heading; leave a one-line stub in the live status doc.</li>
+<li><strong>Log every meaningful action</strong> as one postcard appended to the action log:
+   <code>bash
+   echo "$(date -u +%Y-%m-%dT%H:%M:%SZ),&lt;postcard&gt;" &gt;&gt; "NNN_action_log-SLUG.md"</code></li>
+<li><strong>Keep the orientation current</strong> — a couple of plain lines when the shape or next step changes.</li>
+<li><strong>Track bugs/debt as they surface</strong> — stable <code>BUG-NNN-K</code> / <code>DEBT-NNN-K</code> ids; nothing disappears
+   silently.</li>
+</ol>
+<hr />
+<h2 id="closing-a-project-clean-rest-state">Closing a project (clean rest state)</h2>
+<p>Closing is deliberate. Run these gates; do not skip them.</p>
+<p><strong>Gates (all pass, or waive in writing):</strong>
+- <strong>G1 — every plan item terminal:</strong> <code>VERIFIED</code>, <code>DONE</code> (with outstanding verification named &amp;
+  accepted), or <code>DROPPED</code> (with reason + <code>NOTE</code>). No item closes <code>NOT STARTED</code>/<code>IN PROGRESS</code>/<code>BLOCKED</code>
+  without a <code>NOTE</code> saying why and where the work goes.
+- <strong>G2 — every bug/debt item cleared:</strong> <code>FIXED</code> (commit referenced) or <code>DEFERRED</code> (rationale +
+  destination). Nothing silent.
+- <strong>G3 — decisions settled:</strong> every <code>NOTE</code> <code>RESOLVED</code>/<code>SUPERSEDED</code>/<code>OPEN (carried to &lt;dest&gt;)</code>.
+- <strong>G4 — dependencies honored:</strong> downstream projects that needed this one actually got the state they
+  depend on (or are notified).</p>
+<p><strong>Steps:</strong>
+1. Archive remaining live status under <code>## Archived YYYY-MM-DD — Project close</code>.
+2. Write a final <code>## NOTE NNN-K | YYYY-MM-DD | Project close</code> — outcome (shipped vs planned),
+   dropped/deferred items + destinations, final branch/tag/commit, successors.
+3. Orientation top → closed banner: <code>STATUS: CLOSED YYYY-MM-DD — &lt;outcome&gt;. See closeout NOTE NNN-K.</code>
+4. Frontmatter <code>status: closed</code> across the set.
+5. <code>index.md</code> project line → <code>— CLOSED YYYY-MM-DD (&lt;outcome&gt;)</code>. Keep all links.
+6. Final action-log postcard: <code>PROJECT CLOSED — &lt;outcome&gt;; N verified, M deferred (see NOTE NNN-K)</code>.
+7. Scaffold any successor project now and set its <code>## Dependencies</code> upstream pointer back to this one.</p>
+<p><strong>Reopening:</strong> frontmatter <code>status: draft</code>; add <code>## NOTE NNN-K | … | Reopened</code> (why); restore affected
+items from archive to live; update the orientation banner; log <code>PROJECT REOPENED</code>. Never delete the
+closeout note.</p>
+<p><strong>Closed is not deleted, not perfect, not silent.</strong> Closed projects are permanent record; they stay in
+the folder and index. A project may close with named/accounted-for deferred debt. Stopping without
+running this checklist is <em>abandonment</em>, not closing — prefer a real close.</p>
+<hr />
+<h2 id="overriding-these-rules-for-this-folder-local">Overriding these rules for this folder (<code>.local.</code>)</h2>
+<p>This guide is the base rulebook. To change or extend the rules <strong>for this folder only</strong>, create a
+<code>PROJECT_PLAN_GUIDE.local.md</code> beside this file with just your overrides, and reference it from this
+folder's <code>agents.md</code> (e.g. <code>@PROJECT_PLAN_GUIDE.local.md</code>) so agents load it on top of this base. Keep
+<code>.local.</code> files git-ignored. Do not edit this base to make folder-specific tweaks — put them in the
+<code>.local.</code> override so the base stays portable.</p>
+<h2 id="conventions">Conventions</h2>
+<ul>
+<li><strong>Serialization is grep-able.</strong> <code>NOTE NNN-K</code>, <code>BUG-NNN-K</code>, <code>DEBT-NNN-K</code> — one <code>grep</code> reconstructs a
+  thread.</li>
+<li><strong>Never rewrite history.</strong> Status is updated in place; notes/logs/archive are append-only; supersede
+  rather than edit.</li>
+<li><strong>Optional host integrations stay optional.</strong> If this repo keeps decision records (ADRs), objectives,
+  handoffs, or a branch-status doc, cross-reference them from the relevant docs. If it doesn't, the
+  plan is fully self-contained — <code>NOTE</code> entries are the decision record.</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>
