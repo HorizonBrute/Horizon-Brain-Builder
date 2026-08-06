@@ -1402,6 +1402,15 @@ def ensure_engine(args):
         if not src.is_file():
             die(f"--engine-tar not found: {src}")
         wsl_dir.mkdir(parents=True, exist_ok=True)
+        # The supplied tar may ALREADY be the canonical artifact — the exact path a previous
+        # build exported to, which is what an operator naturally passes when RESUMING an
+        # interrupted deploy ("use the engine you already built"). copy2() onto itself raises
+        # WinError 32 ("being used by another process") on Windows and truncates on some
+        # POSIX filesystems, so a resume crashed in stage 4/10 with a multi-GB engine sitting
+        # right there, ready to use. Same file = nothing to stage.
+        if src.resolve() == engine_tar.resolve():
+            ok(f"--engine-tar is already the staged artifact ({engine_tar.name}) — using in place")
+            return
         info(f"--engine-tar: staging supplied prebuilt engine → {engine_tar}")
         import shutil
         shutil.copy2(src, engine_tar)

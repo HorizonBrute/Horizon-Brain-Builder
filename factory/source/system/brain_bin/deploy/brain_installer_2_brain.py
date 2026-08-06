@@ -95,6 +95,20 @@ def import_engine(brain):
     disk.mkdir(parents=True, exist_ok=True)
     info(f"importing {distro} (VHDX -> {disk})...")
     p = wsl("--import", distro, str(disk), str(tar), "--version", "2")
+    # SELF-HEAL a half-registered distro. If a previous deploy was interrupted DURING the
+    # import (killed console, crash, reboot), WSL leaves the distribution flagged
+    # "install/uninstall/conversion in progress" -> RegisterDistro/0x8000000d. The distro then
+    # does NOT appear in `wsl --list` (so distro_registered() above says "not registered" and we
+    # try to import) but every subsequent import is refused, and the flag survives a WslService
+    # restart because it lives in the BRAIN account's own per-user hive. Every later deploy then
+    # failed here forever with a multi-GB engine sitting ready. `wsl --unregister` clears the
+    # flag even though the distro is unlistable, so drop the corpse and import once more.
+    if p.returncode != 0 and "registerdistro/0x8000000d" in "".join(
+            ((p.stderr or "") + (p.stdout or "")).split()).lower():
+        info(f"{distro} is half-registered from an interrupted import "
+             "(RegisterDistro/0x8000000d) — clearing the stale registration and retrying")
+        wsl("--unregister", distro)
+        p = wsl("--import", distro, str(disk), str(tar), "--version", "2")
     if p.returncode != 0:
         die(f"import failed: {p.stderr.strip() or p.stdout.strip()}")
     info(f"{distro} imported under this (brain) account")
